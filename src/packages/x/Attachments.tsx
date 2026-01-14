@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Attachment } from '../types';
+import type { Attachment } from './types';
 import { List, Typography, Button, Space, Tag } from 'antd';
 import { FileOutlined, DeleteOutlined } from '@ant-design/icons';
 
@@ -61,6 +61,7 @@ export const Attachments: React.FC<AttachmentsProps> = ({
         <div className={className} style={{ marginBottom: 16 }}>
             <List
                 size="small"
+                rowKey="id"
                 dataSource={files}
                 renderItem={(file) => (
                     <List.Item
@@ -74,6 +75,7 @@ export const Attachments: React.FC<AttachmentsProps> = ({
                             !readonly && onRemove
                                 ? [
                                     <Button
+                                        key="delete"
                                         type="text"
                                         size="small"
                                         danger

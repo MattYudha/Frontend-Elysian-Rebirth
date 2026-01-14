@@ -1,8 +1,7 @@
 'use client';
 
 import { Protected } from '@/components/Protected';
-import { ShellLayout } from '@enterprise-ai/x';
-import { useI18n } from '@enterprise-ai/x';
+
 import { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import {
@@ -16,7 +15,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 export default function DashboardPage() {
     const { t } = useTranslation();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [stats, setStats] = useState<any>(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [pipelines, setPipelines] = useState<any[]>([]);
 
     useEffect(() => {

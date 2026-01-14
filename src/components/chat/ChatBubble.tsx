@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '@/ui/primitives/avatar';
+import { Avatar, AvatarFallback } from '@/ui/primitives/avatar';
 import { Bot, User } from 'lucide-react';
 
 interface ChatBubbleProps {

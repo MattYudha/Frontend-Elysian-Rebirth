@@ -9,7 +9,7 @@ import {
   Workflow,
   Info
 } from 'lucide-react';
-import { useActivityStore, type ActivityEvent } from '@/store/activityStore';
+import { useActivityStore } from '@/store/activityStore';
 
 const iconMap = {
   chat: MessageSquare,

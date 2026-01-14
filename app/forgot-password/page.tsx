@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +13,6 @@ import { Button } from '@/ui/primitives/button';
 import { Card, CardContent } from '@/ui/primitives/card';
 import { Input } from '@/ui/primitives/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/ui/primitives/form';
-import { APP_NAME } from '@/lib/config';
 import { LandingNavbar } from '@/components/LandingNavbar';
 
 const formSchema = z.object({
@@ -22,7 +20,6 @@ const formSchema = z.object({
 });
 
 export default function ForgotPasswordPage() {
-    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({

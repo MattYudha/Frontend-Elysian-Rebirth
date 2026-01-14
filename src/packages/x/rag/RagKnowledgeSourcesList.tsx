@@ -13,6 +13,7 @@ export interface KnowledgeSource {
     embeddingModel: string;
     chunkCount: number;
     lastSync?: Date;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata?: Record<string, any>;
 }
 
@@ -98,7 +99,7 @@ export const RagKnowledgeSourcesList: React.FC<RagKnowledgeSourcesListProps> = (
         }
     };
 
-    const getTypeIcon = (type: KnowledgeSource['type']) => {
+    const getTypeIcon = (_type: KnowledgeSource['type']) => {
         return <FileTextOutlined style={{ fontSize: 24, color: '#8c8c8c' }} />;
     };
 

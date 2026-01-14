@@ -76,7 +76,9 @@ export const AiMarkdown: React.FC<AiMarkdownProps> = ({
                 remarkPlugins={[remarkGfm, remarkMath]}
                 components={{
                     // Code blocks
-                    code({ inline, className, children, ...props }: any) {
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    code({ inline, className, children, ..._props }: any) {
                         const match = /language-(\w+)/.exec(className || '');
                         const codeString = String(children).replace(/\n$/, '');
 
@@ -93,6 +95,7 @@ export const AiMarkdown: React.FC<AiMarkdownProps> = ({
                     },
 
                     // Math blocks
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     div({ className, children }: any) {
                         if (className === 'math math-display') {
                             return <MathBlock math={String(children)} displayMode={true} />;
@@ -101,6 +104,7 @@ export const AiMarkdown: React.FC<AiMarkdownProps> = ({
                     },
 
                     // Inline math
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     span({ className, children }: any) {
                         if (className === 'math math-inline') {
                             return <InlineMath math={String(children)} />;

@@ -10,7 +10,6 @@ import {
     Linkedin,
     Twitter,
     Send,
-    Heart
 } from "lucide-react";
 import Link from "next/link";
 

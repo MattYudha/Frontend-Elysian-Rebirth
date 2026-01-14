@@ -65,6 +65,7 @@ export const Sender: React.FC<SenderProps> = ({
 }) => {
     const [inputValue, setInputValue] = useState('');
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const textAreaRef = useRef<any>(null);
 
     useEffect(() => {
@@ -100,6 +101,7 @@ export const Sender: React.FC<SenderProps> = ({
         }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleFileChange = (info: any) => {
         let newFileList = [...info.fileList];
 

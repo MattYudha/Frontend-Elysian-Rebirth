@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 
 /**
  * Debounce a function call
@@ -14,6 +14,7 @@ import { useRef, useEffect, useCallback, useMemo } from 'react';
  * <input onChange={(e) => debouncedSearch(e.target.value)} />
  * ```
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useDebounce<T extends (...args: any[]) => void>(
     callback: T,
     delay: number
@@ -39,6 +40,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
             }, delay);
         }) as T,
         [callback, delay]
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     );
 }
 
@@ -54,6 +56,7 @@ export function useDebounce<T extends (...args: any[]) => void>(
  * <div onScroll={throttledScroll}>...</div>
  * ```
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useThrottle<T extends (...args: any[]) => void>(
     callback: T,
     delay: number
@@ -70,6 +73,7 @@ export function useThrottle<T extends (...args: any[]) => void>(
             }
         }) as T,
         [callback, delay]
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     );
 }
 
@@ -88,6 +92,7 @@ export function useMemoized<T>(
     factory: () => T,
     deps: React.DependencyList
 ): T {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return useMemo(factory, deps);
 }
 
@@ -120,6 +125,7 @@ export function usePrevious<T>(value: T): T | undefined {
  * });
  * ```
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useStableCallback<T extends (...args: any[]) => any>(
     callback: T
 ): T {
@@ -132,4 +138,5 @@ export function useStableCallback<T extends (...args: any[]) => any>(
     return useCallback(((...args) => {
         return callbackRef.current(...args);
     }) as T, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, MessageSquare, Plus, BookOpen, User, Scan, Zap } from 'lucide-react';
+import { Home, MessageSquare, Plus, BookOpen, User, Scan } from 'lucide-react';
 
 export function MobileBottomNav() {
     const pathname = usePathname();
@@ -37,7 +37,7 @@ export function MobileBottomNav() {
              */}
             <nav className="pointer-events-auto bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-white/50 flex justify-between items-center h-[70px] px-6 relative mx-auto max-w-sm">
 
-                {navItems.map((item, idx) => {
+                {navItems.map((item) => {
                     const isActive = activeTab === item.name;
 
                     if (item.isMain) {
@@ -48,8 +48,8 @@ export function MobileBottomNav() {
                                     href={item.href}
                                     onClick={() => setActiveTab(item.name)}
                                     className={`flex items-center justify-center w-14 h-14 rounded-full shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95 ${isActive
-                                            ? 'bg-gradient-to-tr from-blue-600 to-cyan-500 ring-4 ring-white'
-                                            : 'bg-blue-600 ring-4 ring-white'
+                                        ? 'bg-gradient-to-tr from-blue-600 to-cyan-500 ring-4 ring-white'
+                                        : 'bg-blue-600 ring-4 ring-white'
                                         }`}
                                 >
                                     <Scan className="w-6 h-6 text-white" />

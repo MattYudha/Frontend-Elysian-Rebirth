@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import type { ChatMessage, ThoughtStep, Attachment } from '../types';
+import type { ChatMessage, ThoughtStep, Attachment } from './types';
 import { Card } from 'antd';
 import { Bubble } from './Bubble';
 import { ThoughtChain } from './ThoughtChain';
 import { ThinkIndicator } from './ThinkIndicator';
 import { PromptSuggestions } from './PromptSuggestions';
 import { Sender } from './Sender';
-import { Attachments } from './Attachments';
 
 export interface ChatShellProps {
     /**

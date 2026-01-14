@@ -9,6 +9,7 @@ export type TelemetryEvent =
     | { type: 'workflow_step_run'; payload: { workflowId: string; step: string } }
     | { type: 'user_navigation'; payload: { from: string; to: string } }
     | { type: 'error_occurred'; payload: { error: string; context: string } }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | { type: 'custom'; payload: Record<string, any>; name: string };
 
 export type TelemetryHandler = (event: TelemetryEvent) => void;

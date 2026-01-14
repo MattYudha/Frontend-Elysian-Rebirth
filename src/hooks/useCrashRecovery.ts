@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
-import { useChatStore } from '@/store/chatStore';
+import { useCallback, useEffect } from 'react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRagStore } from '@/store/ragStore';
 import { message } from 'antd';
@@ -25,7 +24,6 @@ interface RecoveryData {
 }
 
 export function useCrashRecovery() {
-    const chatStore = useChatStore();
     const editorStore = useEditorStore();
     const ragStore = useRagStore();
 
@@ -74,7 +72,7 @@ export function useCrashRecovery() {
                             title: 'Recovered Document',
                             content: data.editor.content,
                             version: 0,
-                            lastModified: new Date(data.timestamp).toISOString(),
+                            lastModified: new Date(data.timestamp),
                         });
                         message.success('Editor draft restored');
                     }

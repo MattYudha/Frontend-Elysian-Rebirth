@@ -8,7 +8,6 @@ import { ThoughtChain } from './ThoughtChain';
 import { ThinkIndicator } from './ThinkIndicator';
 import { PromptSuggestions } from './PromptSuggestions';
 import { Sender } from './Sender';
-import { Attachments } from './Attachments';
 
 export interface ChatShellProps {
     /**

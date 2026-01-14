@@ -61,6 +61,7 @@ export const Attachments: React.FC<AttachmentsProps> = ({
         <div className={className} style={{ marginBottom: 16 }}>
             <List
                 size="small"
+                rowKey="id"
                 dataSource={files}
                 renderItem={(file) => (
                     <List.Item

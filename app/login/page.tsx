@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
@@ -26,7 +26,7 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
-    const { login, isAuthenticated } = useAuth();
+    const { login } = useAuth();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -58,6 +58,7 @@ export default function LoginPage() {
             sessionStorage.removeItem('redirect_after_login');
             router.push(redirectTo);
         } catch (error) {
+            console.error(error);
             toast.error('Gagal masuk. Periksa kembali email dan kata sandi Anda.');
         } finally {
             setIsLoading(false);

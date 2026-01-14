@@ -1,4 +1,4 @@
-import type { AuthProvider } from './types';
+
 
 interface AuthConfig {
     providers: {
@@ -28,6 +28,7 @@ export const authConfig: AuthConfig = {
  * Get JWT signing keys from backend
  * Supports key rotation
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getJWKS(): Promise<any> {
     if (!authConfig.jwksUrl) {
         console.warn('JWKS URL not configured');

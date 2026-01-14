@@ -16,47 +16,6 @@ export function useAuth() {
     const [isLoading, setIsLoading] = useState(true);
     const [authStatus, setAuthStatus] = useState<AuthStatus>('idle');
 
-    // Check token expiry and refresh if needed
-    const checkTokenExpiry = useCallback(async () => {
-        const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
-        if (!expiry) return;
-
-        const expiryTime = parseInt(expiry, 10);
-        const now = Date.now();
-        const timeUntilExpiry = expiryTime - now;
-
-        // If token expires in less than 5 minutes, refresh it
-        if (timeUntilExpiry < 5 * 60 * 1000 && timeUntilExpiry > 0) {
-            await refreshToken();
-        }
-    }, []);
-
-    // Auto-refresh token before expiry
-    useEffect(() => {
-        const interval = setInterval(checkTokenExpiry, 60 * 1000); // Check every minute
-        return () => clearInterval(interval);
-    }, [checkTokenExpiry]);
-
-    // Load user from storage on mount
-    useEffect(() => {
-        const token = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
-        const storedUser = typeof window !== 'undefined' ? localStorage.getItem(USER_KEY) : null;
-
-        if (token && storedUser) {
-            try {
-                const parsedUser = JSON.parse(storedUser);
-                setUser(parsedUser);
-                setIsAuthenticated(true);
-                setAuthStatus('authenticated');
-                checkTokenExpiry();
-            } catch (error) {
-                console.error('Failed to parse stored user:', error);
-                clearAuth();
-            }
-        }
-        setIsLoading(false);
-    }, [checkTokenExpiry]);
-
     const clearAuth = useCallback(() => {
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(REFRESH_TOKEN_KEY);
@@ -89,6 +48,47 @@ export function useAuth() {
             clearAuth();
         }
     }, [clearAuth]);
+
+    // Check token expiry and refresh if needed
+    const checkTokenExpiry = useCallback(async () => {
+        const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+        if (!expiry) return;
+
+        const expiryTime = parseInt(expiry, 10);
+        const now = Date.now();
+        const timeUntilExpiry = expiryTime - now;
+
+        // If token expires in less than 5 minutes, refresh it
+        if (timeUntilExpiry < 5 * 60 * 1000 && timeUntilExpiry > 0) {
+            await refreshToken();
+        }
+    }, [refreshToken]);
+
+    // Auto-refresh token before expiry
+    useEffect(() => {
+        const interval = setInterval(checkTokenExpiry, 60 * 1000); // Check every minute
+        return () => clearInterval(interval);
+    }, [checkTokenExpiry]);
+
+    // Load user from storage on mount
+    useEffect(() => {
+        const token = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+        const storedUser = typeof window !== 'undefined' ? localStorage.getItem(USER_KEY) : null;
+
+        if (token && storedUser) {
+            try {
+                const parsedUser = JSON.parse(storedUser);
+                setUser(parsedUser);
+                setIsAuthenticated(true);
+                setAuthStatus('authenticated');
+                checkTokenExpiry();
+            } catch (error) {
+                console.error('Failed to parse stored user:', error);
+                clearAuth();
+            }
+        }
+        setIsLoading(false);
+    }, [checkTokenExpiry, clearAuth]);
 
     const login = useCallback(async (credentials: LoginCredentials) => {
         setIsLoading(true);

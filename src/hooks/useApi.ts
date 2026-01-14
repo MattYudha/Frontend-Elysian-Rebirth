@@ -8,6 +8,7 @@ interface UseApiOptions<T> {
     onError?: (error: Error) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useApi<T = any, P = any>(
     apiFunction: (params: P) => Promise<T>,
     options?: UseApiOptions<T>
@@ -17,7 +18,8 @@ export function useApi<T = any, P = any>(
     const [state, setState] = useState<LoadingState>('idle');
 
     const execute = useCallback(
-        async (params: P) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        async (params: any) => { // Changed P to any based on the instruction's intent for 'any'
             setState('loading');
             setError(null);
 

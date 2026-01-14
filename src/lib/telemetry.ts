@@ -15,6 +15,7 @@ type EventType =
 
 interface TelemetryEvent {
     type: EventType;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload?: any;
     timestamp: number;
     userId?: string;
@@ -24,6 +25,7 @@ class TelemetryService {
     private events: TelemetryEvent[] = [];
     private enabled: boolean = true;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     track(type: EventType, payload?: any) {
         if (!this.enabled) return;
 
@@ -57,6 +59,7 @@ class TelemetryService {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     private async sendToBackend(event: TelemetryEvent) {
         // TODO: Implement backend telemetry endpoint
         // await fetch('/api/telemetry', {
@@ -96,7 +99,8 @@ export const toast = {
     info: (msg: string) => {
         message.info(msg);
     },
-    loading: (msg: string, key?: string) => {
-        return message.loading(msg, 0, key);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    loading: (msg: string, key?: string, _metadata?: Record<string, any>) => {
+        return message.loading({ content: msg, key, duration: 0 });
     },
 };

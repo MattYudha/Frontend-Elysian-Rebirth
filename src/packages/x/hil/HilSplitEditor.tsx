@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Button, Space, Typography, Divider } from 'antd';
+import { Card, Button, Space, Typography } from 'antd';
 import { FileTextOutlined, EditOutlined, EyeOutlined, SwapOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;

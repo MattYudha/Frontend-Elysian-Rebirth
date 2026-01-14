@@ -4,8 +4,6 @@ import { Button } from '@/ui/primitives/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/primitives/card';
 import {
     Rocket,
-    Zap,
-    Shield,
     Store,
     Truck,
     PenTool,
@@ -13,11 +11,6 @@ import {
     Utensils,
     Factory,
     GraduationCap,
-    FileText,
-    Bot,
-    Workflow,
-    Database,
-    Users,
     CheckCircle2,
     XCircle
 } from 'lucide-react';
@@ -202,6 +195,7 @@ export default function LandingPage() {
     );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function UseCaseCard({ icon: Icon, title, items, color }: { icon: any, title: string, items: string[], color: string }) {
     return (
         <Card className="hover:shadow-lg transition-shadow border-border/60">
@@ -248,13 +242,4 @@ function LogoItem({ name }: { name: string }) {
     )
 }
 
-function FeatureCheckItem({ text }: { text: string }) {
-    return (
-        <div className="flex items-center gap-3">
-            <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <span className="text-foreground/80 font-medium">{text}</span>
-        </div>
-    )
-}
+

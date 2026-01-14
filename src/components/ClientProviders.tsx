@@ -5,7 +5,7 @@ import { darkTheme } from '@/config/theme';
 import { useAuth } from '@/hooks/useAuth';
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
-    const { user } = useAuth();
+    useAuth();
 
     return (
         <ConfigProvider

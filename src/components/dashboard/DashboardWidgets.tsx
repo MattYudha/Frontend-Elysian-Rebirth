@@ -6,11 +6,7 @@ import { Button } from '@/ui/primitives/button';
 import { Progress } from '@/ui/progress';
 import {
     Info,
-    ChevronRight,
     FileText,
-    Users,
-    Send,
-    UserPlus,
     CheckCircle2,
     ArrowUpRight,
     CreditCard,
@@ -116,7 +112,7 @@ export function FinancialSummaryCard({
 
 // --- 2. Onboarding Progress Card ---
 export function OnboardingCard() {
-    const [progress, setProgress] = useState(25);
+    const [progress] = useState(25);
 
     const steps = [
         { title: 'Upload Dokumen', description: 'Simpan data dokumen Anda', icon: UploadCloud, action: 'Upload', completed: true },
@@ -141,7 +137,7 @@ export function OnboardingCard() {
                 </div>
 
                 <div className="flex items-center gap-4 mb-8">
-                    <Progress value={progress} className="h-3 bg-slate-100" indicatorClassName="bg-green-500" />
+                    <Progress value={progress} className="h-3 bg-slate-100" />
                     <span className="text-sm font-bold text-green-600 min-w-[3rem] text-right">{progress}%</span>
                 </div>
 
@@ -179,13 +175,15 @@ export function FeatureHighlightCard({
     icon: Icon,
     colorClass,
     imageSrc,
-    items
+    items: _items
 }: {
     title: string,
     subtitle: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     icon: any,
     colorClass: string,
     imageSrc?: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     items?: string[]
 }) {
     return (

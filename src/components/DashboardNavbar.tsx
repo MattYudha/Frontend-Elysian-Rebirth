@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Bell, Menu, Cloud, Sparkles, User, Settings, LogOut, HelpCircle, LayoutGrid } from 'lucide-react';
+import { Search, Bell, Cloud, Sparkles, User, Settings, LogOut, LayoutGrid } from 'lucide-react';
 import { Button } from '@/ui/primitives/button';
 import { cn } from '@/lib/utils';
 import {

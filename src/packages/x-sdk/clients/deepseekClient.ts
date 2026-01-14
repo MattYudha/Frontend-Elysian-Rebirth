@@ -21,7 +21,7 @@ export class DeepSeekClient {
     /**
      * Send a chat completion request (mock implementation)
      */
-    async chat(messages: ChatMessage[], modelConfig: ModelConfig): Promise<ChatMessage> {
+    async chat(_messages: ChatMessage[], modelConfig: ModelConfig): Promise<ChatMessage> {
         // Mock implementation - replace with actual API call
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -40,7 +40,7 @@ export class DeepSeekClient {
      * Stream a chat completion response (mock implementation)
      */
     async *chatStream(
-        messages: ChatMessage[],
+        _messages: ChatMessage[],
         _modelConfig: ModelConfig
     ): AsyncGenerator<StreamChunk> {
         // Mock streaming implementation

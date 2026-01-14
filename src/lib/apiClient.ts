@@ -1,4 +1,4 @@
-import { http } from './http';
+// import { http } from './http';
 
 // Mock data utilities
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -26,6 +26,7 @@ export interface RagSearchResult {
     content: string;
     source: string;
     score: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metadata: Record<string, any>;
 }
 
@@ -48,7 +49,8 @@ export interface DashboardStats {
 // API Client
 export const apiClient = {
     // Chat endpoints
-    async postChatMessage(message: string, conversationId?: string): Promise<ChatMessage> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async postChatMessage(message: string, _conversationId?: string): Promise<ChatMessage> {
         await delay(1000);
 
         // Mock response
@@ -103,6 +105,7 @@ export const apiClient = {
         return {
             id: `src-${Date.now()}`,
             name: file.name,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             type: file.name.split('.').pop() as any,
             size: file.size,
             uploadedAt: new Date(),
@@ -110,7 +113,8 @@ export const apiClient = {
         };
     },
 
-    async searchRag(query: string, topK: number = 5): Promise<RagSearchResult[]> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async searchRag(query: string, _topK: number = 5): Promise<RagSearchResult[]> {
         await delay(800);
 
         return [
@@ -169,6 +173,7 @@ export const apiClient = {
         };
     },
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async getActivePipelines(): Promise<any[]> {
         await delay(500);
 

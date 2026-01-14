@@ -27,6 +27,7 @@ export function useRequestLock() {
 /**
  * Debounce function calls
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useDebounce<T extends (...args: any[]) => any>(
     callback: T,
     delay: number
@@ -49,6 +50,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
 /**
  * Throttle function calls
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useThrottle<T extends (...args: any[]) => any>(
     callback: T,
     limit: number

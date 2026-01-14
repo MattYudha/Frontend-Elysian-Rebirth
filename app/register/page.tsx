@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Loader2, CheckCircle2, Flag } from 'lucide-react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
@@ -82,6 +82,7 @@ export default function RegisterPage() {
                                             <FormLabel className="text-slate-600 font-medium text-xs uppercase tracking-wide">Nomor Telepon <span className="text-red-500">*</span></FormLabel>
                                             <div className="flex items-center gap-2 border-b-2 border-slate-200 focus-within:border-blue-500 transition-colors">
                                                 <div className="flex items-center gap-1 bg-slate-50 px-2 py-1.5 rounded text-sm text-slate-600 font-medium">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img src="https://flagcdn.com/w20/id.png" alt="Indonesia" className="w-5 h-auto shadow-sm rounded-sm" />
                                                     <span>+62</span>
                                                 </div>

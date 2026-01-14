@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Layout, Typography, Space } from 'antd';
+import { Layout, Typography } from 'antd';
 import { QuickStats } from './QuickStats';
 import { KnowledgeHealthCard } from './KnowledgeHealthCard';
 import { ActivePipelinesList } from './ActivePipelinesList';

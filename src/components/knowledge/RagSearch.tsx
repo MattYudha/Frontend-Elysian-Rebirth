@@ -7,6 +7,7 @@ interface RagSearchProps {
     query: string;
     onQueryChange: (query: string) => void;
     onSearch: () => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     results: any[];
     latency?: string;
 }

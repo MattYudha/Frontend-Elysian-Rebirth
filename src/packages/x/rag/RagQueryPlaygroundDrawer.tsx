@@ -5,7 +5,7 @@ import { Drawer, Input, Button, Space, Typography, Card, Divider, Tag, Spin } fr
 import { SendOutlined, CloseOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
-const { Text, Title, Paragraph } = Typography;
+const { Text, Paragraph } = Typography;
 
 export interface RagQueryResponse {
     query: string;

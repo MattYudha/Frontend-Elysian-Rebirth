@@ -50,7 +50,7 @@ export function SessionTimeoutWarning() {
                     </DialogTitle>
                     <DialogDescription className="space-y-2">
                         <p>Your session will expire in {Math.floor(timeLeft / 60)} minutes and {timeLeft % 60} seconds.</p>
-                        <p>Click "Keep me logged in" to extend your session.</p>
+                        <p>Click &quot;Keep me logged in&quot; to extend your session.</p>
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>

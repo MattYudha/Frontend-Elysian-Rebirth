@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Progress, Typography, Space } from 'antd';
 import { DatabaseOutlined } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 export interface KnowledgeHealthData {
     synced: number;

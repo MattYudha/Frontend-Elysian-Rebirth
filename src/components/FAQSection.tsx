@@ -52,7 +52,7 @@ export function FAQSection() {
                         Bagaimana Cara Mulai Menggunakan Elysian Rebirth?
                     </AccordionTrigger>
                     <AccordionContent className="text-slate-600 dark:text-slate-400">
-                        Cukup klik tombol "Mulai Sekarang" atau "Coba Sekarang" di halaman ini untuk mendaftar akun gratis dan mulai jelajahi fitur-fitur kami dalam hitungan menit.
+                        Cukup klik tombol &quot;Mulai Sekarang&quot; atau &quot;Coba Sekarang&quot; di halaman ini untuk mendaftar akun gratis dan mulai jelajahi fitur-fitur kami dalam hitungan menit.
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

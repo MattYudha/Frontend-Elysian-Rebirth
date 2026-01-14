@@ -3,7 +3,7 @@
 import { Protected } from '@/components/Protected';
 import Image from 'next/image';
 import { Button } from '@/ui/primitives/button';
-import { FileText, Upload, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Save } from 'lucide-react';
+import { Upload, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { EditorSkeleton } from '@/components/LoadingSkeletons';
 

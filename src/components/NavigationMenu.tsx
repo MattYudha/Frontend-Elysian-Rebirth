@@ -1,14 +1,14 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useFeatureFlag } from '@enterprise-ai/x';
 import { usePathname } from 'next/navigation';
-import { mainNav, type NavItem } from '@/config/nav';
+import { mainNav } from '@/config/nav';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 
 // Icon mapping from string names to Lucide components
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const iconMap: Record<string, any> = {
     Home: LucideIcons.Home,
     Message: LucideIcons.MessageSquare,
