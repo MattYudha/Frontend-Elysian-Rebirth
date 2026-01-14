@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/ui/primitives/button';
 import { APP_NAME } from '@/lib/config';
 import { cn } from '@/lib/utils';
-import { Menu } from 'lucide-react';
+import { Menu, Search, LayoutDashboard, FileText, Zap, Bell, LifeBuoy, User, Settings } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/ui/sheet';
+import { MobileSidebar } from './MobileSidebar';
 
 export function LandingNavbar() {
     const [scrolled, setScrolled] = useState(false);
@@ -61,12 +63,34 @@ export function LandingNavbar() {
                             Daftar
                         </Button>
                     </Link>
-                    {/* Mobile Menu Toggle (Simplified) */}
-                    <Button variant="ghost" size="icon" className="md:hidden">
-                        <Menu className="h-5 w-5" />
-                    </Button>
+
+                    {/* Mobile Login Icon */}
+                    <Link href="/login" className="md:hidden">
+                        <Button variant="ghost" size="icon" className="text-slate-700 dark:text-slate-200">
+                            <User className="h-5 w-5" />
+                        </Button>
+                    </Link>
+
+                    {/* Mobile Menu Toggle (Reused from Dashboard) */}
+                    <MobileSidebar variant="landing" />
                 </div>
             </div>
         </header>
+    );
+}
+
+function MobileMenuItem({ icon: Icon, label, href, active }: { icon: any, label: string, href: string, active?: boolean }) {
+    return (
+        <Link href={href}>
+            <div className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
+                active
+                    ? "bg-blue-600/10 text-blue-400"
+                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+            )}>
+                <Icon className={cn("h-5 w-5 transition-colors", active ? "text-blue-400" : "text-slate-500 group-hover:text-slate-300")} />
+                <span className="font-medium text-sm">{label}</span>
+            </div>
+        </Link>
     );
 }

@@ -1,157 +1,112 @@
 'use client';
 
 import { Protected } from '@/components/Protected';
-import { PageHeader } from '@/components/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/ui/primitives/card';
 import { Button } from '@/ui/primitives/button';
-import { Switch } from '@/ui/primitives/switch';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card';
+import { Input } from '@/ui/primitives/input';
 import { Label } from '@/ui/primitives/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/primitives/select';
-import { Separator } from '@/ui/primitives/separator';
-import { Moon, Sun, Globe, Bell, Shield, Save } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { Switch } from '@/ui/switch';
+import { Bell, Lock, User, Palette } from 'lucide-react';
+import Image from 'next/image';
 
 export default function SettingsPage() {
-    const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-    const [language, setLanguage] = useState('en');
-    const [notifications, setNotifications] = useState(true);
-    const [advancedMode, setAdvancedMode] = useState(false);
-
-    // Prevent hydration mismatch for theme
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    const handleSave = () => {
-        toast.success('Settings saved successfully');
-        console.log({
-            theme,
-            language,
-            notifications,
-            advancedMode
-        });
-    };
-
-    if (!mounted) {
-        return null;
-    }
-
     return (
-        <Protected requiredRoles={['admin', 'editor']}>
-            <div className="max-w-4xl space-y-8">
-                <PageHeader
-                    title="Settings"
-                    subtitle="Manage your platform preferences and configurations."
-                />
-
-                <div className="grid gap-6">
-                    {/* Appearance */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                                Appearance
-                            </CardTitle>
-                            <CardDescription>Customize the look and feel of the platform.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <Label className="text-base">Dark Mode</Label>
-                                <p className="text-sm text-muted-foreground">
-                                    Toggle between light and dark themes.
-                                </p>
-                            </div>
-                            <Switch
-                                checked={theme === 'dark'}
-                                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                            />
-                        </CardContent>
-                    </Card>
-
-                    {/* Language */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Globe className="h-5 w-5" />
-                                Language & Region
-                            </CardTitle>
-                            <CardDescription>Set your preferred language for the interface.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <Label className="text-base">Language</Label>
-                                <p className="text-sm text-muted-foreground">
-                                    Select your primary language.
-                                </p>
-                            </div>
-                            <Select value={language} onValueChange={setLanguage}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Select language" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="en">English</SelectItem>
-                                    <SelectItem value="id">Bahasa Indonesia</SelectItem>
-                                    <SelectItem value="zh">中文</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </CardContent>
-                    </Card>
-
-                    {/* Notifications */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Bell className="h-5 w-5" />
-                                Notifications
-                            </CardTitle>
-                            <CardDescription>Configure how you receive alerts and updates.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <Label className="text-base">Enable Notifications</Label>
-                                <p className="text-sm text-muted-foreground">
-                                    Receive push notifications for important events.
-                                </p>
-                            </div>
-                            <Switch
-                                checked={notifications}
-                                onCheckedChange={setNotifications}
-                            />
-                        </CardContent>
-                    </Card>
-
-                    {/* Advanced */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Shield className="h-5 w-5" />
-                                Advanced
-                            </CardTitle>
-                            <CardDescription>Developer tools and experimental features.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <Label className="text-base">Advanced Mode</Label>
-                                <p className="text-sm text-muted-foreground">
-                                    Enable debugging tools and extended metrics.
-                                </p>
-                            </div>
-                            <Switch
-                                checked={advancedMode}
-                                onCheckedChange={setAdvancedMode}
-                            />
-                        </CardContent>
-                    </Card>
+        <Protected>
+            <div className="container max-w-5xl mx-auto py-8 space-y-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-900">Pengaturan</h1>
+                    <p className="text-slate-500">Kelola preferensi dan informasi akun Anda.</p>
                 </div>
 
-                <div className="flex justify-end pt-4">
-                    <Button size="lg" onClick={handleSave} className="gap-2">
-                        <Save className="h-4 w-4" />
-                        Save Changes
-                    </Button>
+                <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
+                    {/* Settings Sidebar */}
+                    <nav className="flex flex-col gap-2">
+                        <Button variant="ghost" className="justify-start font-semibold bg-blue-50 text-blue-700">
+                            <User className="mr-2 h-4 w-4" />
+                            Profil
+                        </Button>
+                        <Button variant="ghost" className="justify-start text-slate-600 hover:text-slate-900">
+                            <Lock className="mr-2 h-4 w-4" />
+                            Keamanan
+                        </Button>
+                        <Button variant="ghost" className="justify-start text-slate-600 hover:text-slate-900">
+                            <Palette className="mr-2 h-4 w-4" />
+                            Tampilan
+                        </Button>
+                        <Button variant="ghost" className="justify-start text-slate-600 hover:text-slate-900">
+                            <Bell className="mr-2 h-4 w-4" />
+                            Notifikasi
+                        </Button>
+                    </nav>
+
+                    {/* Main Settings Content */}
+                    <div className="space-y-6">
+                        {/* Profile Card */}
+                        <Card className="border shadow-sm">
+                            <CardHeader>
+                                <CardTitle>Profil Pengguna</CardTitle>
+                                <CardDescription>Informasi pribadi yang akan ditampilkan di akun Anda.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="flex items-center gap-6">
+                                    <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-slate-100">
+                                        <Image src="/public/avatar-placeholder.png" alt="Avatar" width={80} height={80} className="object-cover bg-slate-200" />
+                                        {/* Fallback text if image missing usually handled by Avatar component, simplifying here */}
+                                        <div className="absolute inset-0 flex items-center justify-center bg-slate-200 text-slate-400 font-bold text-xl">
+                                            JD
+                                        </div>
+                                    </div>
+                                    <Button variant="outline" size="sm">Ganti Foto</Button>
+                                </div>
+
+                                <div className="grid gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="name">Nama Lengkap</Label>
+                                        <Input id="name" defaultValue="John Doe" />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="email">Email</Label>
+                                        <Input id="email" defaultValue="john.doe@example.com" disabled />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="phone">Nomor Telepon</Label>
+                                        <Input id="phone" placeholder="+62..." />
+                                    </div>
+                                </div>
+                                <div className="flex justify-end">
+                                    <Button className="bg-blue-600 hover:bg-blue-700">Simpan Perubahan</Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Interface Settings */}
+                        <Card className="border shadow-sm">
+                            <CardHeader>
+                                <CardTitle>Preferensi</CardTitle>
+                                <CardDescription>Sesuaikan pengalaman penggunaan aplikasi.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base">Mode Gelap</Label>
+                                        <p className="text-sm text-slate-500">
+                                            Aktifkan tampilan gelap untuk kenyamanan mata.
+                                        </p>
+                                    </div>
+                                    <Switch />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base">Notifikasi Email</Label>
+                                        <p className="text-sm text-slate-500">
+                                            Terima update mingguan tentang aktivitas dokumen.
+                                        </p>
+                                    </div>
+                                    <Switch defaultChecked />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </Protected>

@@ -151,13 +151,13 @@ export default function LoginPage() {
                                                 </FormItem>
                                             )}
                                         />
-                                        <Link href="#" className="text-xs text-blue-500 hover:underline">
+                                        <Link href="/forgot-password" className="text-xs text-blue-500 hover:underline">
                                             Lupa kata sandi?
                                         </Link>
                                     </div>
 
                                     <div className="text-center text-xs text-slate-500 mt-6">
-                                        Belum memiliki akun {APP_NAME}? <Link href="#" className="text-blue-500 font-semibold hover:underline">Daftar Sekarang</Link>
+                                        Belum memiliki akun {APP_NAME}? <Link href="/register" className="text-blue-500 font-semibold hover:underline">Daftar Sekarang</Link>
                                     </div>
 
                                 </form>
@@ -186,10 +186,6 @@ export default function LoginPage() {
             </div>
 
             {/* Brand Logo Top Right */}
-            <div className="absolute top-8 right-8 text-white text-xl font-bold flex items-center gap-2">
-                {/* <span className="bg-white/20 p-1 rounded">ER</span> */}
-                {APP_NAME}
-            </div>
 
             {/* Footer Help Button */}
             <div className="absolute bottom-8 right-8">

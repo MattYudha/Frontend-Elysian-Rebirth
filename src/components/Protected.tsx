@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
+import { DashboardNavbar } from './DashboardNavbar';
 
 interface ProtectedProps {
     children: React.ReactNode;
@@ -52,5 +53,12 @@ export function Protected({ children, requiredRoles, fallback }: ProtectedProps)
         );
     }
 
-    return <>{children}</>;
+    return (
+        <div className="min-h-screen flex flex-col bg-slate-50/50">
+            <DashboardNavbar />
+            <main className="flex-1 pt-24 md:pt-28 pb-24 md:pb-8 px-4 md:px-8">
+                {children}
+            </main>
+        </div>
+    );
 }

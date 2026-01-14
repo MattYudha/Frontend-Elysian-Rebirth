@@ -8,8 +8,10 @@ export function Sidebar() {
     return (
         <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-sm hidden md:flex flex-col h-screen sticky top-0">
             <div className="p-6 border-b border-border">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-teal-400 bg-clip-text text-transparent">
-                    {APP_NAME}
+                <h1 className="text-2xl font-extrabold tracking-tight">
+                    <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 bg-clip-text text-transparent drop-shadow-sm">
+                        {APP_NAME}
+                    </span>
                 </h1>
             </div>
             <div className="flex-1 p-4 overflow-y-auto">
