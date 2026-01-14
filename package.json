@@ -11,9 +11,6 @@
     },
     "dependencies": {
         "@ant-design/icons": "^5.2.6",
-        "@enterprise-ai/x": "1.0.0",
-        "@enterprise-ai/x-markdown": "1.0.0",
-        "@enterprise-ai/x-sdk": "1.0.0",
         "@hookform/resolvers": "^5.2.2",
         "@radix-ui/react-accordion": "^1.2.12",
         "@radix-ui/react-alert-dialog": "^1.1.15",

@@ -28,13 +28,13 @@
                 "./src/*"
             ],
             "@enterprise-ai/x": [
-                "../../packages/x/src"
+                "./src/packages/x"
             ],
             "@enterprise-ai/x-sdk": [
-                "../../packages/x-sdk/src"
+                "./src/packages/x-sdk"
             ],
             "@enterprise-ai/x-markdown": [
-                "../../packages/x-markdown/src"
+                "./src/packages/x-markdown"
             ]
         },
         "baseUrl": ".",

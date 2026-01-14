@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    transpilePackages: ['@enterprise-ai/x', '@enterprise-ai/x-sdk', '@enterprise-ai/x-markdown'],
-
     async headers() {
         return [
             {
