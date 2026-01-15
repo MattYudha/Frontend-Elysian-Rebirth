@@ -1,161 +1,128 @@
 'use client';
 
 import { Protected } from '@/components/Protected';
-import Image from 'next/image';
-import { Button } from '@/ui/primitives/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
-import { Input } from '@/ui/primitives/input';
-import { BookOpen, Search, FileText, ChevronRight, Zap, Code, CreditCard } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { KnowledgeSkeleton } from '@/components/LoadingSkeletons';
+import { ValueDashboard } from '@/components/knowledge/modern/ValueDashboard';
+import { KnowledgeLayout } from '@/components/knowledge/modern/KnowledgeLayout';
+import { SourceCard } from '@/components/knowledge/modern/SourceCard';
+import { WorkloadHub } from '@/components/knowledge/modern/WorkloadHub';
+import { LedgerView } from '@/components/knowledge/modern/LedgerView';
+import { ReviewQueue } from '@/components/knowledge/modern/ReviewQueue';
+import { RagSource, apiClient, PipelineStats } from '@/lib/apiClient';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function KnowledgeBasePage() {
-    const [isExploring, setIsExploring] = useState(false);
+    const [sources, setSources] = useState<RagSource[]>([]);
+    const [stats, setStats] = useState<PipelineStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const categories = [
-        { title: 'Memulai', icon: Zap, color: 'text-yellow-500', bg: 'bg-yellow-50', count: '5 Artikel' },
-        { title: 'Dokumentasi Teknis', icon: Code, color: 'text-blue-500', bg: 'bg-blue-50', count: '12 Artikel' },
-        { title: 'Billing & Akun', icon: CreditCard, color: 'text-green-500', bg: 'bg-green-50', count: '8 Artikel' },
-        { title: 'Panduan Ekspor', icon: FileText, color: 'text-purple-500', bg: 'bg-purple-50', count: '4 Artikel' },
-    ];
+    // Tab State
+    const [activeTab, setActiveTab] = useState("pipeline");
 
-    const recentArticles = [
-        'Cara mengupload dokumen pertama Anda',
-        'Mengintegrasikan API Elysian dengan NodeJS',
-        'Memahami format data hasil ekspor Excel',
-        'Cara upgrade paket enterprise',
-    ];
-
+    // Load Data
     useEffect(() => {
-        const lastActive = localStorage.getItem('elysian_knowledge_last_active');
-        if (lastActive) {
-            const timeDiff = Date.now() - parseInt(lastActive, 10);
-            if (timeDiff < 86400000) { // 24 hours
-                setIsExploring(true);
+        const fetchData = async () => {
+            try {
+                const [sourceData, statsData] = await Promise.all([
+                    apiClient.getRagSources(),
+                    apiClient.getPipelineStats()
+                ]);
+                setSources(sourceData);
+                setStats(statsData);
+            } catch (error) {
+                toast.error('Gagal memuat data enterprise');
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-        }
-        // Artificial delay for skeleton demo
-        setTimeout(() => setIsLoading(false), 800);
+        };
+
+        fetchData();
     }, []);
 
-    const handleExplore = () => {
-        setIsExploring(true);
-        localStorage.setItem('elysian_knowledge_last_active', Date.now().toString());
+    // Handlers
+    const handleUpload = () => toast.success('Upload disimulasikan!');
+    const handleReview = (id: string, action: 'approve' | 'reject') => {
+        toast.success(`Dokumen ${action === 'approve' ? 'disetujui' : 'ditolak'}`);
+        setSources(prev => prev.map(s => s.id === id ? { ...s, executionStatus: 'executed', confidenceScore: 1 } : s));
+    };
+    const handleDelete = (id: string) => {
+        setSources(prev => prev.filter(s => s.id !== id));
+        toast.success('Dokumen dihapus');
     };
 
-    if (isLoading) return <KnowledgeSkeleton />;
+    // derived state
+    const reviewItems = sources.filter(s => s.executionStatus === 'pending_review' || s.confidenceScore < 0.8);
+    const pipelineItems = sources.filter(s => !reviewItems.includes(s));
 
     return (
         <Protected>
-            <div className="flex flex-col h-[calc(100vh-6rem)]">
-                {!isExploring ? (
-                    // Landing / Empty State
-                    <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
-                        <div className="relative w-64 h-64 mb-8 animate-float delay-100">
-                            <Image
-                                src="/elysian_empty_knowledge.png"
-                                alt="Knowledge Base"
-                                fill
-                                className="object-contain drop-shadow-2xl"
-                                priority
-                            />
-                            <div className="absolute inset-0 bg-blue-500/5 blur-3xl rounded-full -z-10" />
-                        </div>
+            <div className="light">
+                <KnowledgeLayout
+                    // Hero Section
+                    hero={
+                        <div className="flex flex-col gap-6">
+                            {/* 1. Value Hero */}
+                            {stats && <ValueDashboard stats={stats} onUpload={handleUpload} />}
 
-                        <div className="max-w-md space-y-4">
-                            <h1 className="text-2xl font-bold text-slate-900">Pusat Pengetahuan</h1>
-                            <p className="text-slate-500">
-                                Akses ribuan artikel, panduan, dan dokumentasi teknis untuk memaksimalkan penggunaan platform Elysian.
-                            </p>
-                            <div className="flex gap-4 justify-center">
-                                <Button
-                                    onClick={handleExplore}
-                                    variant="outline"
-                                    className="rounded-full px-6 py-6 border-slate-200 text-slate-600 hover:bg-slate-50"
-                                >
-                                    <Search className="mr-2 h-4 w-4" />
-                                    Cari Panduan
-                                </Button>
-                                <Button
-                                    onClick={handleExplore}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 py-6 shadow-lg shadow-blue-500/25"
-                                >
-                                    <BookOpen className="mr-2 h-5 w-5" />
-                                    Jelajahi Topik
-                                </Button>
-                            </div>
+                            {/* 2. KPI Chips (Directly under Hero) */}
+                            {stats && <WorkloadHub stats={stats} />}
                         </div>
-                    </div>
-                ) : (
-                    // Functional Knowledge Base Dashboard
-                    <div className="container max-w-6xl mx-auto p-6 space-y-8 animate-in slide-in-from-bottom-5 duration-500">
-                        {/* Header & Search */}
-                        <div className="text-center space-y-4 py-8">
-                            <h1 className="text-3xl font-bold text-slate-900">Bagaimana kami bisa membantu?</h1>
-                            <div className="max-w-2xl mx-auto relative">
-                                <Input
-                                    placeholder="Cari artikel, topik, atau kata kunci..."
-                                    className="pl-12 py-6 rounded-full shadow-sm text-lg"
-                                />
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                            </div>
-                        </div>
+                    }
+                >
+                    {/* 3. Tabs & Content */}
+                    <Tabs defaultValue="pipeline" className="w-full space-y-6" onValueChange={setActiveTab}>
+                        {/* Clean Tab List - Close to Hero */}
+                        <TabsList className="grid w-full grid-cols-3 max-w-[400px] bg-slate-100 p-1 rounded-xl">
+                            <TabsTrigger value="pipeline" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm font-medium">Pipeline</TabsTrigger>
+                            <TabsTrigger value="review" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-600 data-[state=active]:shadow-sm font-medium">
+                                Review
+                                {reviewItems.length > 0 && <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-amber-100 text-amber-700 rounded-full font-bold">{reviewItems.length}</span>}
+                            </TabsTrigger>
+                            <TabsTrigger value="ledger" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm font-medium">Buku Besar</TabsTrigger>
+                        </TabsList>
 
-                        {/* Categories Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {categories.map((cat, idx) => (
-                                <Card key={idx} className="hover:shadow-md transition-shadow cursor-pointer border-slate-200">
-                                    <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                                        <div className={`p-4 rounded-full ${cat.bg}`}>
-                                            <cat.icon className={`h-8 w-8 ${cat.color}`} />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-slate-900">{cat.title}</h3>
-                                            <p className="text-xs text-slate-500">{cat.count}</p>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-
-                        {/* Recent Articles & Help Box */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div className="lg:col-span-2">
-                                <h2 className="text-xl font-bold text-slate-900 mb-4">Artikel Populer</h2>
-                                <div className="space-y-3">
-                                    {recentArticles.map((article, idx) => (
-                                        <div key={idx} className="group flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer">
-                                            <div className="flex items-center gap-3">
-                                                <div className="bg-slate-100 p-2 rounded-lg group-hover:bg-white text-slate-400 group-hover:text-blue-500">
-                                                    <FileText className="h-4 w-4" />
-                                                </div>
-                                                <span className="text-slate-700 font-medium group-hover:text-blue-700">{article}</span>
-                                            </div>
-                                            <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-transform" />
-                                        </div>
-                                    ))}
+                        {/* Tab: Pipeline (Ingest & Process) */}
+                        <TabsContent value="pipeline" className="space-y-8 animate-in slide-in-from-bottom-2 duration-300">
+                            <div>
+                                <div className="flex items-center justify-between mb-4 px-1">
+                                    <h3 className="text-lg font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                                        <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
+                                        Dokumen Aktif
+                                    </h3>
+                                    <button className="text-sm text-blue-600 hover:text-blue-700 font-semibold hover:underline">Lihat Semua</button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                    {isLoading ? [1, 2, 3, 4].map(i => <div key={i} className="h-48 bg-slate-100/80 rounded-2xl animate-pulse" />) :
+                                        pipelineItems.map((source) => (
+                                            <SourceCard key={source.id} source={source} onDelete={handleDelete} />
+                                        ))
+                                    }
                                 </div>
                             </div>
+                        </TabsContent>
 
-                            <div>
-                                <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-none shadow-xl">
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">Butuh Bantuan Lebih?</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <p className="text-blue-100 text-sm">
-                                            Tim support kami siap membantu Anda 24/7 jika Anda tidak menemukan jawaban yang Anda cari.
-                                        </p>
-                                        <Button className="w-full bg-white text-blue-600 hover:bg-blue-50">
-                                            Hubungi Support
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                        {/* Tab: Review (Human Loop) */}
+                        <TabsContent value="review" className="animate-in slide-in-from-bottom-2 duration-300">
+                            <ReviewQueue items={reviewItems} onReview={handleReview} />
+                            {reviewItems.length === 0 && (
+                                <div className="flex flex-col items-center justify-center py-20 text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                                    <div className="p-4 bg-white rounded-full mb-3 shadow-sm">
+                                        <span className="text-2xl">🎉</span>
+                                    </div>
+                                    <p className="font-medium">Semua beres! Tidak ada dokumen yang perlu direview.</p>
+                                    <p className="text-sm text-slate-400 mt-1">Sistem berjalan dengan akurasi 100% hari ini.</p>
+                                </div>
+                            )}
+                        </TabsContent>
+
+                        {/* Tab: Ledger (Results) */}
+                        <TabsContent value="ledger" className="animate-in slide-in-from-bottom-2 duration-300">
+                            <LedgerView />
+                        </TabsContent>
+                    </Tabs>
+                </KnowledgeLayout>
             </div>
         </Protected>
     );

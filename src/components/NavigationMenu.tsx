@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useSidebar } from '@/contexts/SidebarContext';
 import { usePathname } from 'next/navigation';
 import { mainNav } from '@/config/nav';
 import Link from 'next/link';
@@ -10,8 +11,8 @@ import * as LucideIcons from 'lucide-react';
 // Icon mapping from string names to Lucide components
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const iconMap: Record<string, any> = {
-    Home: LucideIcons.Home,
-    Message: LucideIcons.MessageSquare,
+    Home: LucideIcons.LayoutDashboard, // More distinct dashboard icon
+    Message: LucideIcons.MessageCircle, // Requested change
     Book: LucideIcons.Book,
     Settings: LucideIcons.Settings,
     Workflow: LucideIcons.Workflow,
@@ -24,6 +25,7 @@ const iconMap: Record<string, any> = {
 
 export function NavigationMenu() {
     const { hasAnyRole } = useAuth();
+    const { isOpen } = useSidebar();
     const pathname = usePathname();
 
     const filteredNav = mainNav.filter((item) => {
@@ -52,13 +54,14 @@ export function NavigationMenu() {
                         href={item.href}
                         className={cn(
                             'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                            !isOpen && 'justify-center px-2',
                             isActive
-                                ? 'bg-primary text-primary-foreground'
-                                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+                                : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
                         )}
                     >
-                        <Icon className="h-5 w-5" />
-                        {item.label}
+                        <Icon className={cn("h-5 w-5", !isOpen && "mr-0")} />
+                        {isOpen && <span className="animate-in fade-in duration-200">{item.label}</span>}
                     </Link>
                 );
             })}

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 import { ThemeProvider } from 'next-themes';
 import {
     TelemetryProvider,
@@ -26,14 +27,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <PermissionsProvider permissions={['admin', 'editor']} roles={['admin']}>
                         <FeatureFlagsProvider flags={{ advancedMode: true }}>
                             <CrashRecoveryProvider>
-                                <OfflineBanner />
-                                <SessionTimeoutWarning />
-                                <div className="pb-28 md:pb-0">
-                                    {children}
-                                </div>
-                                <Toaster />
-                                <MobileBottomNav />
-                                {pathname === '/' && <SiteFooter />}
+                                <SidebarProvider>
+                                    <OfflineBanner />
+                                    <SessionTimeoutWarning />
+                                    <div className="pb-28 md:pb-0">
+                                        {children}
+                                    </div>
+                                    <Toaster />
+                                    <MobileBottomNav />
+                                    {pathname === '/' && <SiteFooter />}
+                                </SidebarProvider>
                             </CrashRecoveryProvider>
                         </FeatureFlagsProvider>
                     </PermissionsProvider>

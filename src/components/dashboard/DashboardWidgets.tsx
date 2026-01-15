@@ -115,50 +115,80 @@ export function OnboardingCard() {
     const [progress] = useState(25);
 
     const steps = [
-        { title: 'Upload Dokumen', description: 'Simpan data dokumen Anda', icon: UploadCloud, action: 'Upload', completed: true },
-        { title: 'Analisa AI', description: 'Ekstrak data otomatis', icon: Search, action: 'Analisa', completed: false },
-        { title: 'Validasi Data', description: 'Konfirmasi hasil ekstraksi', icon: CheckCircle2, action: 'Validasi', completed: false },
-        { title: 'Export Data', description: 'Simpan ke database/Excel', icon: FileText, action: 'Export', completed: false },
+        { title: 'Upload Dokumen', description: 'Simpan data dokumen Anda', icon: UploadCloud, action: 'Upload Dokumen', completed: true },
+        { title: 'Analisa AI', description: 'Ekstrak data otomatis', icon: Search, action: 'Analisa Data', completed: false },
+        { title: 'Validasi Data', description: 'Konfirmasi hasil ekstraksi', icon: CheckCircle2, action: 'Validasi Hasil', completed: false },
+        { title: 'Export Data', description: 'Simpan ke database/Excel', icon: FileText, action: 'Export Data', completed: false },
     ];
 
     return (
-        <Card className="border-0 shadow-lg bg-white rounded-xl overflow-hidden mb-8">
+        <Card className="border-0 shadow-sm bg-white rounded-xl overflow-hidden mb-8 ring-1 ring-slate-100">
             <CardContent className="p-6">
-                <div className="flex items-start gap-4 mb-6">
-                    <div className="bg-green-100 p-3 rounded-full">
-                        <CheckCircle2 className="h-6 w-6 text-green-600" />
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row gap-6 mb-8">
+                    {/* Badge Icon from payment.png */}
+                    <div className="flex-shrink-0">
+                        <div className="relative w-16 h-20">
+                            <Image
+                                src="/payment.png"
+                                alt="Feature Badge"
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-lg font-bold text-slate-900">Coba Fitur Elysian Sekarang!</h3>
-                        <p className="text-slate-500 text-sm">
-                            Gratis akses fitur premium selama 1 bulan untuk mencoba langsung kemudahan otomatisasi dokumen.
+
+                    {/* Text Content */}
+                    <div className="flex-1 pt-1">
+                        <h3 className="text-xl font-bold text-slate-800 mb-2">Coba Fitur Elysian Sekarang!</h3>
+                        <p className="text-slate-500 text-sm leading-relaxed max-w-2xl">
+                            Gratis akses fitur premium selama 1 bulan untuk biaya operasional lebih murah dengan mencoba langsung fitur dibawah ini. <span className="text-blue-600 font-semibold cursor-pointer hover:underline">Lihat keuntungan.</span>
                         </p>
                     </div>
                 </div>
 
+                {/* Progress Bar Section */}
                 <div className="flex items-center gap-4 mb-8">
-                    <Progress value={progress} className="h-3 bg-slate-100" />
-                    <span className="text-sm font-bold text-green-600 min-w-[3rem] text-right">{progress}%</span>
+                    <div className="flex-1 relative h-4 bg-blue-50 rounded-full overflow-hidden">
+                        <div
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-1000"
+                            style={{ width: `${progress}%` }}
+                        />
+                    </div>
+                    <span className="text-sm font-bold text-green-600 min-w-[2.5rem]">{progress}%</span>
+                    <Button className="hidden md:flex bg-blue-100/50 hover:bg-blue-100 text-blue-600 font-semibold border-0 shadow-none rounded-full px-6">
+                        Klaim Hadiah Sekarang
+                    </Button>
                 </div>
 
+                {/* Mobile Button (visible only on small screens) */}
+                <div className="md:hidden mb-8">
+                    <Button className="w-full bg-blue-100/50 hover:bg-blue-100 text-blue-600 font-semibold border-0 shadow-none rounded-full">
+                        Klaim Hadiah Sekarang
+                    </Button>
+                </div>
+
+                {/* Steps Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {steps.map((step, idx) => (
-                        <div key={idx} className={`border rounded-lg p-4 flex flex-col justify-between h-full transition-all hover:shadow-md ${step.completed ? 'bg-green-50/50 border-green-100' : 'bg-white border-slate-200'}`}>
+                        <div key={idx} className={`border rounded-xl p-5 flex flex-col justify-between h-full min-h-[160px] transition-all hover:shadow-md ${step.completed ? 'bg-white border-slate-200' : 'bg-white border-slate-200'}`}>
                             <div className="mb-4">
-                                <h4 className={`font-bold mb-1 ${step.completed ? 'text-green-700' : 'text-slate-800'}`}>{step.title}</h4>
-                                <p className="text-xs text-slate-500">{step.description}</p>
+                                <h4 className="font-bold text-slate-800 text-sm mb-2">{step.title}</h4>
+                                <p className="text-xs text-slate-500 leading-snug">{step.description}</p>
                             </div>
 
                             {step.completed ? (
                                 <div className="mt-auto flex justify-end">
-                                    <div className="bg-green-500 rounded-full p-1">
-                                        <CheckCircle2 className="h-4 w-4 text-white" />
+                                    <div className="bg-green-500 rounded-full p-0.5">
+                                        <CheckCircle2 className="h-5 w-5 text-white" />
                                     </div>
                                 </div>
                             ) : (
-                                <Button variant="outline" size="sm" className="w-full mt-auto border-blue-500 text-blue-600 hover:bg-blue-50">
-                                    {step.action}
-                                </Button>
+                                <div className="mt-auto pt-4">
+                                    <button className="text-sm font-bold text-blue-500 hover:text-blue-600 transition-colors text-left">
+                                        {step.action}
+                                    </button>
+                                </div>
                             )}
                         </div>
                     ))}

@@ -15,6 +15,7 @@ import {
     DropdownMenuTrigger,
 } from '@/ui/dropdown-menu';
 import { MobileSidebar } from './MobileSidebar';
+import { NotificationPopover } from '@/components/NotificationPopover';
 
 // Placeholder for user avatar
 const UserAvatar = () => (
@@ -113,17 +114,7 @@ export function DashboardNavbar() {
                 {/* Right Side: Actions */}
                 <div className="flex items-center gap-1 sm:gap-2">
 
-                    {/* Search Icon (Replaces the Bar) */}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn(
-                            "rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all",
-                            scrolled ? "h-9 w-9" : "h-10 w-10 bg-white/50"
-                        )}
-                    >
-                        <Search className="h-5 w-5" />
-                    </Button>
+
 
                     <Button
                         variant="ghost"
@@ -136,17 +127,13 @@ export function DashboardNavbar() {
                         <LayoutGrid className="h-5 w-5" />
                     </Button>
 
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn(
-                            "rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 relative transition-all",
-                            scrolled ? "h-9 w-9" : "h-10 w-10 bg-white/50"
-                        )}
-                    >
-                        <Bell className="h-5 w-5" />
-                        <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-500 border border-white" />
-                    </Button>
+                    {/* Notification Popover */}
+                    <div className={cn(
+                        "rounded-full transition-all flex items-center justify-center",
+                        scrolled ? "h-9 w-9" : "h-10 w-10 bg-white/50"
+                    )}>
+                        <NotificationPopover />
+                    </div>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
