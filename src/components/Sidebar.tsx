@@ -4,7 +4,6 @@ import Link from 'next/link';
 
 import { NavigationMenu } from '@/components/NavigationMenu';
 import { GettingStartedWidget } from '@/components/GettingStartedWidget';
-import { APP_NAME } from '@/lib/config';
 import { User, Command, ChevronsLeft, HelpCircle } from 'lucide-react';
 import { Button } from '@/ui/primitives/button';
 import { useSidebar } from '@/contexts/SidebarContext';
@@ -15,7 +14,7 @@ export function Sidebar() {
 
     return (
         <aside className={cn(
-            "border-r border-blue-100 bg-white relative hidden md:flex flex-col h-[100dvh] sticky top-0 overflow-hidden shadow-sm z-30 transition-all duration-300 ease-in-out",
+            "border-r border-blue-100 bg-white relative hidden md:flex flex-col h-full overflow-hidden shadow-sm z-30 transition-all duration-300 ease-in-out",
             isOpen ? "w-64" : "w-20"
         )}>
             {/* Visual Identity: Elysian Clouds Background - INCREASED OPACITY */}

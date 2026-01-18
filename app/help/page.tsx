@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
-import { Button } from '@/ui/primitives/button';
 import { Input } from '@/ui/primitives/input';
-import { Search, ChevronRight, MessageCircle, Phone, Mail, MapPin, Rocket } from 'lucide-react';
+import { Search, MessageCircle, Phone, Mail, MapPin, Rocket } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HelpPage() {

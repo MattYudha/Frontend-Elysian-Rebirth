@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react"
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
-type ToasterToast = any // Simplified for now, should match ToastProps
-type ToastActionElement = React.ReactElement
+
 
 let count = 0
 
@@ -13,12 +13,7 @@ function genId() {
     return count.toString()
 }
 
-type ActionType = {
-    ADD_TOAST: "ADD_TOAST"
-    UPDATE_TOAST: "UPDATE_TOAST"
-    DISMISS_TOAST: "DISMISS_TOAST"
-    REMOVE_TOAST: "REMOVE_TOAST"
-}
+
 
 let memoryState: any = { toasts: [] }
 

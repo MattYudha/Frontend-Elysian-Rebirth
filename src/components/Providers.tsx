@@ -17,6 +17,8 @@ import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Toaster } from '@/ui/sonner';
 
+import { GlobalCommandDialog } from '@/components/command/GlobalCommandDialog';
+
 export function Providers({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
@@ -30,6 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                                 <SidebarProvider>
                                     <OfflineBanner />
                                     <SessionTimeoutWarning />
+                                    <GlobalCommandDialog />
                                     <div className="pb-28 md:pb-0">
                                         {children}
                                     </div>

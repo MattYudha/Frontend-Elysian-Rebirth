@@ -1,318 +1,152 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
-import { Button } from '@/ui/primitives/button';
-import { Progress } from '@/ui/progress';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
-    Info,
-    FileText,
-    CheckCircle2,
-    ArrowUpRight,
-    CreditCard,
-    BookOpen,
-    UploadCloud,
-    Search
-} from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+    Wallet, Sparkles, BookOpen, ExternalLink,
+    ArrowRight, UploadCloud, Download, Gift
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// --- 1. Top Financial Cards ---
-
+// --- 1. Total Balance Card (Hero Business Widget) ---
 export function TotalBalanceCard() {
     return (
-        <div className="rounded-xl overflow-hidden shadow-lg flex flex-col justify-between h-full bg-gradient-to-r from-[#7cb342] to-[#1e88e5] text-white relative min-h-[180px]">
-            {/* Main Content */}
-            <div className="p-5 relative z-10 flex-1 flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-2 opacity-90">
-                    <span className="font-semibold text-sm">Total Saldo Aktif</span>
-                    <Info className="h-4 w-4 cursor-pointer" />
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 p-6 text-white shadow-lg h-full flex flex-col justify-between">
+            <div className="relative z-10 flex justify-between items-start">
+                <div>
+                    <p className="text-emerald-100 text-sm font-medium mb-1">Total Saldo Aktif</p>
+                    <h2 className="text-3xl font-bold tracking-tight">Rp 42.500.000</h2>
                 </div>
-
-                <h2 className="text-3xl font-bold tracking-tight mb-2">Rp - - - - -</h2>
-
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:block">
-                    <Button className="bg-[#c0ca33] hover:bg-[#afb42b] text-green-900 font-bold shadow-md rounded-full px-6 transition-transform hover:scale-105">
-                        Terima Pembayaran
-                    </Button>
-                </div>
-                {/* Mobile Button visual adjustment */}
-                <div className="md:hidden mt-4">
-                    <Button size="sm" className="bg-[#c0ca33] hover:bg-[#afb42b] text-green-900 font-bold shadow-md rounded-full px-4 w-full">
-                        Terima Pembayaran
-                    </Button>
+                <div className="p-2 bg-white/10 backdrop-blur-md rounded-lg">
+                    <Wallet className="w-6 h-6 text-white" />
                 </div>
             </div>
 
-            {/* Footer Section */}
-            <div className="bg-black/10 backdrop-blur-sm border-t border-white/10 p-3 px-5 flex justify-between items-center text-xs sm:text-sm relative z-10">
-                <div className="flex items-center gap-2">
-                    <span className="font-medium opacity-90">Dana Sedang Diproses</span>
-                    <Info className="h-3 w-3 opacity-70" />
-                </div>
-                <span className="font-bold tracking-wide">Rp -- --</span>
+            <div className="relative z-10 mt-6 flex gap-3">
+                <Button size="sm" className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold border-0">
+                    + Top Up
+                </Button>
+                <Button size="sm" variant="outline" className="bg-transparent text-white border-white/30 hover:bg-white/10 hover:text-white">
+                    Riwayat
+                </Button>
             </div>
 
-            {/* Texture/Noise overlay if needed, or subtle gradient accents */}
-            <div className="absolute inset-0 bg-white/5 pointer-events-none mix-blend-overlay"></div>
+            {/* Decorative Circles */}
+            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 rounded-full bg-emerald-400/20 blur-xl" />
         </div>
     );
 }
 
-export function FinancialSummaryCard({
-    title,
-    value,
-    actionText,
-    stats
-}: {
-    title: string,
-    value: string,
-    actionText: string,
-    stats: { label: string, value: number, color: string }[]
-}) {
+// --- 2. Financial Summary Card (Statistik Minimalis) ---
+export function FinancialSummaryCard() {
     return (
-        <Card className="border-0 shadow-sm hover:shadow-md transition-shadow bg-white rounded-xl h-full flex flex-col justify-between overflow-hidden">
-            <CardContent className="p-5 flex flex-col h-full relative">
-                {/* Refresh Icon Absolute top right */}
-                <div className="absolute top-5 right-5 text-slate-400 hover:text-blue-500 cursor-pointer transition-colors">
-                    <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full opacity-50" />
+        <div className="grid grid-cols-1 gap-4 h-full">
+            {/* Piutang */}
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex flex-col justify-center shadow-sm">
+                <div className="flex items-center gap-2 text-zinc-500 mb-1">
+                    <ArrowRight className="w-4 h-4 text-green-500" />
+                    <span className="text-xs font-medium uppercase tracking-wider">Pemasukan (Bulan Ini)</span>
                 </div>
+                <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Rp 12.850.000</p>
+            </div>
 
-                <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-2 text-slate-500">
-                        <span className="font-semibold text-xs sm:text-sm">{title}</span>
-                        <Info className="h-3 w-3 cursor-pointer hover:text-blue-500" />
-                    </div>
+            {/* Utang/Pengeluaran */}
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex flex-col justify-center shadow-sm">
+                <div className="flex items-center gap-2 text-zinc-500 mb-1">
+                    <ArrowRight className="w-4 h-4 text-red-500" />
+                    <span className="text-xs font-medium uppercase tracking-wider">Pengeluaran AI</span>
                 </div>
-
-                <div className="mb-4">
-                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900">{value}</h3>
-                </div>
-
-                <hr className="border-slate-100 mb-4" />
-
-                <div className="flex justify-between items-center text-[10px] sm:text-xs text-slate-500 mb-6 gap-2">
-                    {stats.map((stat, idx) => (
-                        <div key={idx} className="flex flex-col gap-1 items-start">
-                            <span className={`${stat.color} font-bold`}>{stat.value}</span>
-                            <span className="opacity-80">{stat.label}</span>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="mt-auto text-right">
-                    <Link href="#" className="text-xs font-bold text-blue-500 hover:text-blue-600 hover:underline">
-                        {actionText}
-                    </Link>
-                </div>
-            </CardContent>
-        </Card>
+                <p className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Rp 4.200.000</p>
+            </div>
+        </div>
     );
 }
 
-// --- 2. Onboarding Progress Card ---
+// --- 3. Onboarding Card (Gamification) ---
 export function OnboardingCard() {
-    const [progress] = useState(25);
+    return (
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 relative overflow-hidden group shadow-sm transition-all hover:shadow-md">
+            <div className="flex justify-between items-start relative z-10">
+                <div className="max-w-[70%]">
+                    <h3 className="font-bold text-lg text-zinc-900 dark:text-zinc-100 mb-2">
+                        Mulai Perjalanan AI Anda! 🚀
+                    </h3>
+                    <p className="text-sm text-zinc-500 mb-4">
+                        Lengkapi profil dan upload dokumen pertama Anda untuk mendapatkan kredit gratis.
+                    </p>
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                            <span>Progress</span>
+                            <span>25%</span>
+                        </div>
+                        <Progress value={25} className="h-2" />
+                    </div>
+                </div>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-full">
+                    <Gift className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-pulse" />
+                </div>
+            </div>
 
-    const steps = [
-        { title: 'Upload Dokumen', description: 'Simpan data dokumen Anda', icon: UploadCloud, action: 'Upload Dokumen', completed: true },
-        { title: 'Analisa AI', description: 'Ekstrak data otomatis', icon: Search, action: 'Analisa Data', completed: false },
-        { title: 'Validasi Data', description: 'Konfirmasi hasil ekstraksi', icon: CheckCircle2, action: 'Validasi Hasil', completed: false },
-        { title: 'Export Data', description: 'Simpan ke database/Excel', icon: FileText, action: 'Export Data', completed: false },
+            {/* Background Decor */}
+            <div className="absolute right-0 bottom-0 opacity-5 dark:opacity-10 pointer-events-none">
+                {/* Fallback pattern if image is missing */}
+                <div className="w-32 h-32 bg-zinc-900 rounded-full blur-3xl transform translate-x-10 translate-y-10" />
+            </div>
+        </div>
+    );
+}
+
+// --- 4. Promo Card (Sidebar Ad) ---
+export function PromoCard() {
+    return (
+        <div className="relative overflow-hidden rounded-xl bg-zinc-900 dark:bg-zinc-950 text-white p-6 border border-zinc-800 shadow-md">
+            <div className="relative z-10">
+                <div className="inline-block px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase mb-3 border border-yellow-500/30">
+                    Promo Awal Tahun
+                </div>
+                <h3 className="text-lg font-bold mb-2">Upgrade to Pro</h3>
+                <p className="text-sm text-zinc-400 mb-4 leading-relaxed">
+                    Dapatkan akses unlimited RAG, prioritas processing, dan export data tanpa batas.
+                </p>
+                <Button className="w-full bg-white text-black hover:bg-zinc-200 font-semibold border-0">
+                    Klaim Diskon 50%
+                </Button>
+            </div>
+
+            {/* Abstract Grid Background */}
+            <div className="absolute inset-0 opacity-10"
+                style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '20px 20px' }}>
+            </div>
+        </div>
+    );
+}
+
+// --- 5. User Guide Card (Sticky Helper) ---
+export function UserGuideCard() {
+    const guides = [
+        { title: "Upload Data", icon: UploadCloud, color: "text-blue-500" },
+        { title: "Analisa Dokumen", icon: Sparkles, color: "text-purple-500" },
+        { title: "Export Laporan", icon: Download, color: "text-green-500" },
     ];
 
     return (
-        <Card className="border-0 shadow-sm bg-white rounded-xl overflow-hidden mb-8 ring-1 ring-slate-100">
-            <CardContent className="p-6">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row gap-6 mb-8">
-                    {/* Badge Icon from payment.png */}
-                    <div className="flex-shrink-0">
-                        <div className="relative w-16 h-20">
-                            <Image
-                                src="/payment.png"
-                                alt="Feature Badge"
-                                fill
-                                className="object-contain"
-                            />
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 shadow-sm">
+            <h4 className="font-semibold text-sm mb-4 flex items-center gap-2 text-zinc-800 dark:text-zinc-200">
+                <BookOpen className="w-4 h-4" /> Panduan Cepat
+            </h4>
+            <div className="space-y-3">
+                {guides.map((g, i) => (
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer group">
+                        <div className="flex items-center gap-3">
+                            <g.icon className={cn("w-4 h-4", g.color)} />
+                            <span className="text-sm text-zinc-600 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">{g.title}</span>
                         </div>
+                        <ExternalLink className="w-3 h-3 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-
-                    {/* Text Content */}
-                    <div className="flex-1 pt-1">
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Coba Fitur Elysian Sekarang!</h3>
-                        <p className="text-slate-500 text-sm leading-relaxed max-w-2xl">
-                            Gratis akses fitur premium selama 1 bulan untuk biaya operasional lebih murah dengan mencoba langsung fitur dibawah ini. <span className="text-blue-600 font-semibold cursor-pointer hover:underline">Lihat keuntungan.</span>
-                        </p>
-                    </div>
-                </div>
-
-                {/* Progress Bar Section */}
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="flex-1 relative h-4 bg-blue-50 rounded-full overflow-hidden">
-                        <div
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all duration-1000"
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
-                    <span className="text-sm font-bold text-green-600 min-w-[2.5rem]">{progress}%</span>
-                    <Button className="hidden md:flex bg-blue-100/50 hover:bg-blue-100 text-blue-600 font-semibold border-0 shadow-none rounded-full px-6">
-                        Klaim Hadiah Sekarang
-                    </Button>
-                </div>
-
-                {/* Mobile Button (visible only on small screens) */}
-                <div className="md:hidden mb-8">
-                    <Button className="w-full bg-blue-100/50 hover:bg-blue-100 text-blue-600 font-semibold border-0 shadow-none rounded-full">
-                        Klaim Hadiah Sekarang
-                    </Button>
-                </div>
-
-                {/* Steps Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {steps.map((step, idx) => (
-                        <div key={idx} className={`border rounded-xl p-5 flex flex-col justify-between h-full min-h-[160px] transition-all hover:shadow-md ${step.completed ? 'bg-white border-slate-200' : 'bg-white border-slate-200'}`}>
-                            <div className="mb-4">
-                                <h4 className="font-bold text-slate-800 text-sm mb-2">{step.title}</h4>
-                                <p className="text-xs text-slate-500 leading-snug">{step.description}</p>
-                            </div>
-
-                            {step.completed ? (
-                                <div className="mt-auto flex justify-end">
-                                    <div className="bg-green-500 rounded-full p-0.5">
-                                        <CheckCircle2 className="h-5 w-5 text-white" />
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="mt-auto pt-4">
-                                    <button className="text-sm font-bold text-blue-500 hover:text-blue-600 transition-colors text-left">
-                                        {step.action}
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
-    );
-}
-
-// --- 3. Business Needs / Feature Cards ---
-export function FeatureHighlightCard({
-    title,
-    subtitle,
-    icon: Icon,
-    colorClass,
-    imageSrc,
-    items: _items
-}: {
-    title: string,
-    subtitle: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    icon: any,
-    colorClass: string,
-    imageSrc?: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    items?: string[]
-}) {
-    return (
-        <Card className="border-0 shadow-md hover:shadow-lg transition-shadow bg-white rounded-xl h-full overflow-hidden">
-            <CardContent className="p-6 h-full flex flex-col">
-                <div className="flex items-start gap-3 mb-4">
-                    <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10`}>
-                        <Icon className={`h-6 w-6 ${colorClass.replace('bg-', 'text-')}`} />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-slate-800">{title}</h3>
-                        <p className="text-xs text-slate-500">{subtitle}</p>
-                    </div>
-                </div>
-
-                <div className="flex-1 flex items-center justify-center py-6 min-h-[160px]">
-                    {imageSrc ? (
-                        <div className="relative w-40 h-40">
-                            <Image
-                                src={imageSrc}
-                                alt={title}
-                                fill
-                                className="object-contain drop-shadow-xl"
-                            />
-                        </div>
-                    ) : (
-                        <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center relative overflow-hidden">
-                            <div className={`absolute inset-0 bg-gradient-to-tr ${colorClass} opacity-10`}></div>
-                            <Icon className={`h-12 w-12 ${colorClass.replace('bg-', 'text-')} opacity-50`} />
-                        </div>
-                    )}
-                </div>
-
-                <div className="mt-auto pt-4 text-center">
-                    <p className="text-xs text-slate-400 mb-4 px-4">
-                        Kelola dokumen Anda dengan mudah dan cepat.
-                    </p>
-                    <Button variant="ghost" className={`w-full group ${colorClass.replace('bg-', 'text-')} hover:bg-slate-50`}>
-                        Mulai Sekarang <ArrowUpRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
-    );
-}
-
-
-// --- 4. Promo Sidebar Card ---
-export function PromoCard() {
-    return (
-        <div className="bg-gradient-to-b from-blue-50 to-white rounded-xl p-5 border border-blue-100 shadow-sm mb-6">
-            <div className="flex items-center gap-2 mb-4">
-                <span className="font-bold text-blue-800">ELYSIAN</span>
-                <span className="px-2 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded">PRO</span>
+                ))}
             </div>
-
-            <h3 className="text-xl font-serif font-bold text-slate-900 mb-2">Promo Awal Tahun</h3>
-            <p className="text-sm text-slate-600 mb-4">
-                Khusus pengguna baru! Dapatkan diskon 50% untuk bulan pertama berlangganan paket Enterprise.
-            </p>
-
-            <div className="bg-white rounded-lg p-4 border border-blue-100 shadow-sm mb-4 text-center">
-                <span className="text-3xl font-bold text-blue-600">50%</span>
-                <span className="block text-xs text-slate-400 uppercase font-bold mt-1">OFF</span>
-            </div>
-
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/30">
-                Klaim Sekarang
-            </Button>
-            <p className="text-[10px] text-center text-slate-400 mt-2">Berlaku s/d 31 Jan 2026</p>
         </div>
-    );
-}
-
-// --- 5. User Guide Card ---
-export function UserGuideCard() {
-    return (
-        <Card className="border-0 shadow-sm bg-white rounded-xl">
-            <CardHeader>
-                <CardTitle className="text-sm font-bold text-slate-800">Panduan Pengguna Baru</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-                <div className="divide-y divide-slate-100">
-                    <Link href="#" className="flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors">
-                        <BookOpen className="h-5 w-5 text-blue-500 mt-0.5" />
-                        <div>
-                            <h4 className="text-sm font-semibold text-slate-700">Langkah Awal Pakai Elysian</h4>
-                            <p className="text-xs text-slate-500 mt-1">Pelajari cara dasar upload dan ekstraksi dokumen.</p>
-                        </div>
-                    </Link>
-                    <Link href="#" className="flex items-start gap-3 p-4 hover:bg-slate-50 transition-colors">
-                        <CreditCard className="h-5 w-5 text-green-500 mt-0.5" />
-                        <div>
-                            <h4 className="text-sm font-semibold text-slate-700">Cara Berlangganan (Billing)</h4>
-                            <p className="text-xs text-slate-500 mt-1">Metode pembayaran dan upgrade paket.</p>
-                        </div>
-                    </Link>
-                </div>
-            </CardContent>
-        </Card>
     );
 }

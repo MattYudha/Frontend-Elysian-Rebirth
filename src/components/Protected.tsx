@@ -10,9 +10,10 @@ interface ProtectedProps {
     children: React.ReactNode;
     requiredRoles?: string[];
     fallback?: React.ReactNode;
+    pure?: boolean;
 }
 
-export function Protected({ children, requiredRoles, fallback }: ProtectedProps) {
+export function Protected({ children, requiredRoles, fallback, pure }: ProtectedProps) {
     const { isAuthenticated, isLoading, hasAnyRole } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
@@ -51,6 +52,11 @@ export function Protected({ children, requiredRoles, fallback }: ProtectedProps)
                 </div>
             )
         );
+    }
+
+    // If pure mode (no layout), return children directly
+    if (pure) {
+        return <>{children}</>;
     }
 
     return (

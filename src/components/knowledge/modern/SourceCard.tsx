@@ -4,12 +4,10 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/ui/primitives/button';
 import {
     FileText,
-    MoreVertical,
     CheckCircle2,
     Clock,
     AlertOctagon,
     Trash2,
-    Download,
     ExternalLink,
 } from 'lucide-react';
 import React from 'react';

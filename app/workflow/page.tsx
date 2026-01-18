@@ -30,7 +30,7 @@ export default function WorkflowPage() {
     if (isLoading) return null;
 
     return (
-        <Protected>
+        <Protected pure>
             <div className="flex flex-col h-[calc(100vh-6rem)]">
                 {!isActive ? (
                     // Empty State

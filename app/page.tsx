@@ -109,7 +109,7 @@ export default function LandingPage() {
                             </div>
                         </div>
 
-                        <div className="bg-card p-8 rounded-2xl border border-border shadow-2xl">
+                        <div className="card-professional p-8 shadow-xl">
                             <h3 className="text-2xl font-bold mb-6 text-primary">Nilai Utama Elysian Rebirth</h3>
                             <ul className="space-y-4">
                                 <ValueItem text="Lebih Cepat Operasional" />
@@ -198,7 +198,7 @@ export default function LandingPage() {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function UseCaseCard({ icon: Icon, title, items, color }: { icon: any, title: string, items: string[], color: string }) {
     return (
-        <Card className="hover:shadow-lg transition-shadow border-border/60">
+        <Card className="card-professional hover:shadow-lg transition-shadow">
             <CardHeader className="pb-2">
                 <div className={`w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-2 ${color}`}>
                     <Icon className="h-5 w-5" />

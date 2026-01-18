@@ -122,7 +122,7 @@ export const Sender: React.FC<SenderProps> = ({
     };
 
     return (
-        <div className={className}>
+        <div className={className} id="chat-input-area">
             <Space.Compact style={{ width: '100%' }}>
                 {/* Text Input */}
                 <TextArea

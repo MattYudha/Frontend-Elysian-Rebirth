@@ -6,6 +6,8 @@ import type { ChatMessage } from '../types';
 // import { AiMarkdown } from '@enterprise-ai/x-markdown';
 import { Avatar } from 'antd';
 import { UserOutlined, RobotOutlined } from '@ant-design/icons';
+import { cn } from '../../../lib/utils';
+
 
 export interface BubbleProps {
     /**
@@ -40,47 +42,36 @@ export const Bubble: React.FC<BubbleProps> = ({ message, isUser, className }) =>
 
     return (
         <div
-            className={className}
-            style={{
-                display: 'flex',
-                flexDirection: isUserRole ? 'row-reverse' : 'row',
-                gap: 12,
-                marginBottom: 24,
-                width: '100%',
-            }}
+            className={cn(
+                "flex gap-3 mb-6 w-full",
+                isUserRole ? "flex-row-reverse" : "flex-row",
+                className
+            )}
         >
             {/* Avatar */}
             <Avatar
                 size={40}
                 icon={isUserRole ? <UserOutlined /> : <RobotOutlined />}
-                style={{
-                    flexShrink: 0,
-                    backgroundColor: isUserRole ? '#1677ff' : '#52c41a',
-                }}
+                className={cn("flex-shrink-0", isUserRole ? "bg-primary" : "bg-success")}
             />
 
             {/* Message Content */}
-            <div
-                style={{
-                    maxWidth: '70%',
-                    minWidth: 100,
-                }}
-            >
+            <div className="max-w-[70%] min-w-[100px]">
                 {/* Bubble */}
                 <div
-                    style={{
-                        padding: '12px 16px',
-                        borderRadius: isUserRole ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                        backgroundColor: isUserRole ? '#e6f7ff' : '#f5f5f5',
-                        border: isUserRole ? '1px solid #91d5ff' : '1px solid #d9d9d9',
-                    }}
+                    className={cn(
+                        "p-3.5 border",
+                        isUserRole
+                            ? "rounded-t-2xl rounded-bl-2xl rounded-br-sm bg-blue-50 border-blue-200"
+                            : "rounded-t-2xl rounded-br-2xl rounded-bl-sm bg-gray-50 border-gray-200"
+                    )}
                 >
                     {isUserRole ? (
-                        <div style={{ fontSize: 14, lineHeight: 1.6 }}>
+                        <div className="text-sm leading-relaxed">
                             {message.content}
                         </div>
                     ) : (
-                        <div style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
                             {message.content}
                         </div>
                     )}
@@ -88,12 +79,10 @@ export const Bubble: React.FC<BubbleProps> = ({ message, isUser, className }) =>
 
                 {/* Timestamp */}
                 <div
-                    style={{
-                        marginTop: 4,
-                        fontSize: 12,
-                        color: 'rgba(0, 0, 0, 0.45)',
-                        textAlign: isUserRole ? 'right' : 'left',
-                    }}
+                    className={cn(
+                        "mt-1 text-xs text-gray-400",
+                        isUserRole ? "text-right" : "text-left"
+                    )}
                 >
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>

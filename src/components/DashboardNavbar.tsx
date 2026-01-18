@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Bell, Cloud, Sparkles, User, Settings, LogOut, LayoutGrid } from 'lucide-react';
+import { Cloud, Sparkles, User, Settings, LogOut, LayoutGrid } from 'lucide-react';
 import { Button } from '@/ui/primitives/button';
 import { cn } from '@/lib/utils';
 import {
@@ -26,18 +26,29 @@ const UserAvatar = () => (
     </div>
 );
 
-export function DashboardNavbar() {
+export function DashboardNavbar({ staticMode = false }: { staticMode?: boolean }) {
     const pathname = usePathname();
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
-            const isScrolled = window.scrollY > 20;
+            const container = document.getElementById('main-scroll-container');
+            // If container exists, use its scrollTop, otherwise use window.scrollY
+            const scrollY = container ? container.scrollTop : window.scrollY;
+            const isScrolled = scrollY > 20;
             setScrolled(isScrolled);
         };
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        // Check availability of the container
+        const container = document.getElementById('main-scroll-container');
+        const target = container || window;
+
+        target.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Also trigger once on mount to check initial state
+        handleScroll();
+
+        return () => target.removeEventListener('scroll', handleScroll);
     }, []);
 
     const getPageTitle = () => {
@@ -52,14 +63,17 @@ export function DashboardNavbar() {
 
     return (
         <div className={cn(
-            "fixed left-0 right-0 z-40 transition-all duration-500 ease-in-out pointer-events-none",
-            scrolled ? "top-4 px-4" : "top-0 px-0"
+            staticMode ? "relative w-full" : "fixed left-0 right-0 z-40 transition-all duration-500 ease-in-out pointer-events-none",
+            !staticMode && (scrolled ? "top-4 px-4" : "top-0 px-0")
         )}>
             <header className={cn(
-                "pointer-events-auto mx-auto flex items-center justify-between transition-all duration-500 ease-in-out",
-                scrolled
+                "mx-auto flex items-center justify-between transition-all duration-500 ease-in-out",
+                staticMode
+                    ? "h-16 w-full px-6 bg-transparent"
+                    : "pointer-events-auto",
+                !staticMode && (scrolled
                     ? "h-14 max-w-5xl rounded-full border border-white/40 bg-white/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(30,58,138,0.1)] px-4"
-                    : "h-20 w-full max-w-7xl bg-transparent border-b border-transparent px-6 sm:px-8"
+                    : "h-20 w-full max-w-7xl bg-transparent border-b border-transparent px-6 sm:px-8")
             )}>
 
                 {/* Left Side: Logo & Breadcrumbs */}

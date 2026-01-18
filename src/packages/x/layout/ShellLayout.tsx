@@ -1,189 +1,71 @@
-'use client';
+"use client";
 
-import React, { useState, ReactNode } from 'react';
-import { Layout } from 'antd';
+import React from 'react';
+import { MobileSidebar } from '@/components/MobileSidebar';
+import { useSidebar } from '@/contexts/SidebarContext';
+import { cn } from '@/lib/utils';
 
-const { Header, Sider, Content, Footer } = Layout;
 
 export interface ShellLayoutProps {
-    /**
-     * Topbar component
-     */
-    topbar?: ReactNode;
-
-    /**
-     * Sidebar navigation component
-     */
-    sidebar?: ReactNode;
-
-    /**
-     * Main content area
-     */
-    children: ReactNode;
-
-    /**
-     * Bottom tab bar (for mobile)
-     */
-    bottomTabBar?: ReactNode;
-
-    /**
-     * Footer component
-     */
-    footer?: ReactNode;
-
-    /**
-     * Whether sidebar is collapsible
-     */
-    collapsible?: boolean;
-
-    /**
-     * Initial collapsed state
-     */
-    defaultCollapsed?: boolean;
-
-    /**
-     * Sidebar width when expanded
-     */
-    sidebarWidth?: number;
-
-    /**
-     * Whether to show sidebar (responsive)
-     */
-    showSidebar?: boolean;
-
-    /**
-     * Custom class name
-     */
+    children: React.ReactNode;
+    sidebar?: React.ReactNode;
+    topbar?: React.ReactNode;
     className?: string;
 }
 
-/**
- * ShellLayout - Main application layout skeleton
- * 
- * Provides unified layout structure with:
- * - Topbar (header)
- * - Sidebar navigation (collapsible)
- * - Main content area
- * - Bottom tab bar (mobile)
- * - Footer
- * 
- * Responsive design with mobile-first approach.
- * 
- * @example
- * ```tsx
- * <ShellLayout
- *   topbar={<Topbar />}
- *   sidebar={<SidebarNav />}
- *   bottomTabBar={<BottomTabBar />}
- * >
- *   <Dashboard />
- * </ShellLayout>
- * ```
- */
 export const ShellLayout: React.FC<ShellLayoutProps> = ({
-    topbar,
-    sidebar,
     children,
-    bottomTabBar,
-    footer,
-    collapsible = true,
-    defaultCollapsed = false,
-    sidebarWidth = 240,
-    showSidebar = true,
+    sidebar,
+    topbar,
     className,
 }) => {
-    const [collapsed, setCollapsed] = useState(defaultCollapsed);
+    const { isOpen } = useSidebar();
+    const collapsed = !isOpen;
 
     return (
-        <Layout className={className} style={{ minHeight: '100vh' }}>
-            {/* Topbar */}
-            {topbar && (
-                <Header
-                    style={{
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 100,
-                        width: '100%',
-                        padding: 0,
-                        backgroundColor: '#fff',
-                        borderBottom: '1px solid #f0f0f0',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
-                    }}
+        // 1. KUNCI LAYOUT UTAMA SELEBAR & SETINGGI LAYAR (NO BODY SCROLL)
+        <div className="flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-zinc-950">
+
+            {/* 2. SIDEBAR (STATIC / STICKY) */}
+            {sidebar && (
+                <aside
+                    className={cn(
+                        "hidden md:flex flex-col border-r border-slate-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl transition-all duration-300",
+                        collapsed ? "w-[80px]" : "w-[280px]"
+                    )}
                 >
-                    {topbar}
-                </Header>
+                    {sidebar}
+                </aside>
             )}
 
-            <Layout>
-                {/* Sidebar */}
-                {showSidebar && sidebar && (
-                    <Sider
-                        collapsible={collapsible}
-                        collapsed={collapsed}
-                        onCollapse={setCollapsed}
-                        width={sidebarWidth}
-                        style={{
-                            backgroundColor: '#fff',
-                            borderRight: '1px solid #f0f0f0',
-                            overflow: 'auto',
-                            height: topbar ? 'calc(100vh - 64px)' : '100vh',
-                            position: 'sticky',
-                            top: topbar ? 64 : 0,
-                            left: 0,
-                        }}
-                        breakpoint="lg"
-                        collapsedWidth={80}
-                    >
-                        {sidebar}
-                    </Sider>
+            {/* Mobile Sidebar Logic (Overlay) - Optional integration */}
+            {/* If the passed sidebar handles mobile itself, this might be redundant, but good for fallback */}
+            <MobileSidebar />
+
+            {/* 3. MAIN CONTENT AREA (SCROLLABLE) */}
+            <div className="flex flex-1 flex-col overflow-hidden">
+
+                {/* Topbar area - Static flow */}
+                {topbar && (
+                    <div className="flex-shrink-0 z-20 bg-white/50 backdrop-blur-md border-b border-slate-100 dark:border-zinc-800">
+                        {topbar}
+                    </div>
                 )}
 
-                {/* Main Content */}
-                <Layout style={{ backgroundColor: '#f5f5f5' }}>
-                    <Content
-                        style={{
-                            padding: 24,
-                            minHeight: 280,
-                            marginBottom: bottomTabBar ? 60 : 0,
-                        }}
-                    >
-                        {children}
-                    </Content>
-
-                    {/* Footer */}
-                    {footer && (
-                        <Footer
-                            style={{
-                                textAlign: 'center',
-                                backgroundColor: '#fff',
-                                borderTop: '1px solid #f0f0f0',
-                            }}
-                        >
-                            {footer}
-                        </Footer>
+                {/* 4. AREA SCROLL SEBENARNYA ADA DI SINI */}
+                <main
+                    className={cn(
+                        "flex-1 overflow-y-auto", // <--- KUNCI: overflow-y-auto
+                        className
                     )}
-                </Layout>
-            </Layout>
-
-            {/* Bottom Tab Bar (Mobile) */}
-            {bottomTabBar && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        zIndex: 99,
-                        backgroundColor: '#fff',
-                        borderTop: '1px solid #f0f0f0',
-                        boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.06)',
-                    }}
                 >
-                    {bottomTabBar}
-                </div>
-            )}
-        </Layout>
+                    {/* Tambahkan max-w agar konten tidak terlalu lebar di layar besar */}
+                    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
+                        {children}
+                    </div>
+                </main>
+            </div>
+        </div>
     );
 };
-
-ShellLayout.displayName = 'ShellLayout';
+ShellLayout.displayName = "ShellLayout";

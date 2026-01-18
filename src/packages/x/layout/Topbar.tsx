@@ -11,6 +11,8 @@ import {
     SettingOutlined,
     LogoutOutlined,
 } from '@ant-design/icons';
+import { cn } from '../../../lib/utils';
+
 
 const { Text } = Typography;
 
@@ -127,15 +129,10 @@ export const Topbar: React.FC<TopbarProps> = ({
 
     return (
         <div
-            className={className}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 24px',
-                height: 64,
-                backgroundColor: '#fff',
-            }}
+            className={cn(
+                "flex items-center justify-between px-6 h-16 bg-white border-b border-gray-100",
+                className
+            )}
         >
             {/* Left Section */}
             <Space size={16}>
@@ -145,14 +142,14 @@ export const Topbar: React.FC<TopbarProps> = ({
                         type="text"
                         icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                         onClick={onToggleSidebar}
-                        style={{ fontSize: 18 }}
+                        className="text-lg"
                     />
                 )}
 
                 {/* Logo & Title */}
                 <Space size={12}>
-                    {logo && <div style={{ display: 'flex', alignItems: 'center' }}>{logo}</div>}
-                    <Text strong style={{ fontSize: 18, color: '#1677ff' }}>
+                    {logo && <div className="flex items-center">{logo}</div>}
+                    <Text strong className="text-lg text-primary">
                         {title}
                     </Text>
                 </Space>
@@ -167,7 +164,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                 <Button
                     type="text"
                     icon={<QuestionCircleOutlined />}
-                    style={{ fontSize: 18 }}
+                    className="text-lg"
                 />
 
                 {/* Notifications */}
@@ -176,7 +173,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                         type="text"
                         icon={<BellOutlined />}
                         onClick={onNotificationClick}
-                        style={{ fontSize: 18 }}
+                        className="text-lg"
                     />
                 </Badge>
 
@@ -187,14 +184,14 @@ export const Topbar: React.FC<TopbarProps> = ({
                             <Avatar
                                 src={user.avatar}
                                 icon={!user.avatar && <UserOutlined />}
-                                style={{ backgroundColor: '#1677ff' }}
+                                className="bg-primary"
                             />
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                <Text strong style={{ fontSize: 14 }}>
+                            <div className="flex flex-col items-start">
+                                <Text strong className="text-sm">
                                     {user.name}
                                 </Text>
                                 {user.email && (
-                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                    <Text type="secondary" className="text-xs">
                                         {user.email}
                                     </Text>
                                 )}

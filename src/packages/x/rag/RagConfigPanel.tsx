@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card, Slider, Select, Button, Space, Typography, Divider, Form, InputNumber } from 'antd';
 import { SettingOutlined, ReloadOutlined } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 export interface RagConfigData {
     chunkSize: number;

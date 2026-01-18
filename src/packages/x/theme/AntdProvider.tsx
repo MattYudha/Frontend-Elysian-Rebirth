@@ -3,6 +3,7 @@
 import React, { type PropsWithChildren } from 'react';
 import { ConfigProvider, type ThemeConfig } from 'antd';
 import { tokens } from './tokens';
+import { generateCSSVars } from './brandTheme';
 
 /**
  * Custom theme configuration for Enterprise AI Platform
@@ -74,9 +75,13 @@ export interface AntdProviderProps extends PropsWithChildren {
 export const AntdProvider: React.FC<AntdProviderProps> = ({ children, theme }) => {
     const mergedTheme = theme ? { ...customTheme, ...theme } : customTheme;
 
+    const cssVars = React.useMemo(() => generateCSSVars(mergedTheme), [mergedTheme]);
+
     return (
         <ConfigProvider theme={mergedTheme}>
-            {children}
+            <div style={cssVars as React.CSSProperties} className="contents">
+                {children}
+            </div>
         </ConfigProvider>
     );
 };

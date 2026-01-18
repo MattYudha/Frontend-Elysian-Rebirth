@@ -35,7 +35,7 @@ export default function DocumentEditorPage() {
     if (isLoading) return <EditorSkeleton />;
 
     return (
-        <Protected>
+        <Protected pure>
             <div className="flex flex-col h-[calc(100vh-6rem)]">
                 {!isActive ? (
                     // Empty State Illustration (Shown only if > 24h since last use)

@@ -1,6 +1,6 @@
-'use client';
-
 import { Sidebar } from '@/components/Sidebar';
+import { DashboardNavbar } from '@/components/DashboardNavbar';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 export default function ChatLayout({
     children,
@@ -8,12 +8,22 @@ export default function ChatLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-background flex">
+        <div className="flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-zinc-950">
+            {/* Legacy Sidebar Fixed */}
             <Sidebar />
-            <main className="flex-1 flex flex-col min-w-0">
-                <div className="flex-1 overflow-hidden relative flex flex-col">
+
+            <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+                {/* Navbar is strictly static here to push content down */}
+                <div className="flex-none">
+                    <DashboardNavbar staticMode />
+                </div>
+
+                <div className="flex-1 overflow-hidden flex flex-col pb-16 md:pb-0">
                     {children}
                 </div>
+
+                {/* Mobile Bottom Nav */}
+                <MobileBottomNav />
             </main>
         </div>
     );

@@ -5,9 +5,7 @@ import { Button } from '@/ui/primitives/button';
 import { Progress } from '@/ui/progress';
 import { CheckCircle2, Circle, ArrowRight, CreditCard, UploadCloud, Search, FileText } from 'lucide-react';
 import { FAQSection } from '@/components/FAQSection';
-import { SidebarProvider } from '@/contexts/SidebarContext';
 import { Sidebar } from '@/components/Sidebar';
-import Image from 'next/image';
 
 // Step Definition
 interface Step {
@@ -15,7 +13,7 @@ interface Step {
     title: string;
     description: string;
     actionLabel: string;
-    icon: any;
+    icon: React.ElementType;
     isCompleted: boolean;
 }
 
@@ -123,9 +121,8 @@ export default function GettingStartedPage() {
 
                     {/* Steps Container - Frosted Glass Panels */}
                     <div className="space-y-4 mb-12">
-                        {steps.map((step, index) => {
+                        {steps.map((step) => {
                             const isActive = activeStep === step.id;
-                            const isLast = index === steps.length - 1;
 
                             return (
                                 <div

@@ -1,12 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Node, Edge } from 'reactflow';
+import type { PipelineItem } from '../packages/x/types';
 
 interface WorkflowState {
   nodes: Node[];
   edges: Edge[];
   selectedNode: Node | null;
   isDirty: boolean;
+  // Pipeline State (Optimistic UI Demo)
+  pipelines: PipelineItem[];
+
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
   addNode: (node: Node) => void;
@@ -16,6 +20,11 @@ interface WorkflowState {
   saveWorkflow: () => Promise<void>;
   loadWorkflow: (id: string) => Promise<void>;
   clearWorkflow: () => void;
+
+  // Pipeline Actions
+  setPipelines: (pipelines: PipelineItem[]) => void;
+  deletePipelineOptimistic: (id: string) => PipelineItem[];
+  restorePipelines: (pipelines: PipelineItem[]) => void;
 }
 
 export const useWorkflowStore = create<WorkflowState>()(
@@ -25,6 +34,29 @@ export const useWorkflowStore = create<WorkflowState>()(
       edges: [],
       selectedNode: null,
       isDirty: false,
+      pipelines: [
+        {
+          id: 'pipe_001',
+          name: 'Customer Support RAG Indexing',
+          status: 'processing',
+          progress: 67,
+          eta: '2 min remaining',
+          lastUpdated: new Date(Date.now() - 30000),
+        },
+        {
+          id: 'pipe_002',
+          name: 'Product Documentation Update',
+          status: 'queued',
+          lastUpdated: new Date(Date.now() - 120000),
+        },
+        {
+          id: 'pipe_003',
+          name: 'Weekly Knowledge Refresh',
+          status: 'completed',
+          progress: 100,
+          lastUpdated: new Date(Date.now() - 300000),
+        },
+      ],
 
       setNodes: (nodes) => set({ nodes, isDirty: true }),
 
@@ -72,6 +104,19 @@ export const useWorkflowStore = create<WorkflowState>()(
           selectedNode: null,
           isDirty: false,
         }),
+
+      // Pipeline Actions Implementation
+      setPipelines: (pipelines) => set({ pipelines }),
+
+      deletePipelineOptimistic: (id) => {
+        const currentPipelines = get().pipelines;
+        set((state) => ({
+          pipelines: state.pipelines.filter((p) => p.id !== id)
+        }));
+        return currentPipelines; // Return snapshot for rollback
+      },
+
+      restorePipelines: (pipelines) => set({ pipelines }),
     }),
     {
       name: 'workflow-storage',

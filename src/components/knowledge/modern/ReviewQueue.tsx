@@ -1,9 +1,9 @@
-import { ActionTooltip } from '@/components/ActionTooltip';
+
 import { RagSource } from '@/lib/apiClient';
 import { Button } from '@/ui/primitives/button';
 import { Card, CardContent } from '@/ui/primitives/card';
 import { Badge } from '@/ui/primitives/badge';
-import { AlertTriangle, Check, X, Eye, FileText, ArrowRight, ArrowLeftRight } from 'lucide-react';
+import { Check, X, Eye, FileText, ArrowLeftRight } from 'lucide-react';
 import React from 'react';
 
 interface ReviewQueueProps {

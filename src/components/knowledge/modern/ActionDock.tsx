@@ -1,5 +1,5 @@
 import { Button } from '@/ui/primitives/button';
-import { Plus, MessageSquare, FileUp } from 'lucide-react';
+import { Plus, MessageSquare } from 'lucide-react';
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { ActionTooltip } from '@/components/ActionTooltip';

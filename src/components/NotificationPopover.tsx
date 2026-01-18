@@ -60,9 +60,11 @@ export function NotificationPopover() {
                     <div className="min-h-[300px] flex flex-col items-center justify-center p-6 text-center">
                         <TabsContent value="aktivitas" className="mt-0 flex flex-col items-center animate-in fade-in-50 duration-300">
                             <div className="relative w-32 h-32 mb-4">
-                                <img
+                                <Image
                                     src="/empty-state-notification.png"
                                     alt="No notifications"
+                                    width={128}
+                                    height={128}
                                     className="w-full h-full object-contain opacity-90 drop-shadow-sm"
                                 />
                             </div>
@@ -76,9 +78,11 @@ export function NotificationPopover() {
 
                         <TabsContent value="update" className="mt-0 flex flex-col items-center animate-in fade-in-50 duration-300">
                             <div className="relative w-28 h-28 mb-4 opacity-50 grayscale">
-                                <img
+                                <Image
                                     src="/empty-state-notification.png"
                                     alt="No updates"
+                                    width={112}
+                                    height={112}
                                     className="w-full h-full object-contain"
                                 />
                             </div>

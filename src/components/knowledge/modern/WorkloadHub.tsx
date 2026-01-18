@@ -1,5 +1,5 @@
 import { PipelineStats } from '@/lib/apiClient';
-import { Activity, CircleDashed, CheckCircle2, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Activity, CircleDashed, CheckCircle2, TrendingUp } from 'lucide-react';
 import React from 'react';
 
 interface WorkloadHubProps {
@@ -23,7 +23,16 @@ export const WorkloadHub: React.FC<WorkloadHubProps> = ({ stats }) => {
         );
     };
 
-    const StatTile = ({ label, value, subtext, icon: Icon, colorClass, trend }: any) => (
+    interface StatTileProps {
+        label: string;
+        value: string | number;
+        subtext?: string;
+        icon: React.ElementType;
+        colorClass: string;
+        trend: 'up' | 'down' | 'flat';
+    }
+
+    const StatTile = ({ label, value, subtext, icon: Icon, colorClass, trend }: StatTileProps) => (
         <div className="flex flex-col justify-between p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 h-full group">
             <div className="flex justify-between items-start mb-2">
                 <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10 group-hover:bg-opacity-20 transition-colors`}>

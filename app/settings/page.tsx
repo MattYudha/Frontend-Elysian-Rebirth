@@ -11,7 +11,7 @@ import Image from 'next/image';
 
 export default function SettingsPage() {
     return (
-        <Protected>
+        <Protected pure>
             <div className="container max-w-5xl mx-auto py-8 space-y-8">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900">Pengaturan</h1>
@@ -42,7 +42,7 @@ export default function SettingsPage() {
                     {/* Main Settings Content */}
                     <div className="space-y-6">
                         {/* Profile Card */}
-                        <Card className="border shadow-sm">
+                        <Card className="card-professional">
                             <CardHeader>
                                 <CardTitle>Profil Pengguna</CardTitle>
                                 <CardDescription>Informasi pribadi yang akan ditampilkan di akun Anda.</CardDescription>
