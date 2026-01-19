@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from "@/ui/button";
+import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +15,7 @@ export function CTASection() {
                         untuk <span className="underline decoration-blue-300 decoration-4 underline-offset-4">Bisnis Maju</span>
                     </h2>
                     <p className="text-lg text-slate-600 dark:text-slate-300">
-                        Dari UMKM sampai enterprise, semua bisa nikmati mudahnya berbisnis dengan Elysian Rebirth.
+                        Dari UMKM sampai korporasi, semua bisa nikmati mudahnya berbisnis dengan Elysian Rebirth.
                     </p>
                     <div>
                         <Link href="/dashboard">

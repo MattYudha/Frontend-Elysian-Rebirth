@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@/ui/primitives/button';
-import { Progress } from '@/ui/primitives/progress';
+import { Button } from '@/components/ui/';
+import { Progress } from '@/components/ui/';
 import { Inbox, Trash2, CheckCircle2 } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';

@@ -36,7 +36,7 @@ export const translationsID: TranslationKeys = {
     },
     dashboard: {
         title: 'Pusat Kontrol AI',
-        subtitle: 'Grid Enterprise',
+        subtitle: 'Dashboard Operasional',
         documents: 'Dokumen',
         apiCalls: 'Panggilan API',
         errorRate: 'Tingkat Error',
@@ -46,7 +46,7 @@ export const translationsID: TranslationKeys = {
     },
     chat: {
         title: 'Obrolan AI',
-        subtitle: 'Percakapan dengan Enterprise AI',
+        subtitle: 'Percakapan dengan Asisten AI',
         placeholder: 'Ketik pesan Anda...',
         send: 'Kirim',
     },

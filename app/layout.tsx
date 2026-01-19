@@ -1,16 +1,14 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import '@/styles/globals.css';
-import { APP_NAME } from '@/lib/config';
-import { XErrorBoundary } from '@enterprise-ai/x';
 import { Providers } from '@/components/Providers';
+import { APP_NAME, APP_DESCRIPTION } from '@/lib/config';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: `${APP_NAME} - Enterprise AI Platform`,
-    description: 'Open LLM application devops platform for enterprise scenarios',
-    keywords: 'AI, Enterprise, LLM, RAG, Workflow, Document Processing',
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
 };
 
 export default function RootLayout({
@@ -19,13 +17,9 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" className="dark" suppressHydrationWarning>
+        <html lang="en" suppressHydrationWarning>
             <body className={inter.className}>
-                <XErrorBoundary>
-                    <Providers>
-                        {children}
-                    </Providers>
-                </XErrorBoundary>
+                <Providers>{children}</Providers>
             </body>
         </html>
     );

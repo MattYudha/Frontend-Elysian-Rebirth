@@ -1,5 +1,5 @@
-import { Button } from '@/ui/primitives/button';
-import { Textarea } from '@/ui/primitives/textarea';
+import { Button } from '@/components/ui/';
+import { Textarea } from '@/components/ui/';
 import { SendHorizontal, Loader2 } from 'lucide-react';
 import { useRef, useEffect } from 'react';
 

@@ -1,8 +1,10 @@
 'use client';
 
 import { Handle, Position, NodeProps } from 'reactflow';
-import { Card, Select, Slider } from 'antd';
-import { RobotOutlined } from '@ant-design/icons';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/';
+import { Slider } from '@/components/ui/';
+import { Bot } from 'lucide-react';
 
 interface LLMNodeData {
     label: string;
@@ -13,49 +15,45 @@ interface LLMNodeData {
 
 export function LLMNode({ data, selected }: NodeProps<LLMNodeData>) {
     return (
-        <div>
-            <Handle type="target" position={Position.Top} />
-            <Card
-                size="small"
-                title={
-                    <span>
-                        <RobotOutlined style={{ marginRight: 8 }} />
+        <div className="relative">
+            <Handle type="target" position={Position.Top} className="!bg-muted-foreground" />
+            <Card className={`w-[300px] shadow-sm ${selected ? 'border-primary ring-1 ring-primary' : ''}`}>
+                <CardHeader className="p-3 pb-0">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Bot className="h-4 w-4 text-muted-foreground" />
                         {data.label}
-                    </span>
-                }
-                style={{
-                    width: 300,
-                    border: selected ? '2px solid #1890ff' : '1px solid #d9d9d9',
-                }}
-            >
-                <div style={{ marginBottom: 12 }}>
-                    <label style={{ fontSize: 12, color: '#888' }}>Model</label>
-                    <Select
-                        value={data.model || 'gpt-4'}
-                        style={{ width: '100%', marginTop: 4 }}
-                        size="small"
-                        options={[
-                            { value: 'gpt-4', label: 'GPT-4' },
-                            { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
-                            { value: 'claude-3-opus', label: 'Claude 3 Opus' },
-                            { value: 'deepseek-chat', label: 'DeepSeek Chat' },
-                        ]}
-                    />
-                </div>
-                <div>
-                    <label style={{ fontSize: 12, color: '#888' }}>
-                        Temperature: {(data.temperature || 0.7).toFixed(1)}
-                    </label>
-                    <Slider
-                        min={0}
-                        max={2}
-                        step={0.1}
-                        value={data.temperature || 0.7}
-                        style={{ marginTop: 4 }}
-                    />
-                </div>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="p-3 space-y-4">
+                    <div className="space-y-1.5">
+                        <label className="text-xs text-muted-foreground">Model</label>
+                        <Select defaultValue={data.model || 'gpt-4'}>
+                            <SelectTrigger className="h-8 text-xs">
+                                <SelectValue placeholder="Select model" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="gpt-4">GPT-4</SelectItem>
+                                <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                                <SelectItem value="claude-3-opus">Claude 3 Opus</SelectItem>
+                                <SelectItem value="deepseek-chat">DeepSeek Chat</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-xs text-muted-foreground flex justify-between">
+                            <span>Temperature</span>
+                            <span>{(data.temperature || 0.7).toFixed(1)}</span>
+                        </label>
+                        <Slider
+                            defaultValue={[data.temperature || 0.7]}
+                            max={2}
+                            step={0.1}
+                            className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
+                        />
+                    </div>
+                </CardContent>
             </Card>
-            <Handle type="source" position={Position.Bottom} />
+            <Handle type="source" position={Position.Bottom} className="!bg-muted-foreground" />
         </div>
     );
 }

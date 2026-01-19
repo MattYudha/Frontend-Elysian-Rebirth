@@ -1,8 +1,9 @@
 'use client';
 
 import { Handle, Position, NodeProps } from 'reactflow';
-import { Card, Input } from 'antd';
-import { BranchesOutlined } from '@ant-design/icons';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/';
+import { Input } from '@/components/ui/';
+import { GitFork } from 'lucide-react';
 
 interface BranchNodeData {
     label: string;
@@ -11,37 +12,32 @@ interface BranchNodeData {
 
 export function BranchNode({ data, selected }: NodeProps<BranchNodeData>) {
     return (
-        <div>
-            <Handle type="target" position={Position.Top} />
-            <Card
-                size="small"
-                title={
-                    <span>
-                        <BranchesOutlined style={{ marginRight: 8 }} />
+        <div className="relative">
+            <Handle type="target" position={Position.Top} className="!bg-muted-foreground" />
+            <Card className={`w-[300px] shadow-sm ${selected ? 'border-primary ring-1 ring-primary' : ''}`}>
+                <CardHeader className="p-3 pb-0">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <GitFork className="h-4 w-4 text-muted-foreground" />
                         {data.label}
-                    </span>
-                }
-                style={{
-                    width: 300,
-                    border: selected ? '2px solid #1890ff' : '1px solid #d9d9d9',
-                }}
-            >
-                <div>
-                    <label style={{ fontSize: 12, color: '#888' }}>Condition</label>
-                    <Input
-                        value={data.condition}
-                        placeholder="e.g., score > 0.8"
-                        size="small"
-                        style={{ marginTop: 4 }}
-                    />
-                </div>
-                <div style={{ marginTop: 12, fontSize: 11, color: '#888' }}>
-                    ← True branch on left
-                    <br />→ False branch on right
-                </div>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="p-3 space-y-3">
+                    <div className="space-y-1.5">
+                        <label className="text-xs text-muted-foreground">Condition</label>
+                        <Input
+                            defaultValue={data.condition}
+                            placeholder="e.g., score > 0.8"
+                            className="h-8 text-xs"
+                        />
+                    </div>
+                    <div className="text-[10px] text-muted-foreground flex justify-between px-1">
+                        <span>← True</span>
+                        <span>False →</span>
+                    </div>
+                </CardContent>
             </Card>
-            <Handle type="source" position={Position.Left} id="true" />
-            <Handle type="source" position={Position.Right} id="false" />
+            <Handle type="source" position={Position.Left} id="true" className="!bg-green-500" />
+            <Handle type="source" position={Position.Right} id="false" className="!bg-red-500" />
         </div>
     );
 }

@@ -2,7 +2,7 @@
 "use client";
 
 
-import { Separator } from "@/ui/separator";
+import { Separator } from '@/components/ui/separator';
 import {
     Facebook,
     Instagram,
@@ -14,11 +14,12 @@ import Link from "next/link";
 
 export function SiteFooter() {
     return (
-        <footer className="relative w-full overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100 border-t border-slate-200">
-            {/* Decorative Top Border Gradient */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500" />
+        <footer className="relative w-full overflow-hidden bg-gradient-to-b from-white to-slate-50 border-t border-slate-100">
+            {/* Elegant Top Separator (Subtle Shadow/Glow) */}
+            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+            <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-white to-transparent pointer-events-none" />
 
-            <div className="container px-4 md:px-6 mx-auto pt-16 pb-8">
+            <div className="container px-4 md:px-6 mx-auto pt-16 pb-8 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
                     {/* Brand Column - Wider */}
                     <div className="lg:col-span-2 space-y-6">
@@ -27,7 +28,7 @@ export function SiteFooter() {
                                 Elysian Rebirth
                             </h3>
                             <p className="text-slate-500 text-sm leading-relaxed max-w-md">
-                                Platform Enterprise AI terdepan di Indonesia yang didedikasikan untuk merevolusi cara bisnis beroperasi. Kami menggabungkan kecerdasan buatan canggih dengan antarmuka yang ramah pengguna untuk mengotomatiskan proses, memberikan wawasan mendalam, dan memacu pertumbuhan eksponensial bagi UMKM hingga korporasi besar.
+                                Asisten Operasional Cerdas terdepan di Indonesia yang didedikasikan untuk membantu UMKM. Kami menggabungkan kecerdasan buatan canggih untuk mengotomatiskan proses, memberikan wawasan mendalam, dan memacu pertumbuhan bisnis Anda.
                             </p>
                         </div>
                         <div className="flex gap-4">

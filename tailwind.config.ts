@@ -7,8 +7,6 @@ const config = {
         './components/**/*.{ts,tsx}',
         './app/**/*.{ts,tsx}',
         './src/**/*.{ts,tsx}',
-        "../../packages/x/src/**/*.{ts,tsx}",
-        "../../packages/x-markdown/src/**/*.{ts,tsx}",
     ],
     prefix: "",
     theme: {
@@ -27,7 +25,7 @@ const config = {
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
                 primary: {
-                    DEFAULT: "var(--color-primary)",
+                    DEFAULT: "hsl(var(--primary))",
                     foreground: "hsl(var(--primary-foreground))",
                 },
                 secondary: {
@@ -56,9 +54,9 @@ const config = {
                 },
             },
             borderRadius: {
-                lg: "var(--border-radius)",
-                md: "calc(var(--border-radius) - 2px)",
-                sm: "calc(var(--border-radius) - 4px)",
+                lg: "var(--radius)",
+                md: "calc(var(--radius) - 2px)",
+                sm: "calc(var(--radius) - 4px)",
             },
             keyframes: {
                 "accordion-down": {
@@ -69,16 +67,10 @@ const config = {
                     from: { height: "var(--radix-accordion-content-height)" },
                     to: { height: "0" },
                 },
-                scroll: {
-                    to: {
-                        transform: "translate(calc(-50% - 0.5rem))",
-                    },
-                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
-                scroll: "scroll 40s linear infinite",
             },
         },
     },

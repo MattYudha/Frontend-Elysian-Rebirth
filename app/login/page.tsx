@@ -10,23 +10,23 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
-import { Button } from '@/ui/primitives/button';
-import { Card, CardContent } from '@/ui/primitives/card';
-import { Input } from '@/ui/primitives/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/ui/primitives/form';
-import { Checkbox } from '@/ui/primitives/checkbox';
+import { Button } from '@/components/ui/';
+import { Card, CardContent } from '@/components/ui/';
+import { Input } from '@/components/ui/';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/';
+import { Checkbox } from '@/components/ui/';
 import { APP_NAME } from '@/lib/config';
+import { useAuthStore } from '@/store/authStore';
 import { LandingNavbar } from '@/components/LandingNavbar';
-import { useAuth } from '@/hooks/useAuth';
 
 const formSchema = z.object({
-    email: z.string().min(1, { message: "Email atau No. Handphone wajib diisi." }),
-    password: z.string().min(1, { message: "Kata sandi wajib diisi." }),
+    email: z.string(), // Allow empty for mock
+    password: z.string(), // Allow empty for mock
     rememberMe: z.boolean(),
 });
 
 export default function LoginPage() {
-    const { login } = useAuth();
+    const { login } = useAuthStore();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -39,23 +39,29 @@ export default function LoginPage() {
         },
     });
 
-    /*
-    useEffect(() => {
-        if (isAuthenticated) {
-            const redirectTo = sessionStorage.getItem('redirect_after_login') || '/dashboard';
-            sessionStorage.removeItem('redirect_after_login');
-            router.push(redirectTo);
-        }
-    }, [isAuthenticated, router]);
-    */
-
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         try {
-            await login({ email: values.email, password: values.password });
+            // Mock Login Logic
+            await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API
+
+            const mockUser = {
+                id: 'usr_' + Math.random().toString(36).substr(2, 9),
+                email: values.email || 'demo@elysian.ai',
+                name: 'Demo User',
+                role: 'admin' as const,
+                company: 'Elysian Corp',
+                avatar: 'https://github.com/shadcn.png'
+            };
+
+            // Call Global Store
+            login(mockUser);
+
             toast.success('Berhasil masuk!');
-            const redirectTo = sessionStorage.getItem('redirect_after_login') || '/dashboard';
+            const redirectTo = '/dashboard'; // Force dashboard for now to be safe
+            // const redirectTo = sessionStorage.getItem('redirect_after_login') || '/dashboard';
             sessionStorage.removeItem('redirect_after_login');
+
             router.push(redirectTo);
         } catch (error) {
             console.error(error);

@@ -22,9 +22,9 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/ui/table"
+} from '@/components/ui/'
 import { DataTablePagination } from "./DataTablePagination"
-import { Input } from "@/ui/primitives/input"
+import { Input } from '@/components/ui/'
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]

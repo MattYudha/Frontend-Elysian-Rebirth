@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@/ui/primitives/button';
-import { Progress } from '@/ui/progress';
+import { Button } from '@/components/ui/';
+import { Progress } from '@/components/ui/';
 import { CheckCircle2, Circle, ArrowRight, CreditCard, UploadCloud, Search, FileText } from 'lucide-react';
 import { FAQSection } from '@/components/FAQSection';
 import { Sidebar } from '@/components/Sidebar';

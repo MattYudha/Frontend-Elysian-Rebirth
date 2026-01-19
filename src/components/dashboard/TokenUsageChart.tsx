@@ -1,8 +1,8 @@
 "use client";
 
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/ui/chart";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/';
 
 const chartData = [
     { day: "Mon", tokens: 1200, cost: 4.2 },

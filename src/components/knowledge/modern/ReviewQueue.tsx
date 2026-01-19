@@ -1,8 +1,8 @@
 
-import { RagSource } from '@/lib/apiClient';
-import { Button } from '@/ui/primitives/button';
-import { Card, CardContent } from '@/ui/primitives/card';
-import { Badge } from '@/ui/primitives/badge';
+import type { RagSource } from '@/lib/sdk/schemas';
+import { Button } from '@/components/ui/';
+import { Card, CardContent } from '@/components/ui/';
+import { Badge } from '@/components/ui/';
 import { Check, X, Eye, FileText, ArrowLeftRight } from 'lucide-react';
 import React from 'react';
 

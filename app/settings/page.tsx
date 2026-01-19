@@ -1,17 +1,17 @@
 'use client';
 
-import { Protected } from '@/components/Protected';
-import { Button } from '@/ui/primitives/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/ui/card';
-import { Input } from '@/ui/primitives/input';
-import { Label } from '@/ui/primitives/label';
-import { Switch } from '@/ui/switch';
+import { Protected } from '@/components/auth/Protected';
+import { Button } from '@/components/ui/';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/';
+import { Input } from '@/components/ui/';
+import { Label } from '@/components/ui/';
+import { Switch } from '@/components/ui/';
 import { Bell, Lock, User, Palette } from 'lucide-react';
 import Image from 'next/image';
 
 export default function SettingsPage() {
     return (
-        <Protected pure>
+        <Protected>
             <div className="container max-w-5xl mx-auto py-8 space-y-8">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900">Pengaturan</h1>

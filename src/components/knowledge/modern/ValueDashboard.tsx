@@ -1,7 +1,7 @@
-import { Button } from '@/ui/primitives/button';
+import { Button } from '@/components/ui/';
 import { UploadCloud } from 'lucide-react';
 import React from 'react';
-import { PipelineStats } from '@/lib/apiClient';
+import type { PipelineStats } from '@/lib/sdk/schemas';
 
 interface ValueDashboardProps {
     stats: PipelineStats;

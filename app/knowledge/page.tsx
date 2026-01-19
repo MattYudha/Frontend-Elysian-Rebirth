@@ -1,12 +1,24 @@
 'use client';
 
-import { Protected } from '@/components/Protected';
-import { KnowledgeHub } from '@/packages/x/rag/KnowledgeHub';
+import { Protected } from '@/components/auth/Protected';
+import { KnowledgeHub } from '@/components/knowledge/KnowledgeHub';
+
+import { useRagSources } from '@/hooks/api/useRagSources';
 
 export default function KnowledgePage() {
+    const { sources, isLoading, upload } = useRagSources();
+
+    const handleUpload = (file: File) => {
+        upload(file);
+    };
+
     return (
-        <Protected pure>
-            <KnowledgeHub />
+        <Protected>
+            <KnowledgeHub
+                documents={sources}
+                isLoading={isLoading}
+                onUpload={handleUpload}
+            />
         </Protected>
     );
 }

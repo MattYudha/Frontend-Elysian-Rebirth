@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Sparkles, ChevronRight } from 'lucide-react';
-import { Progress } from '@/ui/progress';
+import { Progress } from '@/components/ui/';
 
 export function GettingStartedWidget() {
     return (

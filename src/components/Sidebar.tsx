@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { NavigationMenu } from '@/components/NavigationMenu';
 import { GettingStartedWidget } from '@/components/GettingStartedWidget';
 import { User, Command, ChevronsLeft, HelpCircle } from 'lucide-react';
-import { Button } from '@/ui/primitives/button';
+import { Button } from '@/components/ui/';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { cn } from '@/lib/utils';
 

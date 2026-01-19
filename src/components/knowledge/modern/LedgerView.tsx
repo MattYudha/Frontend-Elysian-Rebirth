@@ -7,9 +7,9 @@ import {
     TableHeader,
     TableRow,
     TableFooter
-} from '@/ui/primitives/table';
-import { Badge } from '@/ui/primitives/badge';
-import { Button } from '@/ui/primitives/button'; // Assuming button primitive exists
+} from '@/components/ui/';
+import { Badge } from '@/components/ui/';
+import { Button } from '@/components/ui/'; // Assuming button primitive exists
 import { Download, ExternalLink, Filter, TrendingUp } from 'lucide-react';
 
 interface LedgerEntry {

@@ -10,7 +10,7 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "@/ui/breadcrumb";
+} from '@/components/ui/';
 import { Home } from "lucide-react";
 
 const routeNameMap: Record<string, string> = {

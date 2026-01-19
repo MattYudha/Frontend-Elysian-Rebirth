@@ -1,11 +1,11 @@
-import { Button } from '@/ui/primitives/button';
+import { Button } from '@/components/ui/';
 import {
     Wand2,
     Languages,
     FileText,
     CheckCircle
 } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/ui/primitives/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/';
 
 interface AiActionBarProps {
     actions: string[];

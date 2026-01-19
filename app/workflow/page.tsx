@@ -1,11 +1,11 @@
 'use client';
 
-import { Protected } from '@/components/Protected';
+import { Protected } from '@/components/auth/Protected';
 import Image from 'next/image';
-import { Button } from '@/ui/primitives/button';
+import { Button } from '@/components/ui/';
 import { GitMerge, Plus, Clock, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/ui/card';
+import { Card, CardContent } from '@/components/ui/';
 
 export default function WorkflowPage() {
     const [isActive, setIsActive] = useState(false);
@@ -30,7 +30,7 @@ export default function WorkflowPage() {
     if (isLoading) return null;
 
     return (
-        <Protected pure>
+        <Protected>
             <div className="flex flex-col h-[calc(100vh-6rem)]">
                 {!isActive ? (
                     // Empty State

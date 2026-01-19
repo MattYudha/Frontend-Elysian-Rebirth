@@ -1,6 +1,6 @@
 'use client';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/primitives/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/';
 import { useTenant } from '@/contexts/TenantContext';
 
 export function TenantSelector() {

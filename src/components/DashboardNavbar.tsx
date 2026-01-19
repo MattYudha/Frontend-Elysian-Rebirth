@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Cloud, Sparkles, User, Settings, LogOut, LayoutGrid } from 'lucide-react';
-import { Button } from '@/ui/primitives/button';
+import { Button } from '@/components/ui/';
 import { cn } from '@/lib/utils';
 import {
     DropdownMenu,
@@ -13,7 +13,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/ui/dropdown-menu';
+} from '@/components/ui/';
 import { MobileSidebar } from './MobileSidebar';
 import { NotificationPopover } from '@/components/NotificationPopover';
 

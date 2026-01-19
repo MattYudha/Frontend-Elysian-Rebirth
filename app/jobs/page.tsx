@@ -1,11 +1,11 @@
 'use client';
 
-import { Protected } from '@/components/Protected';
+import { Protected } from '@/components/auth/Protected';
 import { PageHeader } from '@/components/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/primitives/card';
-import { Button } from '@/ui/primitives/button';
-import { Badge } from '@/ui/primitives/badge';
-import { Progress } from '@/ui/primitives/progress';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/';
+import { Button } from '@/components/ui/';
+import { Badge } from '@/components/ui/';
+import { Progress } from '@/components/ui/';
 import {
     Table,
     TableBody,
@@ -13,7 +13,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/ui/primitives/table';
+} from '@/components/ui/';
 import { RotateCcw, Trash2, PlayCircle, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
@@ -74,7 +74,7 @@ export default function JobsPage() {
     };
 
     return (
-        <Protected requiredRoles={['admin']}>
+        <Protected>
             <div className="space-y-6">
                 <PageHeader
                     title="Background Jobs"

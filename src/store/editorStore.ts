@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { EditorDocument } from '@/lib/apiClient';
+import type { EditorDocument } from '@/lib/sdk/schemas';
 
 interface EditorState {
     currentDocument: EditorDocument | null;

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
-import { Input } from '@/ui/primitives/input';
+import { Input } from '@/components/ui/';
 import { Search, MessageCircle, Phone, Mail, MapPin, Rocket } from 'lucide-react';
 import Link from 'next/link';
 

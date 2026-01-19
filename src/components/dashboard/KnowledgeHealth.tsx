@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/primitives/card';
-import { Progress } from '@/ui/primitives/progress';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/';
+import { Progress } from '@/components/ui/';
 import { Database, RefreshCw } from 'lucide-react';
 
 interface KnowledgeHealthProps {

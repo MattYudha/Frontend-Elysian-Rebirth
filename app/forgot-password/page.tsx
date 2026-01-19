@@ -9,10 +9,10 @@ import { Loader2, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
-import { Button } from '@/ui/primitives/button';
-import { Card, CardContent } from '@/ui/primitives/card';
-import { Input } from '@/ui/primitives/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/ui/primitives/form';
+import { Button } from '@/components/ui/';
+import { Card, CardContent } from '@/components/ui/';
+import { Input } from '@/components/ui/';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/';
 import { LandingNavbar } from '@/components/LandingNavbar';
 
 const formSchema = z.object({

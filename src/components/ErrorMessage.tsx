@@ -1,5 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from '@/ui/primitives/alert';
-import { Button } from '@/ui/primitives/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/';
+import { Button } from '@/components/ui/';
 import { AlertCircle } from 'lucide-react';
 
 interface ErrorMessageProps {

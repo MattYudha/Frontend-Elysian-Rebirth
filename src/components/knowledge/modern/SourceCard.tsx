@@ -1,7 +1,7 @@
 import { ActionTooltip } from '@/components/ActionTooltip';
-import { RagSource } from '@/lib/apiClient';
+import type { RagSource } from '@/lib/sdk/schemas';
 import { cn } from '@/lib/utils';
-import { Button } from '@/ui/primitives/button';
+import { Button } from '@/components/ui/';
 import {
     FileText,
     CheckCircle2,
@@ -42,7 +42,8 @@ export const SourceCard: React.FC<SourceCardProps> = ({
         processing: Clock,
         failed: AlertOctagon,
         queued: Clock,
-        indexing: Clock
+        indexing: Clock, // Should use Loader2 if imported, but Clock matches existing
+        uploading: Clock
     }[source.status] || FileText;
 
     return (

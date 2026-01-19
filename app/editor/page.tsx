@@ -1,8 +1,8 @@
 'use client';
 
-import { Protected } from '@/components/Protected';
+import { Protected } from '@/components/auth/Protected';
 import Image from 'next/image';
-import { Button } from '@/ui/primitives/button';
+import { Button } from '@/components/ui/';
 import { Upload, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Save } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { EditorSkeleton } from '@/components/LoadingSkeletons';
@@ -35,7 +35,7 @@ export default function DocumentEditorPage() {
     if (isLoading) return <EditorSkeleton />;
 
     return (
-        <Protected pure>
+        <Protected>
             <div className="flex flex-col h-[calc(100vh-6rem)]">
                 {!isActive ? (
                     // Empty State Illustration (Shown only if > 24h since last use)

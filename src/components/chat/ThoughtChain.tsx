@@ -1,9 +1,9 @@
 import { ChevronDown, ChevronRight, BrainCircuit } from 'lucide-react';
 import { useState } from 'react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible';
-import { Button } from '@/ui/primitives/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/';
+import { Button } from '@/components/ui/';
 
-interface ThoughtChainProps {
+export interface ThoughtChainProps {
     thoughts: string[];
 }
 

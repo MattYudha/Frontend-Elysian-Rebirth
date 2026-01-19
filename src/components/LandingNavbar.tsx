@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Button } from '@/ui/primitives/button';
+import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/lib/config';
 import { cn } from '@/lib/utils';
 import { User } from 'lucide-react';

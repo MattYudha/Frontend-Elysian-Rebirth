@@ -1,10 +1,10 @@
-import { Button } from '@/ui/primitives/button';
-import { Textarea } from '@/ui/primitives/textarea';
-import { Card } from '@/ui/primitives/card';
-import { Badge } from '@/ui/primitives/badge';
+import { Button } from '@/components/ui/';
+import { Textarea } from '@/components/ui/';
+import { Card } from '@/components/ui/';
+import { Badge } from '@/components/ui/';
 import { Save, FileText, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { EditorDocument } from '@/lib/apiClient';
+import type { EditorDocument } from '@/lib/sdk/schemas';
 
 interface DocumentEditorProps {
     document: EditorDocument;

@@ -26,11 +26,11 @@ export const translationsEN = {
         password: 'Password',
         login: 'Sign In',
         logout: 'Logout',
-        demoHint: 'Demo: Use any email/password to login',
+        demoHint: 'Demo: Use any email/password to sign in',
         loginSuccess: 'Login successful!',
         loginFailed: 'Login failed. Please try again.',
         accessDenied: 'Access Denied',
-        noPermission: "You don't have permission to access this page.",
+        noPermission: 'You do not have permission to access this page.',
     },
     dashboard: {
         title: 'AI Control Center',

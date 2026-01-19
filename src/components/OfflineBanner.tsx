@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle } from '@/ui/primitives/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { WifiOff } from 'lucide-react';
 

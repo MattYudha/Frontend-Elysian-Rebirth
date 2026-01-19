@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from 'react';
 import { useEditorStore } from '@/store/editorStore';
 import { useRagStore } from '@/store/ragStore';
-import { message } from 'antd';
+import { toast } from 'sonner';
 
 const CRASH_RECOVERY_KEY = 'app_crash_recovery';
 
@@ -62,26 +62,30 @@ export function useCrashRecovery() {
             }
 
             // Show recovery prompt
-            message.info({
-                content: 'Unsaved changes detected. Would you like to restore them?',
-                duration: 10,
-                onClick: () => {
-                    if (data.editor) {
-                        editorStore.setDocument({
-                            id: data.editor.documentId,
-                            title: 'Recovered Document',
-                            content: data.editor.content,
-                            version: 0,
-                            lastModified: new Date(data.timestamp),
-                        });
-                        message.success('Editor draft restored');
-                    }
+            // Show recovery prompt
+            toast.info('Unsaved changes detected', {
+                description: 'Would you like to restore your previous session?',
+                duration: 10000,
+                action: {
+                    label: 'Restore',
+                    onClick: () => {
+                        if (data.editor) {
+                            editorStore.setDocument({
+                                id: data.editor.documentId,
+                                title: 'Recovered Document',
+                                content: data.editor.content,
+                                version: 0,
+                                lastModified: new Date(data.timestamp),
+                            });
+                            toast.success('Editor draft restored');
+                        }
 
-                    if (data.rag?.lastQuery) {
-                        ragStore.setLastQuery(data.rag.lastQuery);
-                    }
+                        if (data.rag?.lastQuery) {
+                            ragStore.setLastQuery(data.rag.lastQuery);
+                        }
 
-                    sessionStorage.removeItem(CRASH_RECOVERY_KEY);
+                        sessionStorage.removeItem(CRASH_RECOVERY_KEY);
+                    }
                 },
             });
         } catch (error) {

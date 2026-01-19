@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/ui/primitives/card';
-import { Input } from '@/ui/primitives/input';
-import { Button } from '@/ui/primitives/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/';
+import { Input } from '@/components/ui/';
+import { Button } from '@/components/ui/';
 import { Search, Zap } from 'lucide-react';
 
 interface RagSearchProps {

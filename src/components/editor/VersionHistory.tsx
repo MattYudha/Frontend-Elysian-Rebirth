@@ -1,7 +1,7 @@
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/primitives/sheet';
-import { Button } from '@/ui/primitives/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/';
+import { Button } from '@/components/ui/';
 import { History, Bot, User } from 'lucide-react';
-import { ScrollArea } from '@/ui/primitives/scroll-area';
+import { ScrollArea } from '@/components/ui/';
 
 interface Version {
     id: string;

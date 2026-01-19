@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { RagSource } from '@/lib/apiClient';
+import type { RagSource } from '@/lib/sdk/schemas';
 
 interface RagState {
     sources: RagSource[];

@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { usePathname } from 'next/navigation';
 import { mainNav } from '@/config/nav';
@@ -24,9 +24,14 @@ const iconMap: Record<string, any> = {
 };
 
 export function NavigationMenu() {
-    const { hasAnyRole } = useAuth();
+    const { user } = useAuthStore();
     const { isOpen } = useSidebar();
     const pathname = usePathname();
+
+    const hasAnyRole = (allowedRoles: string[]) => {
+        if (!user || !user.role) return false;
+        return allowedRoles.includes(user.role);
+    };
 
     const filteredNav = mainNav.filter((item) => {
         // Check role requirement

@@ -1,12 +1,12 @@
 "use client";
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
-import { ScrollArea } from "@/ui/scroll-area";
-import { Badge } from "@/ui/badge";
-import { Separator } from "@/ui/separator";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/';
+import { ScrollArea } from '@/components/ui/';
+import { Badge } from '@/components/ui/';
+import { Separator } from '@/components/ui/';
 import { Activity, Settings } from "lucide-react";
-import type { PipelineItem } from "@/packages/x/types";
+import type { PipelineItem } from "@/types/x";
 
 interface PipelineDetailDrawerProps {
     pipeline: PipelineItem | null;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useI18n } from '@enterprise-ai/x';
+import { useI18n } from '@/components/providers/I18nProvider';
 import { getTranslations, type SupportedLocale } from '@/locales';
 import { useMemo } from 'react';
 

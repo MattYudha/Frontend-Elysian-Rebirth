@@ -6,10 +6,10 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from '@/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
-import { Button } from '@/ui/primitives/button';
-import { Badge } from '@/ui/badge';
+} from '@/components/ui/';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/';
+import { Button } from '@/components/ui/';
+import { Badge } from '@/components/ui/';
 import Image from 'next/image';
 
 export function NotificationPopover() {

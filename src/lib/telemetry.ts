@@ -1,4 +1,4 @@
-import { message } from 'antd';
+import { toast as sonnerToast } from 'sonner';
 
 type EventType =
     | 'chat.send'
@@ -84,24 +84,34 @@ class TelemetryService {
 
 export const telemetry = new TelemetryService();
 
-// Convenience functions
+// Convenience functions (Adapter for previous Antd usage)
 export const toast = {
     success: (msg: string) => {
-        message.success(msg);
+        sonnerToast.success(msg);
         telemetry.track('user.login', { message: msg });
     },
     error: (msg: string) => {
-        message.error(msg);
+        sonnerToast.error(msg);
         telemetry.track('error.occurred', { message: msg });
     },
     warning: (msg: string) => {
-        message.warning(msg);
+        sonnerToast.warning(msg);
     },
     info: (msg: string) => {
-        message.info(msg);
+        sonnerToast.info(msg);
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    loading: (msg: string, key?: string, _metadata?: Record<string, any>) => {
-        return message.loading({ content: msg, key, duration: 0 });
+    loading: (msg: string, key?: string | number, _metadata?: Record<string, any>) => {
+        const id = sonnerToast.loading(msg, { id: key });
+        return {
+            update: (params: { content?: string, type?: 'success' | 'error' | 'info' }) => {
+                if (params.type === 'success') sonnerToast.success(params.content || msg, { id });
+                else if (params.type === 'error') sonnerToast.error(params.content || msg, { id });
+                else sonnerToast.message(params.content || msg, { id });
+            },
+            destroy: () => sonnerToast.dismiss(id),
+            // Maintain Antd message compatibility if possible, though return type differs slightly
+            then: (resolve: any, reject: any) => { /* dummy */ },
+        };
     },
 };

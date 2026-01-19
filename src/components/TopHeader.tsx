@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@/ui/primitives/button';
-import { Input } from '@/ui/primitives/input';
+import { Button } from '@/components/ui/';
+import { Input } from '@/components/ui/';
 import { Bell, Search } from 'lucide-react';
 
 export function TopHeader() {

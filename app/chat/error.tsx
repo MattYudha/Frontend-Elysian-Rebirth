@@ -1,7 +1,7 @@
 'use client';
 
-import { Result, Button } from 'antd';
-import Link from 'next/link';
+import { XErrorState } from '@/components/ui/common/XErrorState';
+import { useRouter } from 'next/navigation';
 
 export default function ErrorPage({
   error,
@@ -10,20 +10,16 @@ export default function ErrorPage({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Result
-        status="error"
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <XErrorState
+        type="error"
         title="Chat Error"
-        subTitle={error.message || 'Failed to load chat'}
-        extra={[
-          <Button type="primary" key="retry" onClick={reset}>
-            Retry
-          </Button>,
-          <Link href="/dashboard" key="home">
-            <Button>Back to Dashboard</Button>
-          </Link>,
-        ]}
+        message={error.message || 'Failed to load chat'}
+        onRetry={reset}
+        onGoBack={() => router.push('/dashboard')}
       />
     </div>
   );

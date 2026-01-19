@@ -1,9 +1,9 @@
 'use client';
 
 import { PageHeader } from '@/components/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/primitives/card';
-import { Badge } from '@/ui/primitives/badge';
-import { Button } from '@/ui/primitives/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/';
+import { Badge } from '@/components/ui/';
+import { Button } from '@/components/ui/';
 import { RefreshCcw, CheckCircle2, XCircle, Activity, Server, Clock } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { APP_NAME } from '@/lib/config';

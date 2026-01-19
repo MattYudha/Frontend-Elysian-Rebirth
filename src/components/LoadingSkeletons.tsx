@@ -1,7 +1,7 @@
 'use client';
 
-import { Skeleton } from '@/ui/primitives/skeleton';
-import { Card, CardContent, CardHeader } from '@/ui/primitives/card';
+import { Skeleton } from '@/components/ui/';
+import { Card, CardContent, CardHeader } from '@/components/ui/';
 
 // Helper for consistent shimmering effect
 function ShimmerBlock({ className, style }: { className?: string, style?: React.CSSProperties }) {

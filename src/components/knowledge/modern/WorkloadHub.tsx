@@ -1,4 +1,4 @@
-import { PipelineStats } from '@/lib/apiClient';
+import type { PipelineStats } from '@/lib/sdk/schemas';
 import { Activity, CircleDashed, CheckCircle2, TrendingUp } from 'lucide-react';
 import React from 'react';
 

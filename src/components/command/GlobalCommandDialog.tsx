@@ -11,7 +11,7 @@ import {
     Bot,
     LayoutDashboard
 } from "lucide-react";
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut } from "@/ui/command";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut } from '@/components/ui/command';
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 

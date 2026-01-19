@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Node, Edge } from 'reactflow';
-import type { PipelineItem } from '../packages/x/types';
+import type { PipelineItem } from '@/types/x';
 
 interface WorkflowState {
   nodes: Node[];

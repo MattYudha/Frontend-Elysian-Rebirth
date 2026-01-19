@@ -27,15 +27,6 @@
             "@/*": [
                 "./src/*"
             ],
-            "@enterprise-ai/x": [
-                "./src/packages/x"
-            ],
-            "@enterprise-ai/x-sdk": [
-                "./src/packages/x-sdk"
-            ],
-            "@enterprise-ai/x-markdown": [
-                "./src/packages/x-markdown"
-            ]
         },
         "baseUrl": ".",
         "rootDir": "."

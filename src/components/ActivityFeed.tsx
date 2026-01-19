@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/primitives/card';
-import { Badge } from '@/ui/primitives/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/';
+import { Badge } from '@/components/ui/';
 import {
   MessageSquare,
   Database,
