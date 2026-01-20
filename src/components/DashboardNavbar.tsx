@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Cloud, Sparkles, User, Settings, LogOut, LayoutGrid } from 'lucide-react';
+import { Cloud, Sparkles, User, Settings, LogOut, LayoutGrid, Infinity as InfinityIcon, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/';
 import { cn } from '@/lib/utils';
 import {
@@ -82,39 +82,25 @@ export function DashboardNavbar({ staticMode = false }: { staticMode?: boolean }
                     <div className="flex items-center gap-2 md:hidden">
                         <MobileSidebar />
                         <Link href="/dashboard">
-                            <div className="relative w-8 h-8 flex items-center justify-center bg-gradient-to-tr from-blue-500 to-cyan-400 rounded-lg text-white">
-                                <Cloud className="h-5 w-5 fill-white" />
+                            <div className="relative w-8 h-8 flex items-center justify-center bg-gradient-to-br from-blue-600 to-cyan-400 rounded-lg text-white shadow-blue-500/20">
+                                <InfinityIcon className="h-5 w-5 stroke-white" strokeWidth={2.5} />
                             </div>
                         </Link>
                     </div>
 
-                    {/* Desktop Logo & Title */}
-                    <Link href="/dashboard" className="hidden md:flex items-center gap-3 group">
-                        <div className={cn(
-                            "relative flex items-center justify-center bg-gradient-to-tr from-blue-500 to-cyan-400 rounded-xl text-white transition-all duration-500",
-                            scrolled ? "w-9 h-9 shadow-md" : "w-10 h-10 shadow-lg scale-110"
-                        )}>
-                            <Cloud className={cn("fill-white transition-all", scrolled ? "h-5 w-5" : "h-6 w-6")} />
-                            <Sparkles className="absolute -top-1 -right-1 h-3 w-3 text-yellow-200 animate-pulse" />
-                        </div>
-                        <div className="hidden lg:flex flex-col">
-                            <span className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-cyan-600 leading-none">
-                                Elysian
-                            </span>
-                            <span className="text-[10px] text-slate-500 font-medium tracking-wide">ENTERPRISE</span>
-                        </div>
-                    </Link>
-
-                    {/* Page Title (Fade in when scrolled or always visible?) 
-                        Let's keep it consistent: Divider + Title */}
-                    {scrolled && (
-                        <>
-                            <div className="hidden md:block h-5 w-px bg-slate-200/60 mx-1 animate-in fade-in zoom-in" />
-                            <h1 className="hidden md:block text-sm font-semibold text-slate-700 animate-in fade-in slide-in-from-left-2">
+                    {/* Desktop Context: Page Title / Status */}
+                    <div className="hidden md:flex items-center gap-3 ml-2 animate-in fade-in slide-in-from-left-2 duration-500">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/50 border border-slate-200/50">
+                            {pathname.startsWith('/chat') ? (
+                                <Bot className="h-3.5 w-3.5 text-blue-600" />
+                            ) : (
+                                <LayoutGrid className="h-3.5 w-3.5 text-slate-500" />
+                            )}
+                            <span className="text-xs font-semibold text-slate-600 tracking-wide uppercase">
                                 {getPageTitle()}
-                            </h1>
-                        </>
-                    )}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Mobile Page Title (Always visible on mobile) */}

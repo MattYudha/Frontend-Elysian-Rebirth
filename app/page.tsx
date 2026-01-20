@@ -385,7 +385,7 @@ function SolutionSection() {
     const features = [
         { icon: Bot, title: 'AI Assistant 24/7', desc: 'Jawab pertanyaan tim kapan saja', color: 'from-blue-500 to-cyan-500' },
         { icon: FileText, title: 'Document Hub', desc: 'Semua file dalam satu tempat', color: 'from-indigo-500 to-purple-500' },
-        { icon: Shield, title: 'Enterprise Security', desc: 'Standar keamanan perbankan', color: 'from-emerald-500 to-teal-500' },
+        { icon: Shield, title: 'Advanced Security', desc: 'Standar keamanan perbankan', color: 'from-emerald-500 to-teal-500' },
         { icon: Zap, title: 'Workflow Automation', desc: 'Otomasi tugas berulang', color: 'from-orange-500 to-amber-500' }
     ];
 
@@ -611,7 +611,7 @@ function FAQSection() {
     const faqs = [
         { q: "Apakah data bisnis saya aman?", a: "Sangat aman. Kami menggunakan enkripsi standar perbankan (AES-256) dan server yang terisolasi untuk setiap klien." },
         { q: "Bisa integrasi dengan WhatsApp?", a: "Ya! Elysian memiliki fitur integrasi WhatsApp Business API resmi untuk auto-reply dan manajemen order." },
-        { q: "Apakah ada training penggunaan?", a: "Kami menyediakan video tutorial lengkap dan sesi onboarding 1-on-1 untuk paket Enterprise." },
+        { q: "Apakah ada training penggunaan?", a: "Kami menyediakan video tutorial lengkap dan sesi onboarding 1-on-1 untuk paket Premium." },
         { q: "Bagaimana jika saya ingin berhenti?", a: "Anda bisa berhenti berlangganan kapan saja. Data Anda bisa diekspor sepenuhnya." }
     ];
 

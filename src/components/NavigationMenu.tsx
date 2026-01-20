@@ -47,27 +47,59 @@ export function NavigationMenu() {
         return true;
     });
 
+    // Group by section
+    const groupedNav: Record<string, typeof filteredNav> = {
+        'Main': [],
+        'System': []
+    };
+
+    filteredNav.forEach(item => {
+        const section = item.section || 'Main';
+        if (!groupedNav[section]) groupedNav[section] = [];
+        groupedNav[section].push(item);
+    });
+
     return (
-        <nav className="space-y-1">
-            {filteredNav.map((item) => {
-                const Icon = getIcon(item.icon);
-                const isActive = pathname === item.href;
+        <nav className="space-y-6">
+            {Object.entries(groupedNav).map(([section, items]) => {
+                if (items.length === 0) return null;
 
                 return (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                            'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                            !isOpen && 'justify-center px-2',
-                            isActive
-                                ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
-                                : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
+                    <div key={section} className="space-y-1">
+                        {isOpen && (
+                            <h4 className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                                {section}
+                            </h4>
                         )}
-                    >
-                        <Icon className={cn("h-5 w-5", !isOpen && "mr-0")} />
-                        {isOpen && <span className="animate-in fade-in duration-200">{item.label}</span>}
-                    </Link>
+                        {!isOpen && (
+                            <div className="h-px w-6 mx-auto bg-slate-200 my-2" />
+                        )}
+
+                        {items.map((item) => {
+                            const Icon = getIcon(item.icon);
+                            const isActive = pathname === item.href;
+
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={cn(
+                                        'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors relative',
+                                        !isOpen && 'justify-center px-2',
+                                        isActive
+                                            ? 'text-blue-700 bg-blue-50'
+                                            : 'text-slate-600 hover:bg-blue-50 hover:text-blue-700'
+                                    )}
+                                >
+                                    {isActive && (
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full" />
+                                    )}
+                                    <Icon className={cn("h-5 w-5", isActive ? "text-blue-600" : "text-slate-500")} />
+                                    {isOpen && <span className="animate-in fade-in duration-200">{item.label}</span>}
+                                </Link>
+                            );
+                        })}
+                    </div>
                 );
             })}
         </nav>

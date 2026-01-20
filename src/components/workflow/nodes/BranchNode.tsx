@@ -4,40 +4,47 @@ import { Handle, Position, NodeProps } from 'reactflow';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/';
 import { Input } from '@/components/ui/';
 import { GitFork } from 'lucide-react';
+import { NodeStatusBadge } from './NodeStatusBadge';
+import { useWorkflowStore } from '../store';
 
 interface BranchNodeData {
     label: string;
     condition?: string;
 }
 
-export function BranchNode({ data, selected }: NodeProps<BranchNodeData>) {
+export function BranchNode({ id, data, selected }: NodeProps<BranchNodeData>) {
+    const status = useWorkflowStore((s) => s.execution.nodeStatus[id]);
+
     return (
-        <div className="relative">
-            <Handle type="target" position={Position.Top} className="!bg-muted-foreground" />
-            <Card className={`w-[300px] shadow-sm ${selected ? 'border-primary ring-1 ring-primary' : ''}`}>
+        <div className="relative group">
+            <NodeStatusBadge status={status} />
+            <Handle type="target" position={Position.Top} className="!bg-slate-400 group-hover:!bg-purple-500 transition-colors" />
+            <Card className={`w-[300px] shadow-sm transition-all duration-300 ${selected ? 'border-purple-500 ring-1 ring-purple-500 shadow-md' : 'hover:border-purple-300'}`}>
                 <CardHeader className="p-3 pb-0">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2">
-                        <GitFork className="h-4 w-4 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium flex items-center gap-2 text-slate-700">
+                        <div className="p-1 rounded bg-purple-100 text-purple-600">
+                            <GitFork className="h-3.5 w-3.5" />
+                        </div>
                         {data.label}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-3 space-y-3">
                     <div className="space-y-1.5">
-                        <label className="text-xs text-muted-foreground">Condition</label>
+                        <label className="text-[10px] uppercase font-semibold text-slate-500">Condition</label>
                         <Input
                             defaultValue={data.condition}
                             placeholder="e.g., score > 0.8"
-                            className="h-8 text-xs"
+                            className="h-7 text-xs border-slate-200 bg-slate-50/50"
                         />
                     </div>
-                    <div className="text-[10px] text-muted-foreground flex justify-between px-1">
-                        <span>← True</span>
-                        <span>False →</span>
+                    <div className="text-[10px] uppercase font-semibold text-slate-400 flex justify-between px-1">
+                        <span className="text-green-600">← True</span>
+                        <span className="text-red-500">False →</span>
                     </div>
                 </CardContent>
             </Card>
-            <Handle type="source" position={Position.Left} id="true" className="!bg-green-500" />
-            <Handle type="source" position={Position.Right} id="false" className="!bg-red-500" />
+            <Handle type="source" position={Position.Left} id="true" className="!bg-green-500 w-3 h-3" />
+            <Handle type="source" position={Position.Right} id="false" className="!bg-red-500 w-3 h-3" />
         </div>
     );
 }

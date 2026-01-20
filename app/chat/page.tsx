@@ -1,23 +1,19 @@
-'use client';
+import { ChatInterface } from '@/components/chat/ChatInterface';
+import { Metadata } from 'next';
 
-import { Protected } from '@/components/auth/Protected';
-import { ChatShell } from '@/components/chat/ChatShell';
-import { useChat } from '@/hooks/api/useChat';
+export const metadata: Metadata = {
+    title: 'Elysian Intelligence | Chat',
+    description: 'Advanced AI Assistant for Elysian Enterprise Platform',
+};
 
 export default function ChatPage() {
-    const { messages, sendMessage, isSending } = useChat();
-
-    const handleSend = (content: string) => {
-        sendMessage({ message: content });
-    };
-
     return (
-        <Protected>
-            <ChatShell
-                messages={messages}
-                isThinking={isSending}
-                onSend={handleSend}
-            />
-        </Protected>
+        <div className="h-full w-full bg-slate-50 text-slate-900 relative flex flex-col">
+            {/* 
+               We wrap ChatInterface in a full-height container.
+               The ChatInterface handles its own internal scrolling and layout.
+            */}
+            <ChatInterface />
+        </div>
     );
 }

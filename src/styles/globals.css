@@ -4,14 +4,44 @@
 
 @layer base {
     :root {
+        /* Typography */
+        --font-sans: var(--font-inter);
+        --font-heading: var(--font-space);
+        --font-mono: var(--font-mono);
+
+        /* Semantic Tokens (Enterprise) */
+        --bg-primary: 0 0% 100%;
+        /* White */
+        --bg-secondary: 210 40% 98%;
+        /* Slate-50 */
+        --bg-muted: 210 40% 96.1%;
+        /* Slate-100 */
+
+        --text-primary: 222.2 84% 4.9%;
+        /* Slate-900 */
+        --text-secondary: 215.4 16.3% 46.9%;
+        /* Slate-500 */
+        --text-muted: 215.4 16.3% 60%;
+        /* Slate-400 */
+
+        --border-subtle: 214.3 31.8% 91.4%;
+        /* Slate-200 */
+        --border-strong: 214.3 31.8% 85%;
+        /* Slate-300 */
+
+        --accent-ai: 221.2 83.2% 53.3%;
+        /* Blue-600 */
+        --accent-ai-soft: 213 94% 68%;
+        /* Blue-400 */
+
         /* Legacy tokens (preserved for compatibility) */
         --primary: #195de6;
         --background-light: #f6f6f8;
         --background-dark: #111621;
 
         /* shadcn design tokens - Light Mode */
-        --background: 0 0% 100%;
-        --foreground: 222.2 84% 4.9%;
+        --background: var(--bg-primary);
+        --foreground: var(--text-primary);
 
         --card: 0 0% 100%;
         --card-foreground: 222.2 84% 4.9%;
@@ -97,7 +127,7 @@
 
     body {
         @apply bg-background text-foreground;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
             'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
