@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic'; // Dynamic import
 import { motion, useScroll, useTransform } from 'framer-motion';
 import {
     Shield, Zap, XCircle, Bot, FileText,
-    ArrowRight, Sparkles, TrendingUp, Menu, X, Store, Truck, PenTool, Stethoscope, CheckCircle2
+    ArrowRight, Sparkles, TrendingUp, Store, Truck, PenTool, Stethoscope, CheckCircle2
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton'; // Skeleton for lazy loading
 

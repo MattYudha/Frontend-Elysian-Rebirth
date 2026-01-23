@@ -1,5 +1,4 @@
-import { Progress } from "@/components/ui/progress";
-import { checkPasswordStrength, PasswordStrength } from "@/lib/password-strength";
+import { checkPasswordStrength } from "@/lib/password-strength";
 import { cn } from "@/lib/utils";
 
 interface PasswordStrengthMeterProps {

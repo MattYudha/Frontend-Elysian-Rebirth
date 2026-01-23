@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Cloud, Sparkles, User, Settings, LogOut, LayoutGrid, Infinity as InfinityIcon, Bot } from 'lucide-react';
+import { User, Settings, LogOut, LayoutGrid, Infinity as InfinityIcon, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/';
 import { cn } from '@/lib/utils';
 import {
