@@ -20,7 +20,6 @@ export const useAuthStore = create<AuthState>()(
         {
             name: 'elysian-auth-storage', // Key di localStorage
             storage: createJSONStorage(() => localStorage),
-            skipHydration: true,
         }
     )
 );

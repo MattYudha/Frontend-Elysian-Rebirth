@@ -98,7 +98,7 @@ const nextConfig = {
                             base-uri 'self';
                             form-action 'self';
                             frame-ancestors 'none';
-                            connect-src 'self' https://*.ingest.sentry.io;
+                            connect-src 'self' https://*.ingest.sentry.io https://unpkg.com https://cdn.jsdelivr.net;
                         `.replace(/\s{2,}/g, ' ').trim(),
                     }
                 ],

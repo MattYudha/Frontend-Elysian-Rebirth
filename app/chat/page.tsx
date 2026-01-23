@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Elysian Intelligence | Chat',
-    description: 'Advanced AI Assistant for Elysian Enterprise Platform',
+    description: 'Advanced AI Assistant for Elysian  Platform',
 };
 
 export default function ChatPage() {

@@ -1,52 +1,126 @@
-# ELISYAN REBIRTH AI Platform - Frontend
+# 🌌 Elysian Rebirth - Enterprise AI Platform
 
-Next.js 14 frontend application for theElisyan Rebirth AI Platform.
+> **Status**: 🚀 Production Ready | **v1.0.0**
 
-## Running Locally -- Tutor
+Next-generation AI Platform built with a focus on **Enterprise Security**, **Scalability**, and **Developer Experience**. Built for the modern web with Next.js 14, fully typed, tested, and monitored.
+
+---
+
+## 🛠️ Enterprise Tech Stack
+
+### Core Framework
+- **Framework**: [Next.js 14 (App Router)](https://nextjs.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/) (Strict Mode)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **Local Database**: [IndexedDB (via idb-keyval)](https://github.com/jakearchibald/idb-keyval) + Encryption
+
+### UI & Design System
+- **Component Library**: [Shadcn/UI](https://ui.shadcn.com/) (Radix Primitives)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Documentation**: [Storybook v8](https://storybook.js.org/)
+
+### Quality Assurance (The Testing Pyramid)
+- **Unit & Integration**: [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/)
+- **End-to-End (E2E)**: [Playwright](https://playwright.dev/)
+- **Pre-Commit Hooks**: [Husky](https://typicode.github.io/husky/) + [Lint-Staged](https://github.com/lint-staged/lint-staged)
+
+### Security & Observability
+- **Security Headers**: Strict **Content Security Policy (CSP)**
+- **Error Tracking**: [Sentry](https://sentry.io/) (Client, Server, Edge)
+- **Compliance**: PII Redaction configured
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 20+
+- npm 10+
+
+### Installation
 
 ```bash
-# From monorepo root
+# Clone the repository
+git clone https://github.com/Elysian-Rebirth/Frontend-Elysian-Rebirth.git
+cd Frontend-Elysian-Rebirth
+
+# Install dependencies
 npm install
-npm run dev:platform
 ```
 
-The app will be available at http://localhost:3000
-
-## Building
+### Development Environment
 
 ```bash
-npm run build:platform
+# Start the development server
+npm run dev
+# Access at http://localhost:3000
 ```
 
-## Deploying to Vercel
+### Component Catalog (Storybook)
 
-1. Connect your repository to Vercel
-2. Set the root directory to `apps/platform`
-3. Framework preset: Next.js
-4. Build command: `npm run build`
-5. Output directory: `.next`
+Explore the "Mini Design System" without running the full app.
 
-### Environment Variables
+```bash
+npm run storybook
+# Access at http://localhost:6006
+```
 
-Set these in Vercel:
-- `NEXT_PUBLIC_API_BASE_URL` - Backend API URL
-- `NEXT_PUBLIC_APP_NAME` - Application name
-- `NEXT_PUBLIC_APP_VERSION` - Application version
+---
 
-## Features
+## 🧪 Testing Strategies
 
-- **Dashboard** - AI control center with stats and pipelines
-- **Chat** - Conversational AI interface
-- **Knowledge Base** - RAG configuration and document management
-- **Document Editor** - Human-in-the-loop editing
-- **Settings** - Application configuration
+We employ a robust testing strategy to ensure reliability.
 
-## Tech Stack
+### 1. Unit & Integration Tests (Vitest)
+Fast feedback loop for logic and component interactions.
 
-- Next.js 14 (App Router)
+```bash
+npm run test         # Run all unit/integration tests
+npm run test:watch   # Watch mode for TDD
+```
 
-made by matt
-- TypeScript
-- React 18
-- Ant Design 5
-- @enterprise-ai/x UI Library
+### 2. End-to-End Tests (Playwright)
+Validates critical user journeys (Login -> Workflow -> Save) in a real browser environment.
+
+```bash
+npm run test:e2e     # Run E2E suite
+```
+
+---
+
+## 🛡️ Security Features
+
+### Content Security Policy (CSP)
+Configured in `next.config.mjs`.
+- **Transitional Mode**: Allows minimal inline scripts/styles for hydration.
+- **Strict Mode**: Blocks object/iframe injection.
+
+### Sentry Observability
+- Errors are captured globally via `XErrorBoundary` and `global-error.tsx`.
+- Sensitive data is redacted before egress.
+
+---
+
+## 📂 Project Structure
+
+```bash
+├── app/                  # Next.js App Router (Routes & Layouts)
+├── src/
+│   ├── components/       # React Components
+│   │   ├── ui/           # Design System (Shadcn)
+│   │   └── workflow/     # Feature Components
+│   ├── lib/              # Utilities & Helpers
+│   ├── store/            # Zustand State Stores
+│   ├── queries/          # React Query Hooks
+│   ├── test/             # Test setup & Mocks
+│   └── styles/           # Global CSS
+├── e2e/                  # Playwright E2E Tests
+├── .storybook/           # Storybook Configuration
+└── public/               # Static Assets
+```
+
+---
+
+Built with ❤️ by **Matt Yudha** & **Antigravity AI**.
+

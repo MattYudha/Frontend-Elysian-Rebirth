@@ -45,3 +45,5 @@ export * from "./toaster";
 export * from "./toggle-group";
 export * from "./toggle";
 export * from "./tooltip";
+export * from "./password-strength-meter";
+export * from "./input-password";

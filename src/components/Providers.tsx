@@ -38,7 +38,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
                                             {children}
                                         </div>
                                         <Toaster />
-                                        <MobileBottomNav />
+                                        <Toaster />
+
+                                        {/* Hide Bottom Nav on Auth Pages and Landing Page */}
+                                        {!['/login', '/register', '/forgot-password', '/'].includes(pathname) && (
+                                            <MobileBottomNav />
+                                        )}
                                         {pathname === '/' && <SiteFooter />}
                                     </SidebarProvider>
                                 </CrashRecoveryProvider>
