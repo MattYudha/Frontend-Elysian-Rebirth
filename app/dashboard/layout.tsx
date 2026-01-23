@@ -2,6 +2,7 @@
 
 import { Sidebar } from '@/components/Sidebar';
 import { DashboardNavbar } from '@/components/DashboardNavbar';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 export default function DashboardLayout({
     children,
@@ -19,9 +20,12 @@ export default function DashboardLayout({
                     <DashboardNavbar staticMode />
                 </div>
 
-                <div id="main-scroll-container" className="flex-1 overflow-y-auto">
+                <div id="main-scroll-container" className="flex-1 overflow-y-auto pb-16 md:pb-0">
                     {children}
                 </div>
+
+                {/* Mobile Bottom Nav */}
+                <MobileBottomNav />
             </main>
         </div>
     );

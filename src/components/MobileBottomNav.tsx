@@ -36,22 +36,33 @@ export function MobileBottomNav() {
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[40] bg-white dark:bg-zinc-950 border-t border-slate-200 dark:border-slate-800 h-16 px-6 flex items-center justify-between md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pb-[calc(env(safe-area-inset-bottom))]">
-            {navItems.map((item) => (
-                <Link
-                    key={item.label}
-                    href={item.href}
-                    className={cn(
-                        "flex flex-col items-center justify-center gap-1 w-16 h-full transition-colors",
-                        item.active
-                            ? "text-blue-600 dark:text-blue-400"
-                            : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-                    )}
-                >
-                    <item.icon className={cn("h-6 w-6", item.active && "fill-current")} />
-                    <span className="text-[10px] font-medium">{item.label}</span>
-                </Link>
-            ))}
+        <div id="mobile-bottom-nav" className="fixed bottom-0 left-0 right-0 z-[40] bg-white dark:bg-zinc-950 border-t border-slate-200 dark:border-slate-800 h-16 px-6 flex items-center justify-between md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pb-[calc(env(safe-area-inset-bottom))]">
+            {navItems.map((item) => {
+                const getOnboardingId = (href: string) => {
+                    if (href === '/dashboard') return 'mobile-nav-dashboard';
+                    if (href === '/chat') return 'mobile-nav-chat';
+                    if (href === '/knowledge') return 'mobile-nav-knowledge';
+                    if (href === '/settings') return 'mobile-nav-profile';
+                    return undefined;
+                };
+
+                return (
+                    <Link
+                        key={item.label}
+                        href={item.href}
+                        id={getOnboardingId(item.href)}
+                        className={cn(
+                            "flex flex-col items-center justify-center gap-1 w-16 h-full transition-colors",
+                            item.active
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                        )}
+                    >
+                        <item.icon className={cn("h-6 w-6", item.active && "fill-current")} />
+                        <span className="text-[10px] font-medium">{item.label}</span>
+                    </Link>
+                );
+            })}
         </div>
     );
 }

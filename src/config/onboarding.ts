@@ -103,7 +103,7 @@ export const mobileOnboardingSteps: OnboardingStep[] = [
         id: 101,
         title: "👋 Selamat Datang!",
         description: "Elysian adalah platform AI enterprise Anda. Mari kenali fitur-fitur utama dalam 5 langkah singkat.",
-        targetId: "mobile-welcome",
+        targetId: "mobile-bottom-nav",
         label: "MULAI",
         ctaLabel: "Mulai",
         mobileOnly: true

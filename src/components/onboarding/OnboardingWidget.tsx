@@ -224,6 +224,15 @@ export const OnboardingWidget = () => {
 
     // Smart positioning logic
     const getCardPosition = () => {
+        if (isMobile) {
+            // Mobile: Bottom sheet style (centered horizontally, at the bottom)
+            return {
+                bottom: 16,
+                left: '50%',
+                width: 'calc(100vw - 2rem)'
+            };
+        }
+
         if (!targetRect) {
             // Default: Bottom right corner
             return { bottom: 24, right: 24 };
@@ -328,17 +337,18 @@ export const OnboardingWidget = () => {
                     </motion.div>
 
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
+                        initial={{ opacity: 0, scale: 0.95, x: isMobile ? '-50%' : 0 }}
                         animate={{
                             opacity: 1,
                             scale: 1,
+                            x: isMobile ? '-50%' : 0,
+                            ...cardPosition
                         }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         style={{
                             position: 'fixed',
                             zIndex: Z_INDEX.onboarding,
-                            ...cardPosition,
                         }}
                         className="w-[calc(100vw-2rem)] max-w-[420px] pointer-events-auto"
                     >
