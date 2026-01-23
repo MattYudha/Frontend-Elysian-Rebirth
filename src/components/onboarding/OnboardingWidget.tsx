@@ -210,17 +210,54 @@ export const OnboardingWidget = () => {
 
     if (isCompleted) return null;
 
-    const cardPosition = targetRect
-        ? {
-            top: Math.max(20, Math.min(targetRect.top, window.innerHeight - 300)),
-            left: targetRect.right + 24
+    // Smart positioning logic
+    const getCardPosition = () => {
+        if (!targetRect) {
+            // Default: Bottom right corner
+            return { bottom: 24, right: 24 };
         }
-        : { bottom: 24, right: 24 };
+
+        const cardWidth = 420; // max width from className
+        const cardHeight = 300; // estimated
+        const padding = 24;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Try right side first
+        if (targetRect.right + padding + cardWidth < viewportWidth) {
+            return {
+                top: Math.max(padding, Math.min(targetRect.top, viewportHeight - cardHeight - padding)),
+                left: targetRect.right + padding
+            };
+        }
+
+        // Try left side
+        if (targetRect.left - cardWidth - padding > 0) {
+            return {
+                top: Math.max(padding, Math.min(targetRect.top, viewportHeight - cardHeight - padding)),
+                right: viewportWidth - targetRect.left + padding
+            };
+        }
+
+        // Try bottom
+        if (targetRect.bottom + padding + cardHeight < viewportHeight) {
+            return {
+                top: targetRect.bottom + padding,
+                left: Math.max(padding, Math.min(targetRect.left, viewportWidth - cardWidth - padding))
+            };
+        }
+
+        // Fallback: Bottom right
+        return { bottom: padding, right: padding };
+    };
+
+    const cardPosition = getCardPosition();
 
     return (
         <AnimatePresence>
             {isOpen && (
                 <>
+                    {/* Dark Overlay with Cutout (NO BLUR) */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -283,16 +320,15 @@ export const OnboardingWidget = () => {
                         animate={{
                             opacity: 1,
                             scale: 1,
-                            ...cardPosition
                         }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
                         style={{
                             position: 'fixed',
                             zIndex: Z_INDEX.onboarding,
-                            ...(targetRect ? {} : { bottom: 24, right: 24 }),
+                            ...cardPosition,
                         }}
-                        className={`w-[380px] md:w-[420px] pointer-events-auto`}
+                        className="w-[calc(100vw-2rem)] max-w-[420px] pointer-events-auto"
                     >
                         <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] ring-1 ring-white/20 border border-white/40 dark:border-slate-700 backdrop-blur-3xl">
 
