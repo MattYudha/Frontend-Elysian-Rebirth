@@ -133,14 +133,12 @@ const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
 
 export const OnboardingWidget = () => {
     const {
-        currentMilestone,
         isOpen,
         isCompleted,
         showWelcome,
         dismissWelcome,
         nextStep,
         close,
-        complete,
         hasSeenOnboardingAt,
         open,
         syncProgress,
@@ -155,17 +153,15 @@ export const OnboardingWidget = () => {
     const stepNumber = getStepNumber();
     const currentStepData = onboardingSteps[stepNumber - 1];
 
+    // All hooks MUST be called before any conditional returns
     useEffect(() => {
         setIsMounted(true);
         syncProgress();
         if (!isCompleted && !hasSeenOnboardingAt) open();
     }, [hasSeenOnboardingAt, isCompleted, open, syncProgress]);
 
-    // Safety check - if no step data, don't render
-    if (!currentStepData) return null;
-
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen || !currentStepData) return;
         const updatePosition = () => {
             if (currentStepData?.targetId) {
                 const el = document.getElementById(currentStepData.targetId);
@@ -186,7 +182,7 @@ export const OnboardingWidget = () => {
             window.removeEventListener('scroll', updatePosition, true);
             clearTimeout(timeout);
         };
-    }, [stepNumber, isOpen]);
+    }, [stepNumber, isOpen, currentStepData]);
 
     const handleClose = () => {
         close();
@@ -201,7 +197,8 @@ export const OnboardingWidget = () => {
         });
     };
 
-    if (!isMounted) return null;
+    // Now safe to do conditional returns after all hooks
+    if (!isMounted || !currentStepData) return null;
 
     if (showWelcome) {
         return (
