@@ -101,7 +101,7 @@ export const useWorkflowStore = create<WorkflowState>()(
             },
 
             // Logic & Validation
-            isValidConnection: (connection: Connection) => {
+            isValidConnection: (connection: Edge | Connection) => {
                 const { edges } = get();
                 // 1. Connectivity Rules
                 if (connection.source === connection.target) return false;
