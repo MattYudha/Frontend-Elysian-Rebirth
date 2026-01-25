@@ -121,7 +121,8 @@
             radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
     }
 
-    .dark .mesh-gradient-bg {
+    .dark .mesh-gradient-bg,
+    .mesh-gradient-bg.dark {
         background-color: hsl(222.2 47.4% 11.2%);
         /* Slate 900 base */
         background-image:
