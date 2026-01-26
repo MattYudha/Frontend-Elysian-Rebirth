@@ -120,7 +120,3 @@ Configured in `next.config.mjs`.
 └── public/               # Static Assets
 ```
 
----
-
-Built with ❤️ by **Matt Yudha** & **Antigravity AI**.
-
