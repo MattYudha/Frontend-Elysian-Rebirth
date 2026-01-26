@@ -120,3 +120,4 @@ Configured in `next.config.mjs`.
 └── public/               # Static Assets
 ```
 
+
