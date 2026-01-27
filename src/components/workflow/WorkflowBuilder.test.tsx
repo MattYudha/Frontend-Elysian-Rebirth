@@ -7,6 +7,7 @@ vi.mock('./Canvas', () => ({
     Canvas: () => <div data-testid="mock-canvas">Canvas</div>,
 }));
 vi.mock('./Sidebar', () => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Sidebar: ({ onNodeSelect }: any) => (
         <div data-testid="mock-sidebar">
             <button onClick={() => onNodeSelect('llm', 'LLM Node')}>Add LLM</button>
@@ -32,6 +33,7 @@ vi.mock('reactflow', async () => {
         useReactFlow: () => ({
             project: mockProject,
         }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ReactFlowProvider: ({ children }: any) => <div>{children}</div>,
     };
 });

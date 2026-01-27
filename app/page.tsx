@@ -440,6 +440,7 @@ function CTASection() {
     const vantaRef = useRef<HTMLDivElement>(null);
 
     // Use ref to track effect instance without triggering re-renders
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const vantaEffectRef = useRef<any>(null);
 
     useEffect(() => {
@@ -465,14 +466,14 @@ function CTASection() {
                     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js", "three-js");
                 }
 
-                // @ts-expect-error
+                // @ts-expect-error - VANTA is loaded from external CDN script and has no TypeScript types
                 if (!window.VANTA || !window.VANTA.CLOUDS) {
                     await loadScript("https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.clouds.min.js", "vanta-clouds");
                 }
 
-                // @ts-expect-error
+                // @ts-expect-error - VANTA global from CDN has no TypeScript definitions
                 if (vantaRef.current && window.VANTA && window.VANTA.CLOUDS && !vantaEffectRef.current) {
-                    // @ts-expect-error
+                    // @ts-expect-error - VANTA.CLOUDS constructor from external script
                     vantaEffectRef.current = window.VANTA.CLOUDS({
                         el: vantaRef.current,
                         mouseControls: true,

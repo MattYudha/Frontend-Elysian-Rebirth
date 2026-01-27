@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Save, Undo, Redo, Eye, MousePointer2, Plus, Maximize, UploadCloud } from 'lucide-react';
+import { Play, Save, Eye, MousePointer2, Plus, Maximize } from 'lucide-react';
 import { Button } from '@/components/ui/';
 import { useWorkflowStore } from './store';
 import { toast } from 'sonner';

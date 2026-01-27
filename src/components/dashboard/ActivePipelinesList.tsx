@@ -10,7 +10,6 @@ import { Progress } from '@/components/ui/';
 import { Button } from '@/components/ui/';
 import { Badge } from '@/components/ui/';
 import { useToast } from '@/hooks/use-toast';
-import { ToastAction } from '@/components/ui/';
 import { useWorkflows } from '@/queries/workflow.queries';
 import { useDeleteWorkflow } from '@/mutations/workflow.mutations';
 import { PipelineDetailDrawer } from '@/components/dashboard/PipelineDetailDrawer';
@@ -24,7 +23,7 @@ export const ActivePipelinesList: React.FC<ActivePipelinesListProps> = ({
 }) => {
     // Connect to Data Layer (TanStack Query)
     // "UI components must handle loading/error states exclusively via TanStack Query results."
-    const { data: pipelines, isLoading, error } = useWorkflows();
+    const { data: pipelines, isLoading } = useWorkflows();
     const deleteMutation = useDeleteWorkflow();
     const { toast } = useToast();
     const [selectedPipeline, setSelectedPipeline] = useState<PipelineItem | null>(null);
@@ -47,7 +46,7 @@ export const ActivePipelinesList: React.FC<ActivePipelinesListProps> = ({
                     description: "The pipeline has been removed from the queue.",
                 });
             },
-            onError: (err) => {
+            onError: (_err) => {
                 toast({
                     title: "Delete failed",
                     description: "Could not sync with server.",

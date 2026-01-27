@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { Card, CardHeader, CardContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Label, Button, Separator } from '@/components/ui/';
-import { Bot, Cpu, Thermometer, ChevronDown, ChevronUp, Sparkles, Zap, Shield, Settings2 } from 'lucide-react';
+import { Card, CardContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider, Label, Separator } from '@/components/ui/';
+import { Bot, Cpu, Thermometer, ChevronDown, ChevronUp } from 'lucide-react';
 import { NodeStatusBadge } from './NodeStatusBadge';
 import { useWorkflowStore } from '../store';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { Handle, Position, NodeProps } from 'reactflow';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/';
+import { Card, CardContent } from '@/components/ui/';
 import { FileText, Database, Link as LinkIcon, AlertCircle, BookOpen } from 'lucide-react';
 import { NodeStatusBadge } from './NodeStatusBadge';
 import { useWorkflowStore } from '../store';

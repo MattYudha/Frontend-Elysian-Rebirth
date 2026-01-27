@@ -50,6 +50,7 @@ export function Canvas({ mobileMode = 'edit' }: { mobileMode?: 'view' | 'edit' }
     const isNodeDraggable = mobileMode === 'edit';
     const isConnectable = mobileMode === 'edit';
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onNodeClick = useCallback((_: React.MouseEvent, node: any) => {
         setSelectedNode(node.id);
     }, [setSelectedNode]);

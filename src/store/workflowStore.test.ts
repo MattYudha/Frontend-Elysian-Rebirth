@@ -58,7 +58,9 @@ describe('workflowStore', () => {
     });
 
     it('deletePipelineOptimistic should remove pipeline and return snapshot', () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const p1 = { id: '1', name: 'P1', status: 'queued', createdAt: '' } as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const p2 = { id: '2', name: 'P2', status: 'processing', createdAt: '' } as any;
 
         act(() => {

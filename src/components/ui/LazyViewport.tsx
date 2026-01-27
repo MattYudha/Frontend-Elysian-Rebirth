@@ -28,6 +28,7 @@ export function LazyViewport({
     placeholder
 }: LazyViewportProps) {
     const ref = useRef(null);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const isInView = useInView(ref, { once: true, amount: threshold, margin: rootMargin as any });
     const [hasRendered, setHasRendered] = useState(false);
 

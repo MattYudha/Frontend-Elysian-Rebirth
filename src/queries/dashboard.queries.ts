@@ -41,6 +41,7 @@ export function useChartData() {
     return useQuery({
         queryKey: ['dashboard', 'chart'],
         queryFn: async () => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const response = await http.get<{ status: string, data: any[] }>('/api/dashboard/chart');
             return response.data;
         }

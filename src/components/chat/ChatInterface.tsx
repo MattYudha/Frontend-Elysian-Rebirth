@@ -3,12 +3,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sender } from './Sender';
 import { ChatBubble } from './ChatBubble';
-import { PromptSuggestions } from './PromptSuggestions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Loader2, MessageSquarePlus, History, Settings2, PanelRightClose, PanelRightOpen, BarChart2, Code, Mail, Sparkles, Bot, Map, Image, Workflow } from 'lucide-react';
+import { MessageSquarePlus, History, Settings2, PanelRightClose, PanelRightOpen, BarChart2, Code, Mail, Sparkles, Bot, Map, Image, Workflow } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ChatSidebarContent } from './ChatSidebarContent';
 
@@ -19,12 +17,7 @@ interface Message {
     timestamp: Date;
 }
 
-const INITIAL_SUGGESTIONS = [
-    "Explain quantum computing in simple terms",
-    "Write a python script to parse CSV files",
-    "Draft a professional email for a project update",
-    "Design a modern landing page structure"
-];
+
 
 export function ChatInterface() {
     const [messages, setMessages] = useState<Message[]>([]);

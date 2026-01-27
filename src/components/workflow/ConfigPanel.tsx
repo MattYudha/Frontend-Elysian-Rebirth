@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { useWorkflowStore } from './store';
-import { Card, CardHeader, CardTitle, CardContent, Input, Label, Textarea, Button, Separator, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/';
-import { Settings2, X, Trash2, Bot, GitFork, FileText, Info } from 'lucide-react';
+import { Input, Label, Textarea, Button, Separator, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/';
+import { Settings2, X, Trash2, Bot, GitFork, FileText } from 'lucide-react';
 
 export function ConfigPanel() {
     const { ui, nodes, updateNodeData, setSelectedNode } = useWorkflowStore();
@@ -23,6 +23,7 @@ export function ConfigPanel() {
         );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleChange = (key: string, value: any) => {
         updateNodeData(selectedNode.id, { [key]: value });
     };

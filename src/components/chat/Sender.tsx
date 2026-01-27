@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import type { Attachment } from '../../types/x';
 import { Button } from '@/components/ui/';
 import { Textarea } from '@/components/ui/';
@@ -8,11 +8,10 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Send, Paperclip, Mic, Plus, Image as ImageIcon, Globe, Bot, MoreHorizontal, FileUp } from 'lucide-react';
+import { Send, Mic, Plus, Image as ImageIcon, Globe, Bot, MoreHorizontal, FileUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface SenderProps {

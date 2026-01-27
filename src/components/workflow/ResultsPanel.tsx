@@ -3,7 +3,7 @@
 import React from 'react';
 import { useWorkflowStore } from './store';
 import { X, Terminal, CheckCircle2, Clock, FileJson } from 'lucide-react';
-import { Button, ScrollArea } from '@/components/ui/';
+import { Button } from '@/components/ui/';
 
 export function ResultsPanel() {
     const { execution } = useWorkflowStore();

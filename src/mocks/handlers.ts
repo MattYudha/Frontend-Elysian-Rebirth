@@ -74,6 +74,7 @@ export const handlers = [
     }),
 
     http.post('*/api/v1/workflows', async ({ request }) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = await request.json() as any;
         return HttpResponse.json({
             status: 'success',

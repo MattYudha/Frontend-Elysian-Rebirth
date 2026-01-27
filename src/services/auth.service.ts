@@ -74,6 +74,7 @@ export const authService = {
         return {
             ...response.data,
             // Fallbacks for fields not yet in backend user model
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             role: (response.data as any).role || 'viewer',
         };
     }

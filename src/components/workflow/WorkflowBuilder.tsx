@@ -11,9 +11,8 @@ import { useWorkflowStore } from './store';
 import { ConfigPanel } from './ConfigPanel';
 import { ResultsPanel } from './ResultsPanel';
 
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Plus, Settings2, GripHorizontal, Eye, MousePointer2 } from 'lucide-react';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Plus, Settings2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 

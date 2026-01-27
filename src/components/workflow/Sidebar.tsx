@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Bot, GitFork, MessageSquare, MousePointerClick, Search, FileText } from 'lucide-react';
-import { Card, Input } from '@/components/ui/';
+import { Input } from '@/components/ui/';
 
 interface SidebarProps {
     onNodeSelect?: (type: string, label: string) => void;
