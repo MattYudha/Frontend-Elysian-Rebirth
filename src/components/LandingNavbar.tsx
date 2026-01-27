@@ -95,13 +95,14 @@ export function LandingNavbar({ showTerminal, setShowTerminal, isDark, toggleThe
                 </nav>
 
                 {/* Right Side: Auth & Toggles */}
-                <div className="flex items-center gap-3">
-                    {/* Visual Toggles - Now visible on mobile too */}
-                    <div className="flex items-center gap-1 mr-2 px-2 md:px-3 py-1.5 rounded-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
+                <div className="flex items-center gap-2 md:gap-3">
+                    {/* Visual Toggles - Mobile: Dark Mode only, Desktop: Both toggles */}
+                    <div className="flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
+                        {/* Terminal Toggle - Hidden on mobile */}
                         <button
                             onClick={() => setShowTerminal && setShowTerminal(!showTerminal)}
                             className={cn(
-                                "p-1.5 md:p-2 rounded-full transition-all duration-200",
+                                "hidden md:flex p-2 rounded-full transition-all duration-200",
                                 showTerminal
                                     ? "bg-white dark:bg-slate-700 text-blue-600 shadow-sm"
                                     : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
@@ -109,24 +110,27 @@ export function LandingNavbar({ showTerminal, setShowTerminal, isDark, toggleThe
                             title={showTerminal ? "Switch to Visual View" : "Switch to System Console"}
                         >
                             <span className="sr-only">Toggle Terminal</span>
-                            {showTerminal ? <Monitor className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Terminal className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+                            {showTerminal ? <Monitor className="w-4 h-4" /> : <Terminal className="w-4 h-4" />}
                         </button>
 
-                        <div className="w-px h-4 bg-slate-300 dark:bg-slate-700 mx-0.5 md:mx-1" />
+                        {/* Divider - Only show on desktop when terminal toggle is visible */}
+                        <div className="hidden md:block w-px h-4 bg-slate-300 dark:bg-slate-700 mx-1" />
 
+                        {/* Dark Mode Toggle - Always visible, larger on mobile for better tap target */}
                         <button
                             onClick={toggleTheme}
-                            className="p-1.5 md:p-2 rounded-full text-slate-400 hover:text-amber-500 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-200"
+                            className="p-2 md:p-2 rounded-full text-slate-400 hover:text-amber-500 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-200"
                             title="Toggle Theme"
                         >
                             <span className="sr-only">Toggle Theme</span>
                             {mounted && isDark ? (
-                                <Sun className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                <Sun className="w-4 h-4 md:w-4 md:h-4" />
                             ) : (
-                                <Moon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                <Moon className="w-4 h-4 md:w-4 md:h-4" />
                             )}
                         </button>
                     </div>
+
 
                     <Link href="/login">
                         <Button
@@ -139,12 +143,13 @@ export function LandingNavbar({ showTerminal, setShowTerminal, isDark, toggleThe
                     <Link href="/dashboard">
                         <Button
                             className={cn(
-                                "rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-blue-500/25 shadow-lg shadow-blue-500/20 border border-transparent transition-all",
-                                scrolled ? "h-9 px-4 text-sm" : "h-10 px-6"
+                                "rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:shadow-blue-500/25 shadow-lg shadow-blue-500/20 border border-transparent transition-all text-sm md:text-base",
+                                scrolled ? "h-8 px-3 md:h-9 md:px-4" : "h-9 px-4 md:h-10 md:px-6"
                             )}
                         >
-                            {t.nav.getStarted}
-                            <ArrowRight className="ml-2 h-4 w-4" />
+                            <span className="hidden sm:inline">{t.nav.getStarted}</span>
+                            <span className="sm:hidden">Mulai</span>
+                            <ArrowRight className="ml-1 md:ml-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                         </Button>
                     </Link>
                 </div>
