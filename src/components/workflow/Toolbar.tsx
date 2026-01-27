@@ -84,7 +84,7 @@ export function Toolbar({ mobileMode, setMobileMode, setIsSidebarOpen }: Toolbar
             </div>
 
             {/* MOBILE FLOATING TOOLBAR (Bottom Center) */}
-            <div className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 p-2 rounded-full bg-slate-900/90 backdrop-blur-md shadow-2xl border border-slate-700/50 text-white">
+            <div className="md:hidden absolute bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 p-2 rounded-full bg-slate-900/90 backdrop-blur-md shadow-2xl border border-slate-700/50 text-white" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
 
                 {/* Mode Toggle */}
                 <div className="flex bg-slate-800 rounded-full p-1 mr-2">

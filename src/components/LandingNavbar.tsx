@@ -96,12 +96,12 @@ export function LandingNavbar({ showTerminal, setShowTerminal, isDark, toggleThe
 
                 {/* Right Side: Auth & Toggles */}
                 <div className="flex items-center gap-3">
-                    {/* Visual Toggles */}
-                    <div className="hidden md:flex items-center gap-1 mr-2 px-3 py-1.5 rounded-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
+                    {/* Visual Toggles - Now visible on mobile too */}
+                    <div className="flex items-center gap-1 mr-2 px-2 md:px-3 py-1.5 rounded-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
                         <button
                             onClick={() => setShowTerminal && setShowTerminal(!showTerminal)}
                             className={cn(
-                                "p-2 rounded-full transition-all duration-200",
+                                "p-1.5 md:p-2 rounded-full transition-all duration-200",
                                 showTerminal
                                     ? "bg-white dark:bg-slate-700 text-blue-600 shadow-sm"
                                     : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
@@ -109,21 +109,21 @@ export function LandingNavbar({ showTerminal, setShowTerminal, isDark, toggleThe
                             title={showTerminal ? "Switch to Visual View" : "Switch to System Console"}
                         >
                             <span className="sr-only">Toggle Terminal</span>
-                            {showTerminal ? <Monitor className="w-4 h-4" /> : <Terminal className="w-4 h-4" />}
+                            {showTerminal ? <Monitor className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Terminal className="w-3.5 h-3.5 md:w-4 md:h-4" />}
                         </button>
 
-                        <div className="w-px h-4 bg-slate-300 dark:bg-slate-700 mx-1" />
+                        <div className="w-px h-4 bg-slate-300 dark:bg-slate-700 mx-0.5 md:mx-1" />
 
                         <button
                             onClick={toggleTheme}
-                            className="p-2 rounded-full text-slate-400 hover:text-amber-500 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-200"
+                            className="p-1.5 md:p-2 rounded-full text-slate-400 hover:text-amber-500 hover:bg-white/50 dark:hover:bg-slate-700/50 transition-all duration-200"
                             title="Toggle Theme"
                         >
                             <span className="sr-only">Toggle Theme</span>
                             {mounted && isDark ? (
-                                <Sun className="w-4 h-4" />
+                                <Sun className="w-3.5 h-3.5 md:w-4 md:h-4" />
                             ) : (
-                                <Moon className="w-4 h-4" />
+                                <Moon className="w-3.5 h-3.5 md:w-4 md:h-4" />
                             )}
                         </button>
                     </div>
