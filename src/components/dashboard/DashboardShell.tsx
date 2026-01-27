@@ -72,7 +72,7 @@ export function DashboardShell({ stats: _initialStats }: { stats: DashboardStats
                 />
 
                 {/* Active Pipelines Table */}
-                <div className="rounded-xl border bg-white dark:bg-zinc-900 shadow-sm p-6">
+                <div className="rounded-xl border bg-white dark:bg-zinc-900 shadow-sm p-4 md:p-6">
                     <div className="mb-6">
                         <h3 className="font-bold text-lg">{t.dashboard.activePipelines}</h3>
                     </div>
