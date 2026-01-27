@@ -23,7 +23,9 @@ import { MockProvider } from '@/components/providers/MockProvider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isDashboard = pathname?.startsWith('/dashboard');
+    // Only allow dark mode on the specific landing page root '/'
+    // All other pages (Dashboard, Settings, Chat, Auth, etc.) are forced to Light Mode
+    const isLandingPage = pathname === '/';
 
     return (
         <MockProvider>
@@ -32,7 +34,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     attribute="class"
                     defaultTheme="system"
                     enableSystem
-                    forcedTheme={isDashboard ? 'light' : undefined}
+                    forcedTheme={!isLandingPage ? 'light' : undefined}
                 >
                     <TelemetryProvider onEvent={() => { }}>
                         <I18nProvider locale="id">
