@@ -23,11 +23,17 @@ import { MockProvider } from '@/components/providers/MockProvider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const isDashboard = pathname?.startsWith('/dashboard');
 
     return (
         <MockProvider>
             <QueryProvider>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    forcedTheme={isDashboard ? 'light' : undefined}
+                >
                     <TelemetryProvider onEvent={() => { }}>
                         <I18nProvider locale="id">
                             <PermissionsProvider permissions={['admin', 'editor']} roles={['admin']}>
