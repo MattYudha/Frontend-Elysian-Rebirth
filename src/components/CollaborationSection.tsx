@@ -125,13 +125,13 @@ export function CollaborationSection() {
                             <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center mb-6 text-emerald-600 dark:text-emerald-400 ring-4 ring-emerald-50/50 dark:ring-emerald-900/10">
                                 <FileText className="w-7 h-7" />
                             </div>
-                            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">Dokumen Hidup</h3>
+                            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">Orkestrasi Workflow AI</h3>
                             <p className="text-slate-500 dark:text-slate-400 text-lg leading-relaxed mb-8">
-                                Dokumentasi yang berkembang seiring proyek. Komentar inline, @mention, dan editing real-time yang mulus.
+                                Rancang dan otomatisasi agen AI yang cerdas secara visual. Hubungkan Logic Router, Reasoning Engine, dan Knowledge Base tanpa batasan.
                             </p>
 
                             <button className="group/btn flex items-center gap-2 text-slate-900 dark:text-slate-100 font-semibold text-base py-3 px-6 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors shadow-sm w-fit">
-                                <span>Coba Editor</span>
+                                <span>Coba Workflow</span>
                                 <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                             </button>
                         </div>
@@ -142,10 +142,11 @@ export function CollaborationSection() {
                                     className="relative w-full h-full bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-md"
                                 >
                                     <Image
-                                        src="/assets/collab/docs.png"
+                                        src="/demo-rag-query.gif"
                                         alt="Collaborative Docs UI"
                                         fill
                                         className="object-cover object-top"
+                                        unoptimized
                                     />
 
                                     {/* Overlay Gradient for Fade effect at bottom */}

@@ -3,9 +3,10 @@
 import { Protected } from '@/components/auth/Protected';
 import Image from 'next/image';
 import { Button } from '@/components/ui/';
-import { Upload, Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Save } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { EditorSkeleton } from '@/components/LoadingSkeletons';
+import { DocumentEditor } from '@/components/editor/DocumentEditor';
 
 export default function DocumentEditorPage() {
     const [isActive, setIsActive] = useState(false);
@@ -68,31 +69,21 @@ export default function DocumentEditorPage() {
                 ) : (
                     // Active Editor Interface (Mock UI)
                     <div className="flex-1 flex flex-col items-center p-6 animate-in fade-in duration-500">
-                        <div className="w-full max-w-5xl bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-full overflow-hidden">
-                            {/* Toolbar */}
-                            <div className="border-b border-slate-100 p-3 flex items-center gap-2 bg-slate-50/50">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600"><Bold className="h-4 w-4" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600"><Italic className="h-4 w-4" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600"><Underline className="h-4 w-4" /></Button>
-                                <div className="h-4 w-px bg-slate-200 mx-2" />
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600"><AlignLeft className="h-4 w-4" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600"><AlignCenter className="h-4 w-4" /></Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600"><AlignRight className="h-4 w-4" /></Button>
-                                <div className="flex-1" />
-                                <Button className="bg-blue-600 text-white hover:bg-blue-700 h-8 text-xs">
-                                    <Save className="mr-2 h-3 w-3" /> Simpan
-                                </Button>
-                            </div>
-
-                            {/* Canvas / Editor Area */}
-                            <div className="flex-1 p-8 bg-slate-50 overflow-y-auto">
-                                <div className="bg-white shadow-sm border border-slate-200 min-h-[800px] w-full max-w-3xl mx-auto p-10 outline-none" contentEditable suppressContentEditableWarning>
-                                    <h1 className="text-3xl font-bold mb-4">Draft Dokumen Baru</h1>
-                                    <p className="text-slate-600 mb-4">Mulai mengetik atau paste konten Anda di sini...</p>
-                                    <p className="text-slate-400 italic text-sm">[Area ini dapat diedit]</p>
-                                </div>
-                            </div>
-                        </div>
+                        {/* Actual Document Editor Component */}
+                        <DocumentEditor
+                            document={{
+                                id: 'draft-1',
+                                title: 'Draft Dokumen Baru',
+                                version: 1,
+                                lastModified: new Date(),
+                                content: { type: 'doc', content: [] }, // Initial empty content
+                            }}
+                            initialContent={null} // Will trigger default schema in Editor
+                            onChange={(json) => console.log('Editor Content:', json)}
+                            onSave={() => alert('Document Saved! (Check console for JSON)')}
+                            pdfUrl={undefined}
+                            isMobile={false}
+                        />
                     </div>
                 )}
             </div>

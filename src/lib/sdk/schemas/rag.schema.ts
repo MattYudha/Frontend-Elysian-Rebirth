@@ -93,7 +93,7 @@ export type RagSearchResult = z.infer<typeof RagSearchResultSchema>;
 export const EditorDocumentSchema = z.object({
     id: z.string(),
     title: z.string(),
-    content: z.string(),
+    content: z.any(),
     version: z.number(),
     pdfUrl: z.string().optional(),
     lastModified: z.date(),

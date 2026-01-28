@@ -1,15 +1,23 @@
+'use client';
+
 import { Button } from '@/components/ui/';
-import { Textarea } from '@/components/ui/';
 import { Card } from '@/components/ui/';
 import { Badge } from '@/components/ui/';
 import { Save, FileText, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EditorDocument } from '@/lib/sdk/schemas';
+import { useEditor, EditorContent, type JSONContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
+import CharacterCount from '@tiptap/extension-character-count';
+import { EditorToolbar } from './EditorToolbar';
+import { EditorBubbleMenu } from './EditorBubbleMenu';
+import { useMemo } from 'react';
 
 interface DocumentEditorProps {
     document: EditorDocument;
-    content: string;
-    onChange: (value: string) => void;
+    initialContent: JSONContent | null;
+    onChange: (content: JSONContent) => void;
     onSave: () => void;
     pdfUrl?: string;
     isMobile?: boolean;
@@ -17,12 +25,42 @@ interface DocumentEditorProps {
 
 export function DocumentEditor({
     document,
-    content,
+    initialContent,
     onChange,
     onSave,
     pdfUrl,
     isMobile = false
 }: DocumentEditorProps) {
+    // Default schema to prevent crashes
+    const defaultContent: JSONContent = {
+        type: 'doc',
+        content: [{ type: 'paragraph' }]
+    };
+
+    const extensions = useMemo(() => [
+        StarterKit.configure({
+            heading: { levels: [1, 2, 3] },
+        }),
+        Placeholder.configure({
+            placeholder: 'Mulai ketik spesifikasi produksi di sini...',
+            emptyEditorClass: 'is-editor-empty before:content-[attr(data-placeholder)] before:text-slate-400 before:float-left before:pointer-events-none before:h-0',
+        }),
+        CharacterCount,
+    ], []);
+
+    const editor = useEditor({
+        extensions,
+        content: initialContent || defaultContent,
+        editorProps: {
+            attributes: {
+                class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[500px] max-w-none dark:prose-invert',
+            },
+        },
+        onUpdate: ({ editor }) => {
+            onChange(editor.getJSON());
+        },
+    });
+
     return (
         <div className={cn(
             "flex flex-1 gap-4 p-4 h-full",
@@ -52,28 +90,34 @@ export function DocumentEditor({
             )}
 
             {/* Editor View */}
-            <Card className="flex-1 border-border flex flex-col bg-card">
-                <div className="p-3 border-b border-border flex justify-between items-center">
+            <Card className="flex-1 border-border flex flex-col bg-card overflow-hidden shadow-sm">
+                <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
                     <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs font-normal">
+                        <Badge variant="outline" className="text-xs font-normal bg-white dark:bg-slate-800">
                             v{document.version}
                         </Badge>
                         <span className="text-sm font-medium text-foreground">
                             {document.title}
                         </span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                            {editor?.storage.characterCount.words() || 0} words
+                        </span>
                     </div>
-                    <Button size="sm" onClick={onSave} className="h-8 gap-2">
+                    <Button size="sm" onClick={onSave} className="h-8 gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
                         <Save className="h-4 w-4" />
                         Save
                     </Button>
                 </div>
-                <div className="flex-1 relative">
-                    <Textarea
-                        value={content}
-                        onChange={(e) => onChange(e.target.value)}
-                        className="absolute inset-0 w-full h-full resize-none p-4 font-mono text-sm bg-transparent border-0 focus-visible:ring-0 rounded-none"
-                        placeholder="Start typing..."
-                    />
+
+                {/* Tiptap Toolbar */}
+                <EditorToolbar editor={editor} />
+
+                {/* Floating Menu */}
+                <EditorBubbleMenu editor={editor} />
+
+                {/* Editor Area */}
+                <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-950/50 cursor-text" onClick={() => editor?.chain().focus().run()}>
+                    <EditorContent editor={editor} />
                 </div>
             </Card>
         </div>
