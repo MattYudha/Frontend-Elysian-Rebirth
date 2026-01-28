@@ -7,7 +7,7 @@ Intelligent Document Processing (IDP) & RAG Platform Frontend
 
 
 
-🧠 Overview
+🧠 Overview Elysian
 <p> Elysian Rebirth adalah <b>next-generation document intelligence platform</b> yang menggabungkan <b>Generative AI</b>, <b>RAG (Retrieval-Augmented Generation)</b>, dan <b>Local-First Architecture</b> ke dalam workflow penyuntingan dokumen teknis. </p> <ul> <li>📄 Intelligent Document Processing (IDP)</li> <li>🧠 Context-aware AI dengan RAG</li> <li>💾 Offline-first & auto-save architecture</li> </ul>
 
 
