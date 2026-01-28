@@ -1,123 +1,127 @@
-# 🌌 Elysian Rebirth - Enterprise AI Platform
+🌌 Elysian Rebirth
 
-> **Status**: 🚀 Production Ready | **v1.0.0**
+Intelligent Document Processing (IDP) & RAG Platform
 
-Next-generation AI Platform built with a focus on **Enterprise Security**, **Scalability**, and **Developer Experience**. Built for the modern web with Next.js 14, fully typed, tested, and monitored.
+<p align="center"> <img src="https://img.shields.io/badge/Status-Production%20Ready-success?style=flat-square"/> <img src="https://img.shields.io/badge/Version-1.0.0-blue?style=flat-square"/> <img src="https://img.shields.io/badge/Architecture-RAG%20%7C%20Local--First-purple?style=flat-square"/> </p>
 
----
 
-## 🛠️ Enterprise Tech Stack
 
-### Core Framework
-- **Framework**: [Next.js 14 (App Router)](https://nextjs.org/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/) (Strict Mode)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **Local Database**: [IndexedDB (via idb-keyval)](https://github.com/jakearchibald/idb-keyval) + Encryption
 
-### UI & Design System
-- **Component Library**: [Shadcn/UI](https://ui.shadcn.com/) (Radix Primitives)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Documentation**: [Storybook v8](https://storybook.js.org/)
+🧠 Overview
+<p> Elysian Rebirth adalah <b>next-generation document intelligence platform</b> yang menggabungkan <b>Generative AI</b>, <b>RAG (Retrieval-Augmented Generation)</b>, dan <b>Local-First Architecture</b> ke dalam workflow penyuntingan dokumen teknis. </p> <ul> <li>📄 Intelligent Document Processing (IDP)</li> <li>🧠 Context-aware AI dengan RAG</li> <li>💾 Offline-first & auto-save architecture</li> </ul>
 
-### Quality Assurance (The Testing Pyramid)
-- **Unit & Integration**: [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/)
-- **End-to-End (E2E)**: [Playwright](https://playwright.dev/)
-- **Pre-Commit Hooks**: [Husky](https://typicode.github.io/husky/) + [Lint-Staged](https://github.com/lint-staged/lint-staged)
 
-### Security & Observability
-- **Security Headers**: Strict **Content Security Policy (CSP)**
-- **Error Tracking**: [Sentry](https://sentry.io/) (Client, Server, Edge)
-- **Compliance**: PII Redaction configured
 
----
+🛠️ Tech Stack
+⚙️ Core Architecture
+<table> <tr> <td><b>Framework</b></td> <td>Next.js 14 (App Router, Server Components, Streaming)</td> </tr> <tr> <td><b>Language</b></td> <td>TypeScript (Strict Type Safety)</td> </tr> <tr> <td><b>State</b></td> <td>Zustand (Editor State & Auth Session)</td> </tr> <tr> <td><b>Persistence</b></td> <td>IndexedDB (Local-First, Offline Drafts)</td> </tr> </table> <p> <img src="https://img.shields.io/badge/Next.js-black?logo=nextdotjs"/> <img src="https://img.shields.io/badge/TypeScript-blue?logo=typescript"/> <img src="https://img.shields.io/badge/Zustand-orange"/> <img src="https://img.shields.io/badge/IndexedDB-green"/> </p>
 
-## 🚀 Getting Started
 
-### Prerequisites
-- Node.js 20+
-- npm 10+
+🧠 AI & RAG Stack
+<table> <tr> <td><b>AI SDK</b></td> <td>Vercel AI SDK (Streaming Response)</td> </tr> <tr> <td><b>Retrieval</b></td> <td>Vector-based Knowledge Search (RAG)</td> </tr> <tr> <td><b>Validation</b></td> <td>Semantic Guardrail (Pricing & Technical Specs)</td> </tr> </table>
 
-### Installation
+🎨 UI & UX System
+<table> <tr> <td><b>Editor</b></td> <td>Headless Rich-Text Editor + Contextual AI Bar</td> </tr> <tr> <td><b>Components</b></td> <td>Shadcn/UI (Radix-based & Accessible)</td> </tr> <tr> <td><b>Animation</b></td> <td>Rive (State-Machine Driven)</td> </tr> </table>
 
-```bash
-# Clone the repository
-git clone https://github.com/Elysian-Rebirth/Frontend-Elysian-Rebirth.git
-cd Frontend-Elysian-Rebirth
 
-# Install dependencies
-npm install
+Key Modules
+✍️ 1. Intelligent Document Editor
+
+<b>Path:</b> <code>src/components/editor/</code>
+
+<ul> <li>✨ Contextual AI Actions (rewrite, summarize, grammar fix)</li> <li>🛡️ Semantic Guardrail untuk validasi angka & harga</li> <li>💾 Offline-First Auto Save</li> </ul>
+
+📚 2. RAG Knowledge Hub
+
+<b>Path:</b> <code>src/components/knowledge/</code>
+
+<ul> <li>📄 Document Embedding (PDF / Text)</li> <li>🧪 Vector Query Playground</li> <li>🧠 Context Injection ke AI Editor</li> </ul>
+
+🧩 3. Workflow Builder
+
+<b>Path:</b> <code>src/components/workflow/</code>
+
+<ul> <li>🔗 Node-Based Automation (React Flow)</li> <li>⚙️ Visual Document Processing Pipelines</li> </ul>
+
+🧪 Quality & Reliability
+<table> <tr> <td><b>Unit & Integration</b></td> <td>Vitest</td> </tr> <tr> <td><b>End-to-End</b></td> <td>Playwright</td> </tr> <tr> <td><b>Static Analysis</b></td> <td>ESLint + TypeScript</td> </tr> </table> <pre> npm run test npm run test:e2e npm run lint npm run typecheck </pre>
+
+🛡️ Security & Observability
+<ul> <li>🔒 Strict Content Security Policy (CSP)</li> <li>📡 Global Error Monitoring (Sentry)</li> <li>🧼 Automatic PII Redaction sebelum AI request</li> </ul>
+
+```
+📂 Project Structure
+
+app/                    # Next.js Routes
+src/
+├─ components/
+│  ├─ editor/           # IDP Editor Logic
+│  ├─ knowledge/        # RAG & Vector Search
+│  └─ workflow/         # Automation Builder
+├─ lib/                 # SDK & Utilities
+├─ store/               # Zustand Global Stores
+├─ queries/             # TanStack Query
+└─ types/               # Type Definitions
+
+e2e/                    # Playwright Test Suites
+public/                 # Static Assets & Rive Animations
 ```
 
-### Development Environment
 
-```bash
-# Start the development server
-npm run dev
-# Access at http://localhost:3000
-```
 
-### Component Catalog (Storybook)
+## 🎬 Demo (Editor + RAG)
 
-Explore the "Mini Design System" without running the full app.
+<p>
+  Berikut preview fitur utama: <b>Contextual AI Editor</b> dan <b>RAG Knowledge Query</b>.
+</p>
 
-```bash
-npm run storybook
-# Access at http://localhost:6006
-```
+<table>
+  <tr>
+    <td width="50%">
+      <h3>✍️ Intelligent Document Editor</h3>
+      <p>
+        Contextual AI actions (rewrite/summarize/grammar) + semantic guardrail untuk validasi angka & harga.
+      </p>
+      <a href="./assets/demo-editor.gif">
+        <img src="./assets/demo-editor.gif" alt="Elysian Rebirth - Editor Demo" width="100%"/>
+      </a>
+      <p><sub>Tip: klik GIF untuk membuka ukuran penuh.</sub></p>
+    </td>
+    <td width="50%">
+      <h3>📚 RAG Query Playground</h3>
+      <p>
+        Vector search dari knowledge base untuk inject context ke AI editor secara real-time.
+      </p>
+      <a href="./assets/demo-rag-query.gif">
+        <img src="./assets/demo-rag-query.gif" alt="Elysian Rebirth - RAG Query Demo" width="100%"/>
+      </a>
+      <p><sub>Menunjukkan retrieval → context → generated answer.</sub></p>
+    </td>
+  </tr>
+</table>
 
----
 
-## 🧪 Testing Strategies
 
-We employ a robust testing strategy to ensure reliability.
+<details>
+  <summary><b>🎬 Lihat Demo GIF (Editor + RAG)</b></summary>
+  <br/>
 
-### 1. Unit & Integration Tests (Vitest)
-Fast feedback loop for logic and component interactions.
+  <table>
+    <tr>
+      <td width="50%">
+        <h3>✍️ Intelligent Document Editor</h3>
+        <a href="./assets/demo-editor.gif">
+          <img src="./assets/demo-editor.gif" alt="Editor Demo" width="100%"/>
+        </a>
+      </td>
+      <td width="50%">
+        <h3>📚 RAG Query Playground</h3>
+        <a href=".public/demo-rag-query.gif">
+          <img src="public/demo-rag-query.gif" alt="RAG Demo" width="100%"/>
+        </a>
+      </td>
+    </tr>
+  </table>
 
-```bash
-npm run test         # Run all unit/integration tests
-npm run test:watch   # Watch mode for TDD
-```
-
-### 2. End-to-End Tests (Playwright)
-Validates critical user journeys (Login -> Workflow -> Save) in a real browser environment.
-
-```bash
-npm run test:e2e     # Run E2E suite
-```
-
----
-
-## 🛡️ Security Features
-
-### Content Security Policy (CSP)
-Configured in `next.config.mjs`.
-- **Transitional Mode**: Allows minimal inline scripts/styles for hydration.
-- **Strict Mode**: Blocks object/iframe injection.
-
-### Sentry Observability
-- Errors are captured globally via `XErrorBoundary` and `global-error.tsx`.
-- Sensitive data is redacted before egress.
-
----
-
-## 📂 Project Structure
-
-```bash
-├── app/                  # Next.js App Router (Routes & Layouts)
-├── src/
-│   ├── components/       # React Components
-│   │   ├── ui/           # Design System (Shadcn)
-│   │   └── workflow/     # Feature Components
-│   ├── lib/              # Utilities & Helpers
-│   ├── store/            # Zustand State Stores
-│   ├── queries/          # React Query Hooks
-│   ├── test/             # Test setup & Mocks
-│   └── styles/           # Global CSS
-├── e2e/                  # Playwright E2E Tests
-├── .storybook/           # Storybook Configuration
-└── public/               # Static Assets
-```
-
+</details>
 
