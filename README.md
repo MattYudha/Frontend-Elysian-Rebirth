@@ -1,6 +1,6 @@
-🌌 Elysian Rebirth Frontend
+🌌 Elysian Rebirth 
 
-Intelligent Document Processing (IDP) & RAG Platform Frontend
+Algorithm: Intelligent Document Processing (IDP) & RAG Platform Frontend
 
 <p align="center"> <img src="https://img.shields.io/badge/Status-Production%20Ready-success?style=flat-square"/> <img src="https://img.shields.io/badge/Version-1.0.0-blue?style=flat-square"/> <img src="https://img.shields.io/badge/Architecture-RAG%20%7C%20Local--First-purple?style=flat-square"/> </p>
 
@@ -103,7 +103,7 @@ public/                 # Static Assets & Rive Animations
 
 
 <details>
-  <summary><b>🎬 Lihat Demo GIF (Editor + RAG)</b></summary>
+  <summary><b>🎬 Lihat Demo dari GIF Elysian(Editor + RAG)</b></summary>
   <br/>
 
   <table>
