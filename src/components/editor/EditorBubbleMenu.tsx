@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
-import { BubbleMenu, Editor } from '@tiptap/react';
+import { Editor } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
 import { Button } from '@/components/ui/button';
 import { Bold, Italic, Strikethrough, MessageSquarePlus, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';

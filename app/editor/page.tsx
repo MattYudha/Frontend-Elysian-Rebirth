@@ -6,7 +6,16 @@ import { Button } from '@/components/ui/';
 import { Upload } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { EditorSkeleton } from '@/components/LoadingSkeletons';
-import { DocumentEditor } from '@/components/editor/DocumentEditor';
+import dynamic from 'next/dynamic';
+
+// Dynamically import DocumentEditor to prevent SSR issues with Tiptap
+const DocumentEditor = dynamic(
+    () => import('@/components/editor/DocumentEditor').then((mod) => mod.DocumentEditor),
+    {
+        ssr: false,
+        loading: () => <EditorSkeleton />
+    }
+);
 
 export default function DocumentEditorPage() {
     const [isActive, setIsActive] = useState(false);

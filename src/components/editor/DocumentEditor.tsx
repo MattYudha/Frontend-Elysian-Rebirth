@@ -59,6 +59,7 @@ export function DocumentEditor({
         onUpdate: ({ editor }) => {
             onChange(editor.getJSON());
         },
+        immediatelyRender: false,
     });
 
     return (
@@ -116,8 +117,12 @@ export function DocumentEditor({
                 <EditorBubbleMenu editor={editor} />
 
                 {/* Editor Area */}
-                <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-950/50 cursor-text" onClick={() => editor?.chain().focus().run()}>
-                    <EditorContent editor={editor} />
+                <div
+                    className="flex-1 overflow-y-auto bg-white dark:bg-slate-950/50 cursor-text !cursor-text group"
+                    onClick={() => editor?.chain().focus().run()}
+                    style={{ cursor: 'text' }} // Fail-safe
+                >
+                    <EditorContent editor={editor} className="min-h-full" />
                 </div>
             </Card>
         </div>
