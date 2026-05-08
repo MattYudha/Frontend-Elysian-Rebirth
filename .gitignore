@@ -46,3 +46,9 @@ backend-go
 specs/
 project-dashboard/
 spec-kit-command-cursor/
+
+# Swarm Worker
+swarm-worker/.env
+swarm-worker/__pycache__/
+swarm-worker/*.pyc
+swarm-worker/swarm_worker.log
