@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Save, FileText, Maximize2, Sparkles, AlertTriangle, ShieldX, Printer } from 'lucide-react';
+import { Save, FileText, Maximize2, Sparkles, ShieldX, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EditorDocument } from '@/lib/sdk/schemas';
 import { useEditor, EditorContent, type JSONContent } from '@tiptap/react';
@@ -25,6 +25,8 @@ import { GhostwriterWidget } from './GhostwriterWidget';
 import { PIIHighlighter } from './extensions/piiHighlighter';
 import { FDSGuardrail } from './extensions/fdsGuardrail';
 import { maskPII } from '@/lib/editor/piiUtils';
+import { SwarmReviewPanel } from '../swarm/SwarmReviewPanel';
+import { Users } from 'lucide-react';
 
 interface DocumentEditorProps {
     document: EditorDocument;
@@ -47,6 +49,14 @@ export function DocumentEditor({
     const { setDocument, updateContent, currentDocument, isDirty, createSnapshot } = useEditorStore();
     useCrashRecovery();
     const [fraudAlert, setFraudAlert] = useState<{ reason: string; quote: string } | null>(null);
+    const [isSwarmPanelOpen, setIsSwarmPanelOpen] = useState(false);
+    const [swarmItems, setSwarmItems] = useState<Array<{
+        item_id: string;
+        name: string;
+        requested_price: number;
+        quantity: number;
+        department: string;
+    }>>([]);
 
     // Initialize store on mount (with Draft Protection)
     useEffect(() => {
@@ -185,7 +195,7 @@ export function DocumentEditor({
             
             toast.info("Aman!", { description: "Tidak ada fraud terdeteksi. Menyimpan pengetahuan..." });
             
-        } catch (error) {
+        } catch {
             toast.error("Guardrail API Error", { description: "Gagal menghubungi mesin FDS Guardrail." });
             return;
         }
@@ -200,6 +210,21 @@ export function DocumentEditor({
         } catch {
             toast.error("Error", { description: "Gagal menghubungkan ke RAG pipeline." });
         }
+    };
+
+    const handleSwarmReview = () => {
+        if (!editor) return;
+        // In a real scenario, we'd parse the editor text to extract table items or list items.
+        // For the hackathon demo, we generate dummy item blocks from the text or use static mock data
+        // that represents the RAPBD items to be sent to the Swarm.
+        const items = [
+            { item_id: "ITM-001", name: "Laptop IT", requested_price: 25000000, quantity: 5, department: "Kominfo" },
+            { item_id: "ITM-002", name: "Printer", requested_price: 3000000, quantity: 2, department: "Umum" }
+        ];
+        
+        setSwarmItems(items);
+        setIsSwarmPanelOpen(true);
+        setFraudAlert(null); // Close regular guardrail if open
     };
 
     const handleExportPDF = () => {
@@ -314,7 +339,15 @@ export function DocumentEditor({
                             className="h-8 gap-1.5 flex-1 sm:flex-none text-purple-600 border-purple-200 hover:text-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-indigo-600 hover:border-transparent transition-all duration-300 shadow-sm hover:shadow-md"
                         >
                             <Sparkles className="h-3.5 w-3.5" />
-                            <span className="truncate">Analyze AI</span>
+                            <span className="truncate">Guardrail Check</span>
+                        </Button>
+                        <Button
+                            size="sm"
+                            onClick={handleSwarmReview}
+                            className="h-8 gap-1.5 flex-1 sm:flex-none bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 shadow-sm transition-all"
+                        >
+                            <Users className="h-3.5 w-3.5" />
+                            <span className="hidden sm:inline-block">Swarm Review</span>
                         </Button>
                         <Button
                             size="sm"
@@ -398,6 +431,15 @@ export function DocumentEditor({
                                 </Button>
                             </div>
                         </div>
+                    )}
+                    
+                    {/* Swarm CI/CD Panel */}
+                    {isSwarmPanelOpen && (
+                        <SwarmReviewPanel 
+                            documentId={document.id} 
+                            items={swarmItems} 
+                            onClose={() => setIsSwarmPanelOpen(false)} 
+                        />
                     )}
                 </div>
             </Card>
