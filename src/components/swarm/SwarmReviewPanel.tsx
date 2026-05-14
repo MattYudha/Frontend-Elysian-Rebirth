@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Terminal, ShieldAlert, CheckCircle2, Loader2, X } from 'lucide-react';
+import { Terminal, ShieldAlert, CheckCircle2, Loader2, X, Link2 } from 'lucide-react';
 import { AgentChatPanel } from './AgentChatPanel';
 
 interface LogLine {
@@ -18,6 +18,12 @@ interface SwarmResult {
     manager_conclusion?: string;
 }
 
+interface BlockchainInfo {
+    tx_hash?: string;
+    network?: string;
+    status?: string;
+}
+
 interface SwarmReviewPanelProps {
     documentId: string;
     items: any[];
@@ -27,13 +33,14 @@ interface SwarmReviewPanelProps {
 export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPanelProps) {
     const [status, setStatus] = useState<'IDLE' | 'PROCESSING' | 'COMPLETED' | 'FAILED'>('IDLE');
     const [results, setResults] = useState<SwarmResult[]>([]);
+    const [blockchainInfo, setBlockchainInfo] = useState<BlockchainInfo | null>(null);
     const [selectedItemForChat, setSelectedItemForChat] = useState<SwarmResult | null>(null);
 
     const triggerSwarm = async () => {
         setStatus('PROCESSING');
         try {
-            // Trigger
-            const res = await fetch('/api/v1/swarm/upload', {
+            // Use BFF Proxy route (reads token from HTTP-Only cookie server-side)
+            const res = await fetch('/api/proxy/swarm/upload', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ document_id: documentId, items })
@@ -51,16 +58,15 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
     };
 
     const listenToSSE = (taskId: string) => {
-        // Since SSE is global for demo, we listen to /api/v1/swarm/events
-        const eventSource = new EventSource(`/api/v1/swarm/events?task_id=${taskId}`);
+        // Use BFF Proxy SSE endpoint
+        const eventSource = new EventSource(`/api/proxy/swarm/events?task_id=${taskId}`);
         
         eventSource.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                // In a real app we'd append logs line by line.
-                // For this demo, the python worker sends the final complete array on COMPLETION.
                 if (data.status === 'COMPLETED') {
                     setResults(data.results);
+                    setBlockchainInfo(data.blockchain || null);
                     setStatus('COMPLETED');
                     eventSource.close();
                 }
@@ -71,7 +77,6 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
 
         eventSource.onerror = (e) => {
             console.error("SSE Error", e);
-            // eventSource.close();
         };
     };
 
@@ -107,7 +112,6 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                     <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                     <p className="animate-pulse text-xs">Awaiting Agent Consensus...</p>
                     
-                    {/* Skeleton Loader */}
                     <div className="w-full space-y-3 mt-8">
                         {[1,2,3].map(i => (
                             <div key={i} className="h-12 w-full bg-slate-900 rounded border border-slate-800 animate-pulse flex items-center px-3 gap-3">
@@ -121,6 +125,19 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
 
             {status === 'COMPLETED' && (
                 <div className="space-y-4 flex-1 overflow-y-auto pr-1">
+                    {/* Blockchain verification badge */}
+                    {blockchainInfo?.tx_hash && (
+                        <div className="p-2 rounded border border-emerald-900/50 bg-emerald-950/20">
+                            <div className="flex items-center gap-2 text-emerald-400 text-[10px]">
+                                <Link2 className="h-3 w-3" />
+                                <span className="font-semibold">Verified on Blockchain</span>
+                            </div>
+                            <div className="text-[9px] text-emerald-600/70 mt-1 truncate">
+                                {blockchainInfo.network} · {blockchainInfo.tx_hash.slice(0, 20)}...
+                            </div>
+                        </div>
+                    )}
+
                     {results.map((res, idx) => (
                         <div 
                             key={idx} 
@@ -157,24 +174,4 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                                             {log.message}
                                         </span>
                                     </div>
-                                ))}
-                            </div>
-                            
-                            {res.manager_conclusion && (
-                                <div className="mt-2 pt-2 border-t border-slate-800/50 text-[10px] text-amber-200/80">
-                                    <span className="font-bold">&gt; Manager:</span> {res.manager_conclusion}
-                                </div>
-                            )}
-                            
-                            {res.status === 'FLAGGED' && (
-                                <div className="mt-2 text-[9px] text-slate-500 text-right animate-pulse">
-                                    Click to interrogate agents →
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
-}
+                   
