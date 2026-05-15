@@ -22,14 +22,17 @@ export default async function DashboardLayout({
     }
 
     try {
-        const response = await fetch(`${config.api.baseURL}/api/v1/auth/refresh`, {
+        // Use the BFF proxy route so cookies are forwarded correctly
+        // In SSR, we must use absolute URL. Detect the current host from headers or fallback.
+        const baseUrl = process.env.VERCEL_URL 
+            ? `https://${process.env.VERCEL_URL}` 
+            : `http://localhost:${process.env.PORT || 3000}`;
+        const response = await fetch(`${baseUrl}/api/proxy/auth/refresh`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // Explicitly send the cookie in header
                 'Cookie': `refresh_token=${refreshCookie}`,
             },
-            // Also send in body for backend compatibility
             body: JSON.stringify({ refresh_token: refreshCookie }),
             cache: 'no-store',
         });

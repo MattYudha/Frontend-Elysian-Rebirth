@@ -29,6 +29,12 @@ async function proxyRequest(
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
+  // Forward cookies from the incoming request to the backend
+  const cookieHeader = request.headers.get('cookie');
+  if (cookieHeader) {
+    headers['Cookie'] = cookieHeader;
+  }
+
   // Forward other relevant headers
   const forwardedHeaders = ['x-request-id', 'x-tenant-id'];
   for (const h of forwardedHeaders) {
