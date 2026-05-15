@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOnboardingStore } from '@/store/useOnboardingStore';
 import { ElysianTextLogo } from '@/components/ui/elysian-logo';
@@ -41,19 +41,25 @@ export const WelcomeScreen = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const { completeWelcome, skipWelcome } = useOnboardingStore();
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % slides.length);
-        }, 5000);
-        return () => clearInterval(timer);
+    const nextSlide = useCallback(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, []);
+
+    useEffect(() => {
+        const timer = setInterval(nextSlide, 5000);
+        return () => clearInterval(timer);
+    }, [nextSlide]);
+
+    const handleDotClick = (index: number) => {
+        setCurrentSlide(index);
+    };
 
     return (
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[10000] bg-[#060D18] flex flex-col items-center justify-center overflow-hidden"
+            className="fixed inset-0 z-[10000] bg-slate-50 dark:bg-[#060D18] flex flex-col items-center justify-center overflow-hidden transition-colors duration-500"
         >
             {/* Ambient Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -61,8 +67,8 @@ export const WelcomeScreen = () => {
                 <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px]" />
                 
                 {/* Grid Pattern */}
-                <div className="absolute inset-0 opacity-[0.03]" 
-                    style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} 
+                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
+                    style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)', backgroundSize: '40px 40px' }} 
                 />
             </div>
 
@@ -88,23 +94,23 @@ export const WelcomeScreen = () => {
                             transition={{ duration: 0.6, ease: "easeInOut" }}
                             className="flex flex-col items-center"
                         >
-                            <div className="mb-6 p-4 rounded-2xl bg-white/5 backdrop-blur-xl ring-1 ring-white/10 shadow-2xl">
+                            <div className="mb-6 p-4 rounded-2xl bg-white/80 dark:bg-white/5 backdrop-blur-xl ring-1 ring-slate-200 dark:ring-white/10 shadow-2xl">
                                 {slides[currentSlide].icon}
                             </div>
                             
                             <motion.span 
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-xs font-black tracking-[0.3em] uppercase text-blue-400 mb-3"
+                                className="text-xs font-black tracking-[0.3em] uppercase text-blue-500 mb-3"
                             >
                                 {slides[currentSlide].subtitle}
                             </motion.span>
                             
-                            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+                            <h2 className="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
                                 {slides[currentSlide].title}
                             </h2>
                             
-                            <p className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed">
+                            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
                                 {slides[currentSlide].description}
                             </p>
                         </motion.div>
@@ -116,8 +122,8 @@ export const WelcomeScreen = () => {
                     {slides.map((_, i) => (
                         <button
                             key={i}
-                            onClick={() => setCurrentSlide(i)}
-                            className={`h-1.5 transition-all duration-500 rounded-full ${i === currentSlide ? 'w-8 bg-blue-500' : 'w-2 bg-white/20 hover:bg-white/40'}`}
+                            onClick={() => handleDotClick(i)}
+                            className={`h-1.5 transition-all duration-500 rounded-full ${i === currentSlide ? 'w-8 bg-blue-500' : 'w-2 bg-slate-300 dark:bg-white/20 hover:bg-slate-400 dark:hover:bg-white/40'}`}
                         />
                     ))}
                 </div>
@@ -138,7 +144,7 @@ export const WelcomeScreen = () => {
                     
                     <button 
                         onClick={skipWelcome}
-                        className="text-slate-500 hover:text-white transition-colors text-sm font-medium"
+                        className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors text-sm font-medium"
                     >
                         Lewati ke Dashboard
                     </button>
@@ -147,7 +153,7 @@ export const WelcomeScreen = () => {
 
             {/* Bottom Credits */}
             <div className="absolute bottom-8 opacity-20">
-                <p className="text-[10px] text-white tracking-widest uppercase">Elysian Corp &copy; 2026 • Advanced Intelligence Engine</p>
+                <p className="text-[10px] text-slate-900 dark:text-white tracking-widest uppercase">Elysian Corp &copy; 2026 • Advanced Intelligence Engine</p>
             </div>
         </motion.div>
     );

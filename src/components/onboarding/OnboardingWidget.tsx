@@ -36,8 +36,8 @@ const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{ zIndex: 9999, backdropFilter: 'blur(16px)', backgroundColor: 'rgba(6, 13, 24, 0.8)' }}
-            className="fixed inset-0 pointer-events-none flex items-center justify-center p-4"
+            style={{ zIndex: 9999, backdropFilter: 'blur(16px)' }}
+            className="fixed inset-0 pointer-events-none flex items-center justify-center p-4 bg-slate-900/80 dark:bg-[#060D18]/80"
         >
             {particles.map((p) => (
                 <motion.div
@@ -63,10 +63,10 @@ const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
                     transition={{ delay: 0.2, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                 >
                     <h1 className="text-6xl md:text-8xl font-black text-white mb-4 tracking-tighter">
-                        READY. <span className="text-blue-500">SET.</span> <span className="text-cyan-400 font-outline-2">GO!</span>
+                        READY. <span className="text-blue-500">SET.</span> <span className="text-cyan-400">GO!</span>
                     </h1>
                     <div className="h-1.5 w-32 bg-blue-600 mx-auto rounded-full mb-8 shadow-[0_0_20px_rgba(37,99,235,0.8)]" />
-                    <p className="text-xl md:text-2xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-xl md:text-2xl text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
                         Anda telah menyelesaikan setup awal. <br />
                         <span className="text-white font-bold italic tracking-wide">Selamat datang di ekosistem Elysian Intelligence.</span>
                     </p>

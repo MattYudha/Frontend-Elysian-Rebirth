@@ -35,7 +35,7 @@ export const OnboardingController = () => {
         <AnimatePresence mode="wait">
             {currentPhase === 'welcome' && <WelcomeScreen key="welcome" />}
             {currentPhase === 'setup' && <SetupWizard key="setup" />}
-            <OnboardingWidget key="tour" />
+            {currentPhase === 'tour' && <OnboardingWidget key="tour" />}
         </AnimatePresence>
     );
 };
