@@ -174,4 +174,18 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                                             {log.message}
                                         </span>
                                     </div>
-                   
+                                ))}
+                            </div>
+
+                            {res.manager_conclusion && (
+                                <div className="mt-2 pt-2 border-t border-slate-800 text-[10px] text-slate-400 italic">
+                                    {res.manager_conclusion}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
