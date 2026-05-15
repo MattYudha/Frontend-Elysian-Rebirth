@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,8 +29,10 @@ const formSchema = z.object({
     rememberMe: z.boolean().optional(),
 });
 
-export default function LoginPage() {
+function LoginForm() {
     const { login } = useAuthStore();
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
 
     // Rive Animation States
@@ -78,9 +80,11 @@ export default function LoginPage() {
 
             // Eksekusi animasi sebelum redirect
             setTimeout(() => {
-                const redirectTo = sessionStorage.getItem('redirect_after_login') || '/dashboard';
+                // Read redirect from URL query param first, then fallback to sessionStorage, then /dashboard
+                const urlRedirect = searchParams.get('redirect');
+                const redirectTo = urlRedirect || sessionStorage.getItem('redirect_after_login') || '/dashboard';
                 sessionStorage.removeItem('redirect_after_login');
-                window.location.href = redirectTo;
+                router.push(redirectTo);
             }, 1000);
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -330,5 +334,17 @@ export default function LoginPage() {
                 </div>
             </div >
         </>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 }

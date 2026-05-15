@@ -31,6 +31,15 @@ export async function POST(request: Request) {
             };
             const nextResponse = NextResponse.json(mockData, { status: 200 });
             nextResponse.cookies.set({
+                name: 'access_token',
+                value: 'mock_jwt_token',
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 15 * 60 // 15 minutes
+            });
+            nextResponse.cookies.set({
                 name: 'refresh_token',
                 value: 'mock_refresh_token_123',
                 httpOnly: true,
@@ -54,6 +63,20 @@ export async function POST(request: Request) {
 
         // Buat response untuk Frontend
         const nextResponse = NextResponse.json(data, { status: 200 });
+
+        // Set access_token cookie from JSON body (for middleware SSR auth check)
+        const accessToken = data.data?.access_token || data.data?.data?.access_token;
+        if (accessToken) {
+            nextResponse.cookies.set({
+                name: 'access_token',
+                value: accessToken,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 15 * 60 // 15 minutes
+            });
+        }
 
         // Parsing cookie untuk di-set di doman Vercel (Next.js)
         if (setCookieHeader) {
