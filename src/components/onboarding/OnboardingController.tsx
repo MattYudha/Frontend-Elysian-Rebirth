@@ -21,9 +21,14 @@ export const OnboardingController = () => {
         setIsMounted(true);
         syncProgress();
         
+        // If user has already completed onboarding (persisted), never show again
+        if (isCompleted) {
+            return;
+        }
+        
         // Detect first-time login flag from registration
         const isFirstLogin = localStorage.getItem('elysian-first-login');
-        if (isFirstLogin === 'true' && !isCompleted) {
+        if (isFirstLogin === 'true') {
             startOnboarding();
             localStorage.removeItem('elysian-first-login'); // Consume flag
         }

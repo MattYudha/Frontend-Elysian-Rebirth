@@ -162,7 +162,7 @@ export const OnboardingWidget = () => {
         if (!targetRect) return { bottom: 24, right: 24 };
 
         const cardWidth = 420;
-        const cardHeight = 280;
+        const cardHeight = 220; // Reduced from 280 to prevent overflow
         const padding = 24;
         const vh = window.innerHeight;
         const vw = window.innerWidth;
@@ -226,7 +226,7 @@ export const OnboardingWidget = () => {
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0, ...cardPos }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="fixed bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 pointer-events-auto overflow-hidden w-full max-w-[420px]"
+                className="fixed bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 pointer-events-auto overflow-hidden w-full max-w-[380px]"
                 style={{ zIndex: Z_INDEX.onboarding }}
             >
                 {/* Header Highlight */}
@@ -238,8 +238,8 @@ export const OnboardingWidget = () => {
                     />
                 </div>
 
-                <div className="p-6 md:p-8">
-                    <div className="flex justify-between items-center mb-6">
+                <div className="p-5 md:p-6">
+                    <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-2">
                             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-[10px] font-bold text-blue-600 dark:text-blue-400">
                                 {stepNumber}
@@ -253,17 +253,17 @@ export const OnboardingWidget = () => {
                         </button>
                     </div>
 
-                    <div className="space-y-4 mb-8">
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">
+                    <div className="space-y-3 mb-6">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
                             {currentStepData.title}
                         </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3">
                             {currentStepData.description}
                         </p>
 
                         {currentStepData.outcome && (
-                            <div className="flex gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-xl">
-                                <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                            <div className="flex gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-lg">
+                                <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                                 <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 italic">
                                     &quot; {currentStepData.outcome} &quot;
                                 </p>
@@ -271,7 +271,7 @@ export const OnboardingWidget = () => {
                         )}
                     </div>
 
-                    <div className="flex justify-between items-center pt-6 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-800">
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
                             Elysian Tour System 1.0
                         </span>
@@ -279,7 +279,8 @@ export const OnboardingWidget = () => {
                             onClick={nextStep}
                             className="bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-xl h-10 px-6 font-bold shadow-lg transition-transform hover:-translate-y-0.5"
                         >
-                            {stepNumber === steps.length ? 'Selesaikan Tour' : currentStepData.ctaLabel}
+                            <span className="hidden sm:inline">{stepNumber === steps.length ? 'Selesaikan' : currentStepData.ctaLabel}</span>
+                            <span className="sm:hidden">{stepNumber === steps.length ? 'Selesai' : 'Lanjut'}</span>
                             {stepNumber === steps.length ? <CheckCircle2 className="ml-2 w-4 h-4" /> : <ArrowRight className="ml-2 w-4 h-4" />}
                         </Button>
                     </div>

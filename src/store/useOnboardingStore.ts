@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { getOnboardingSteps } from '@/config/onboarding';
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -64,103 +65,14 @@ const defaultProfile: UserSetupProfile = {
 };
 
 // ─── Store ──────────────────────────────────────────────────────
-// NOTE: Pure in-memory store (no localStorage persistence per AGENTS.md security rules)
+// Persist ONLY the completion flag to prevent onboarding from showing again
+// All other state stays in-memory (per AGENTS.md security guidelines)
 export const useOnboardingStore = create<OnboardingState>()(
-    (set, get) => ({
-        // Initial state
-        currentPhase: 'welcome',
-        isFirstTimeUser: false,
-        hasSeenWelcome: false,
-        setupStep: 1,
-        userProfile: { ...defaultProfile },
-        currentMilestone: 1,
-        isOpen: false,
-        isCompleted: false,
-        showCelebration: false,
-        hasSeenOnboardingAt: null,
-
-        // ── Phase Navigation ────────────────────────────────
-        startOnboarding: () => set({
-            isFirstTimeUser: true,
+    persist(
+        (set, get) => ({
+            // Initial state
             currentPhase: 'welcome',
-            hasSeenWelcome: false,
-            setupStep: 1,
-            currentMilestone: 1,
-            isCompleted: false,
-            hasSeenOnboardingAt: null,
-        }),
-
-        completeWelcome: () => set({
-            hasSeenWelcome: true,
-            currentPhase: 'setup',
-        }),
-
-        skipWelcome: () => set({
-            hasSeenWelcome: true,
-            currentPhase: 'setup',
-        }),
-
-        // ── Setup Wizard ────────────────────────────────────
-        nextSetupStep: () => {
-            const current = get().setupStep;
-            if (current < 3) {
-                set({ setupStep: current + 1 });
-            } else {
-                get().completeSetup();
-            }
-        },
-
-        prevSetupStep: () => {
-            const current = get().setupStep;
-            if (current > 1) {
-                set({ setupStep: current - 1 });
-            }
-        },
-
-        updateProfile: (data) => set((state) => ({
-            userProfile: { ...state.userProfile, ...data },
-        })),
-
-        completeSetup: () => set({
-            currentPhase: 'tour',
-            isOpen: true,
-        }),
-
-        skipSetup: () => set({
-            currentPhase: 'tour',
-            isOpen: true,
-        }),
-
-        // ── Tour (Phase 3) ──────────────────────────────────
-        open: () => set({ isOpen: true }),
-        close: () => set({ isOpen: false }),
-
-        nextStep: () => {
-            const { currentMilestone } = get();
-            // Use desktop steps length as canonical (8 steps)
-            const steps = getOnboardingSteps(false);
-            if (currentMilestone < steps.length) {
-                set({ currentMilestone: currentMilestone + 1 });
-            } else {
-                get().completeTour();
-            }
-        },
-
-        completeTour: () => set({
-            isCompleted: true,
-            isOpen: false,
-            showCelebration: true,
-            currentPhase: 'completed',
-            hasSeenOnboardingAt: Date.now(),
             isFirstTimeUser: false,
-        }),
-
-        dismissCelebration: () => set({ showCelebration: false }),
-
-        // ── Global ──────────────────────────────────────────
-        resetOnboarding: () => set({
-            currentPhase: 'welcome',
-            isFirstTimeUser: true,
             hasSeenWelcome: false,
             setupStep: 1,
             userProfile: { ...defaultProfile },
@@ -169,26 +81,127 @@ export const useOnboardingStore = create<OnboardingState>()(
             isCompleted: false,
             showCelebration: false,
             hasSeenOnboardingAt: null,
+
+            // ── Phase Navigation ────────────────────────────────
+            startOnboarding: () => set({
+                isFirstTimeUser: true,
+                currentPhase: 'welcome',
+                hasSeenWelcome: false,
+                setupStep: 1,
+                currentMilestone: 1,
+                isCompleted: false,
+                hasSeenOnboardingAt: null,
+            }),
+
+            completeWelcome: () => set({
+                hasSeenWelcome: true,
+                currentPhase: 'setup',
+            }),
+
+            skipWelcome: () => set({
+                hasSeenWelcome: true,
+                currentPhase: 'setup',
+            }),
+
+            // ── Setup Wizard ────────────────────────────────────
+            nextSetupStep: () => {
+                const current = get().setupStep;
+                if (current < 3) {
+                    set({ setupStep: current + 1 });
+                } else {
+                    get().completeSetup();
+                }
+            },
+
+            prevSetupStep: () => {
+                const current = get().setupStep;
+                if (current > 1) {
+                    set({ setupStep: current - 1 });
+                }
+            },
+
+            updateProfile: (data) => set((state) => ({
+                userProfile: { ...state.userProfile, ...data },
+            })),
+
+            completeSetup: () => set({
+                currentPhase: 'tour',
+                isOpen: true,
+            }),
+
+            skipSetup: () => set({
+                currentPhase: 'tour',
+                isOpen: true,
+            }),
+
+            // ── Tour (Phase 3) ──────────────────────────────────
+            open: () => set({ isOpen: true }),
+            close: () => set({ isOpen: false }),
+
+            nextStep: () => {
+                const { currentMilestone } = get();
+                // Use desktop steps length as canonical (8 steps)
+                const steps = getOnboardingSteps(false);
+                if (currentMilestone < steps.length) {
+                    set({ currentMilestone: currentMilestone + 1 });
+                } else {
+                    get().completeTour();
+                }
+            },
+
+            completeTour: () => set({
+                isCompleted: true,
+                isOpen: false,
+                showCelebration: true,
+                currentPhase: 'completed',
+                hasSeenOnboardingAt: Date.now(),
+                isFirstTimeUser: false,
+            }),
+
+            dismissCelebration: () => set({ showCelebration: false }),
+
+            // ── Global ──────────────────────────────────────────
+            resetOnboarding: () => set({
+                currentPhase: 'welcome',
+                isFirstTimeUser: true,
+                hasSeenWelcome: false,
+                setupStep: 1,
+                userProfile: { ...defaultProfile },
+                currentMilestone: 1,
+                isOpen: false,
+                isCompleted: false,
+                showCelebration: false,
+                hasSeenOnboardingAt: null,
+            }),
+
+            getStepNumber: () => get().currentMilestone,
+
+            syncProgress: () => {
+                // Ensure phase consistency
+                const { hasSeenOnboardingAt, isCompleted } = get();
+                if (hasSeenOnboardingAt && isCompleted) {
+                    set({ currentPhase: 'completed', isFirstTimeUser: false });
+                }
+            },
+
+            getTourProgress: () => {
+                const steps = getOnboardingSteps(false);
+                const current = get().currentMilestone;
+                return {
+                    current,
+                    total: steps.length,
+                    percent: Math.round((current / steps.length) * 100),
+                };
+            },
         }),
-
-        getStepNumber: () => get().currentMilestone,
-
-        syncProgress: () => {
-            // Ensure phase consistency
-            const { hasSeenOnboardingAt, isCompleted } = get();
-            if (hasSeenOnboardingAt && isCompleted) {
-                set({ currentPhase: 'completed', isFirstTimeUser: false });
-            }
-        },
-
-        getTourProgress: () => {
-            const steps = getOnboardingSteps(false);
-            const current = get().currentMilestone;
-            return {
-                current,
-                total: steps.length,
-                percent: Math.round((current / steps.length) * 100),
-            };
-        },
-    })
+        {
+            name: 'elysian-onboarding-v2',
+            // Only persist the completion flag — everything else resets on page reload
+            // This ensures returning users never see onboarding again
+            partialize: (state) => ({
+                isCompleted: state.isCompleted,
+                hasSeenOnboardingAt: state.hasSeenOnboardingAt,
+            }),
+        }
+    )
 );
