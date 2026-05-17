@@ -102,225 +102,225 @@ export const translationsID: TranslationKeys = {
     },
     landingNav: {
         products: {
-            title: 'Produk',
+            title: 'Fitur Utama',
         },
         solutions: {
-            title: 'Solusi',
+            title: 'Teknologi',
         },
         useCases: {
-            title: 'Kasus Penggunaan',
+            title: 'Pengguna',
         },
         faq: {
             title: 'FAQ',
         },
         actions: {
-            startFree: 'Mulai Gratis',
+            startFree: 'Mulai Audit',
             search: 'Cari',
-            microCopy: 'Hanya butuh 30 detik.'
+            microCopy: 'Audit otomatis dalam hitungan detik.'
         }
     },
     landing: {
         hero: {
-            badge: 'Platform Operasi UMKM Indonesia',
-            title1: 'Kelola Bisnis UMKM',
-            title2: 'Tanpa Ribet',
-            description: 'Semua operasional bisnis proyek, dokumen, dan insight AI  dalam satu sistem yang rapi dan terintegrasi.',
-            ctaStart: 'Mulai Gratis',
+            badge: 'Infrastruktur Audit Finansial Otonom',
+            title1: 'Transformasi Pre-Audit',
+            title2: 'RAPBD Pemda.',
+            description: 'Sistem Multi-Agent Swarm Intelligence untuk mendeteksi dan mencegah markup anggaran secara otomatis dengan perlindungan Immutable Audit Trail.',
+            ctaStart: 'Mulai Audit Sekarang',
             ctaDemo: 'Lihat Cara Kerjanya',
-            proof: 'Dibangun untuk UMKM Indonesia',
+            proof: 'Dibangun untuk Pemerintah Daerah & Inspektorat',
         },
-        marquee: ['Retail', 'Logistik', 'Agency', 'Klinik', 'F&B', 'Manufaktur', 'Konsultan', 'Properti'],
+        marquee: ['Inspektorat Daerah', 'BPK', 'BPKP', 'KPK', 'Kepala Dinas', 'Pemerintah Provinsi', 'Pemerintah Kota', 'LKPP'],
         showcase: {
-            badge: 'Power of Elysian',
-            title1: 'Satu Platform.',
+            badge: 'Power of Elysian v3.0',
+            title1: 'Satu Infrastruktur.',
             title2: 'Tiga Kekuatan Utama.',
-            description: 'Gabungan kekuatan otomatisasi, pemrosesan dokumen cerdas, dan asisten AI dalam satu ekosistem yang mulus.',
+            description: 'Menggabungkan kecerdasan Swarm AI, basis fakta RAG, dan keamanan Blockchain dalam satu ekosistem otonom.',
             cards: {
-                dev: { title: 'Integrasi Developer', desc: 'Teknologi canggih yang bekerja di belakang layar untuk bisnis Anda.' },
-                docs: { title: 'Analisis Dokumen (RAG)', desc: 'Teknologi canggih yang bekerja di belakang layar untuk bisnis Anda.' },
-                insights: { title: 'Wawasan Bisnis', desc: 'Teknologi canggih yang bekerja di belakang layar untuk bisnis Anda.' }
+                dev: { title: 'Cognitive Swarm Engine', desc: 'MiroFish dengan 3 Agen AI yang saling berdebat untuk mencapai konsensus audit yang objektif.' },
+                docs: { title: 'Ground Truth & RAG', desc: 'OpenViking & Nemesis DB mengamankan fakta riil dari data SIRUP dan Perda tanpa kompromi.' },
+                insights: { title: 'Immutable Trust Layer', desc: 'Rekam jejak keputusan agen dikunci secara permanen di Public EVM Testnet (Sepolia/Amoy).' }
             }
         },
         deepDive: {
             badge: 'Deep Dive',
-            title1: 'Manajemen Proyek',
-            title2: 'Tanpa Hambatan.',
-            description: 'Elysian memberikan visibilitas total dari ide hingga eksekusi.',
+            title1: 'Otomatisasi Audit',
+            title2: 'Tanpa Bias Manusia.',
+            description: 'Elysian meniadakan pengecekan manual yang rawan kesalahan dalam proses review anggaran.',
             cards: {
-                cycles: { title: 'Automated Cycles', desc: 'Lacak progress sprint tim Anda secara otomatis dengan grafik intuitif.' },
-                inbox: { title: 'Smart Inbox', desc: 'Review, approve, atau decline request yang masuk dengan cepat.' },
-                insights: { title: 'Elysian Insights', desc: 'Prediksi bottleneck dan optimalkan performa tim dengan analitik data berbasis AI.', action: 'View Report' }
+                cycles: { title: 'Verifikasi Harga Otomatis', desc: 'Bandingkan usulan anggaran dengan data historis pengadaan di SIRUP dalam hitungan detik.' },
+                inbox: { title: 'Uji Kepatuhan Regulasi', desc: 'Deteksi pelanggaran aturan pengadaan menggunakan RAG berkinerja tinggi.' },
+                insights: { title: 'Blockchain Provenance', desc: 'Pastikan laporan hasil audit tidak dapat dimanipulasi dengan jejak kriptografis on-chain.', action: 'Lihat Bukti On-Chain' }
             }
         },
         integration: {
             badge: 'Ecosystem',
             title1: 'Terhubung dengan',
-            title2: 'Tools Favorit Anda.',
-            description: 'Elysian terintegrasi dengan ratusan aplikasi untuk menjaga alur kerja tim Anda tetap lancar.',
-            hint: 'Geser untuk melihat lebih banyak',
+            title2: 'Arsitektur Enterprise.',
+            description: 'Elysian Rebirth v3.0 dirancang terintegrasi dengan ekosistem data pemerintah dan infrastruktur modern.',
+            hint: 'Geser untuk melihat ekosistem',
             items: {
-                slack: { title: 'Slack Notification', desc: 'Dapatkan update real-time langsung di channel tim Anda.' },
-                figma: { title: 'Figma Sync', desc: 'Tarik aset desain dan komentar langsung ke task manager.' },
-                github: { title: 'GitHub Actions', desc: 'Otomatisasi deployment dan sync status issue.' },
-                drive: { title: 'Google Drive', desc: 'Akses dan lampirkan dokumen cloud tanpa berpindah tab.' },
-                notion: { title: 'Notion Pages', desc: 'Embed halaman wiki dan knowledge base internal.' },
-                postgres: { title: 'PostgreSQL', desc: 'Hubungkan database Anda untuk analytics custom.' },
-                gmail: { title: 'Gmail Add-on', desc: 'Ubah email menjadi task atau tiket support dalam satu klik.' },
-                cta: 'Pelajari lebih lanjut'
+                slack: { title: 'SIRUP LKPP', desc: 'Akses data historis pengadaan riil (Nemesis DB) sebagai basis kebenaran harga.' },
+                figma: { title: 'SIPD Kemendagri', desc: 'Penyesuaian standar pengelolaan keuangan daerah yang terintegrasi.' },
+                github: { title: 'Qdrant Vector DB', desc: 'Mesin pencarian semantik ultracepat untuk menelusuri ratusan halaman Perda.' },
+                drive: { title: 'MongoDB QA Gate', desc: 'Lapisan penyaringan data untuk memastikan hanya fakta valid yang dipelajari AI.' },
+                notion: { title: 'Sepolia Testnet', desc: 'Menyimpan segel persetujuan hash secara immutable di jaringan publik EVM.' },
+                postgres: { title: 'PostgreSQL IAM', desc: 'Manajemen otentikasi dan kontrol akses berbasis peran (RBAC) yang solid.' },
+                gmail: { title: 'Redis Pub/Sub', desc: 'Streaming log perdebatan antar agen AI secara real-time tanpa jeda.' },
+                cta: 'Pelajari Arsitektur Kami'
             }
         },
         agents: {
-            badge: 'Elysian Neural Network',
-            title1: 'Delegasikan tugas ke',
-            title2: 'AI Agents Spesialis.',
-            description: 'Pilih agent yang tepat untuk setiap pekerjaan. Dari analis data hingga auditor keamanan, semua siap bekerja 24/7.',
+            badge: 'Cognitive Swarm Intelligence',
+            title1: 'Serahkan Analisis ke',
+            title2: 'Spesialis AI Agent Kami.',
+            description: 'MiroFish menggunakan pendekatan Multi-Agent di mana setiap bot memiliki perannya masing-masing dalam membongkar RAPBD.',
             demo: {
-                assign: 'Tugaskan ke...',
-                processing: 'Memproses konteks...',
-                available: '4 Agent tersedia'
+                assign: 'Proses Audit...',
+                processing: 'Menganalisis anomali...',
+                available: '3 Agen Siap Bekerja'
             },
             items: {
-                analyst: { name: 'Data Analyst AI', role: 'Financial Insights' },
-                editor: { name: 'Content Editor', role: 'SEO & Copywriting' },
-                compliance: { name: 'Compliance Bot', role: 'Legal & Audit' },
-                coder: { name: 'Dev Assistant', role: 'Code Review' }
+                analyst: { name: 'Auditor Agent', role: 'Deteksi Markup Harga' },
+                editor: { name: 'Compliance Agent', role: 'Pengawas Regulasi Hukum' },
+                compliance: { name: 'Manager Agent', role: 'Konsensus Keputusan (Manager)' },
+                coder: { name: 'Blockchain Committer', role: 'Segel Audit Immutable' }
             }
         },
         terminal: {
             logs: {
-                system: 'Memulai platform Elysian... (IAM | MDM | Compliance)',
-                scan: 'Memvalidasi modul keamanan dan orkestrasi workflow...',
-                ready: 'Orkestrasi workflow cerdas diaktifkan.',
-                success: 'Sistem Terhubung. Menunggu instruksi operator.',
-                compliance: 'SOC 2 Controls Verified ✓ CC1 (Entitas) ✓ CC2 (Komunikasi) ✓ CC3 (Risiko)',
-                operational: 'Semua sistem operasional.',
-                welcome: 'Selamat datang di Konsol Sistem Elysian.',
-                help: 'Ketik "help" untuk melihat daftar perintah, atau klik icon terminal di atas untuk kembali ke mode visual.'
+                system: 'Memulai Elysian Rebirth v3.0... (Swarm Engine | Nemesis DB | Trust Layer)',
+                scan: 'Menghubungkan ke PostgreSQL IAM dan Sepolia Testnet...',
+                ready: 'MiroFish Swarm siap menerima dokumen RAPBD.',
+                success: 'Sistem Terhubung. Menunggu unggahan draf anggaran.',
+                compliance: 'Audit Trail On-Chain Active ✓ OpenViking Sync ✓ MongoDB QA Gate Online',
+                operational: 'Semua lapisan arsitektur operasional.',
+                welcome: 'Selamat datang di Konsol Infrastruktur Audit Otonom.',
+                help: 'Ketik "help" untuk panduan, atau klik ikon terminal untuk mode visual.'
             }
         },
         problem: {
-            title1: 'Mengapa Bisnis',
-            title2: 'Sering Stuck?',
-            description: 'Banyak tim terjebak dalam operasional manual yang mematikan inovasi. Waktu habis untuk hal teknis, bukan strategis.',
+            title1: 'Mengapa Markup Anggaran',
+            title2: 'Sulit Dideteksi?',
+            description: 'Proses reviu manual oleh auditor Inspektorat memakan waktu lama, rentan human error, dan seringkali tidak memiliki referensi data historis yang memadai secara instan.',
             items: [
-                'Dokumen tersebar di berbagai platform',
-                'Keputusan lambat tanpa data terpusat',
-                'SOP sulit diakses dan dijalankan',
-                'Workflow manual yang rentan human error'
+                'Verifikasi manual ribuan item anggaran sangat lambat',
+                'Ketiadaan data pembanding pengadaan yang real-time',
+                'Standar Harga Regional (SHR) tersebar di dokumen PDF tebal',
+                'Rekam jejak persetujuan (audit trail) rapuh dan bisa diubah'
             ],
-            solutionTitle: 'Solusi Elysian',
+            solutionTitle: 'Inovasi Elysian',
             solutionItems: [
-                { title: 'Otomatisasi Cerdas', desc: 'Kurangi beban kerja manual hingga 80%' },
-                { title: 'Single Source of Truth', desc: 'Semua dokumen dan data dalam satu akses' },
-                { title: 'AI Assistant Terintegrasi', desc: 'Bekerja lebih cepat dengan bantuan AI kontekstual' }
+                { title: 'Swarm Intelligence', desc: 'Agen AI saling berdebat untuk keputusan objektif' },
+                { title: 'Ground Truth Database', desc: 'Menarik referensi harga asli (SIRUP) tanpa manipulasi LLM' },
+                { title: 'Immutable Audit Log', desc: 'Jejak keputusan agen disematkan permanen di Blockchain' }
             ],
-            cta: 'Transformasi Cara Kerja Anda'
+            cta: 'Transformasi Proses Audit'
         },
         features: {
-            title: 'Fitur yang Mengangkat Bisnis',
-            subtitle: 'Platform all-in-one untuk operasional modern',
+            title: 'Mendefinisikan Ulang Standar Audit',
+            subtitle: 'Teknologi all-in-one untuk tata kelola pemerintahan yang bersih',
             items: {
-                ai: { title: 'AI Assistant', desc: 'Partner cerdas untuk setiap keputusan' },
-                docs: { title: 'Document Hub', desc: 'Kolaborasi dokumen real-time' },
-                security: { title: 'Enterprise Security', desc: 'Keamanan data tingkat lanjut' },
-                automation: { title: 'Workflow Engine', desc: 'Jalankan proses bisnis secara otomatis' }
+                ai: { title: 'MiroFish Engine', desc: 'Konsensus otomatis antar agen AI' },
+                docs: { title: 'OpenViking RAG', desc: 'Ekstraksi presisi tinggi untuk Perda & SHR' },
+                security: { title: 'Trust Layer', desc: 'Pencatatan on-chain di Sepolia' },
+                automation: { title: 'Caveman Prompt', desc: 'Output JSON tanpa halusinasi LLM' }
             }
         },
         useCases: {
-            title: 'Dibangun untuk Skala Apa Saja',
-            subtitle: 'Fleksibel menyesuaikan kebutuhan tim Anda, dari startup hingga enterprise.',
+            title: 'Dibangun Untuk Semua Pemangku Kepentingan',
+            subtitle: 'Dari pengawas internal hingga masyarakat, semua mendapatkan transparansi.',
             items: {
-                retail: { title: 'Tim Produk', items: ['Roadmap management', 'PRD Automation', 'User Feedback'] },
-                logistics: { title: 'Tim Operasional', items: ['SOP Management', 'Incident Reporting', 'Resource Planning'] },
-                agency: { title: 'Tim Engineering', items: ['Tech Specs', 'Sprint Planning', 'Knowledge Base'] },
-                clinic: { title: 'Tim HR & Legal', items: ['Onboarding Flow', 'Contract Management', 'Compliance'] }
+                retail: { title: 'Inspektorat Daerah', items: ['Reviu RAPBD instan', 'Deteksi markup', 'Referensi harga otomatis'] },
+                logistics: { title: 'Kepala Dinas / OPD', items: ['Pengecekan draf sebelum ttd', 'Jaminan kepatuhan', 'Mitigasi risiko'] },
+                agency: { title: 'BPK & BPKP', items: ['Akses audit trail on-chain', 'Data pembanding akurat', 'Investigasi mendalam'] },
+                clinic: { title: 'Masyarakat & Jurnalis', items: ['Transparansi anggaran', 'Lacak jejak keputusan', 'Akuntabilitas publik'] }
             }
         },
         cta: {
-            badge: 'Bergabung dengan Revolusi AI',
-            title1: 'Siap Membuat Bisnis Anda',
-            title2: 'Lebih Ringan?',
-            description: 'Bergabunglah dengan ribuan tim yang telah beralih ke cara kerja masa depan. Hemat waktu, kurangi stres.',
-            btnStart: 'Mulai Uji Coba Gratis',
-            btnConsult: 'Hubungi Sales',
-            foot: 'Dibuat Untuk Membantu UMKM Indonesia'
+            badge: 'Wujudkan Pemerintahan Bersih',
+            title1: 'Siap Hentikan Pemborosan',
+            title2: 'Anggaran Daerah?',
+            description: 'Ubah proses pengecekan yang pasif menjadi pengawasan finansial yang otonom, cerdas, dan transparan.',
+            btnStart: 'Uji Coba Sistem Audit',
+            btnConsult: 'Diskusi Teknis',
+            foot: 'Dibuat untuk Indonesia yang Lebih Akuntabel'
         },
         collaboration: {
-            badge: 'Power your workflow',
-            title1: 'Kolaborasi Tim',
-            title2: 'Tanpa Batas.',
-            description: 'Satu platform terintegrasi untuk menyatukan ide, eksekusi, dan hasil. Tinggalkan silo, mulai berkolaborasi dengan cara yang benar.',
+            badge: 'Automated Oversight',
+            title1: 'Pengawasan Finansial',
+            title2: 'Tanpa Kompromi.',
+            description: 'Gabungan data historis pengadaan, regulasi hukum, dan agen otonom untuk memastikan tidak ada celah bagi markup.',
             cards: {
                 project: {
-                    title: 'Project Management',
-                    desc: 'Konsolidasi milestone, tugas, dan deadline dalam satu visual dashboard yang intuitif.'
+                    title: 'Sinkronisasi Fakta',
+                    desc: 'Akses 4GB+ data SIRUP dan jutaan kata dari dokumen Perda secara instan.'
                 },
                 updates: {
-                    title: 'Status Updates',
-                    desc: 'Otomatisasi laporan progres. Hemat waktu meeting dengan update asinkronus.'
+                    title: 'Log Perdebatan Real-time',
+                    desc: 'Pantau secara langsung bagaimana AI Auditor dan AI Pengawas mencapai kesimpulan.'
                 },
                 workflow: {
-                    title: 'Orkestrasi Workflow AI',
-                    desc: 'Rancang dan otomatisasi agen AI yang cerdas secara visual. Hubungkan Logic Router, Reasoning Engine, dan Knowledge Base tanpa batasan.',
-                    cta: 'Coba Workflow'
+                    title: 'Blockchain Integrity',
+                    desc: 'Segel hasil audit dalam hitungan detik. Buktikan integritas dokumen di masa depan tanpa keraguan.',
+                    cta: 'Lihat Contoh Laporan'
                 }
             }
         },
         faq: {
             title: 'Pertanyaan Umum',
-            subtitle: 'Jawaban untuk keraguan Anda',
-            q1: 'Apakah data bisnis saya aman?',
-            a1: 'Sangat aman. Kami menggunakan enkripsi standar industri (AES-256) dan SOC2 compliance.',
-            q2: 'Bisa integrasi dengan tools lain?',
-            a2: 'Ya! Elysian terintegrasi dengan Slack, Jira, GitHub, dan ribuan aplikasi lainnya via API.',
-            q3: 'Apakah ada masa percobaan?',
-            a3: 'Tentu. Anda bisa mencoba paket Pro gratis selama 14 hari tanpa komitmen.',
-            q4: 'Bagaimana untuk Enterprise?',
-            a4: 'Kami menyediakan private cloud, SLA khusus, dan dedicated support untuk klien Enterprise.'
+            subtitle: 'Pelajari lebih lanjut tentang sistem Elysian',
+            q1: 'Bagaimana AI mencegah halusinasi data (Yapping)?',
+            a1: 'Kami menggunakan teknik "Caveman Prompt" yang memaksa LLM mengeluarkan output JSON kaku tanpa narasi bebas, dan beroperasi di atas data fakta (Ground Truth) murni.',
+            q2: 'Apa peran Blockchain di sistem ini?',
+            a2: 'Blockchain (Sepolia Testnet) berfungsi sebagai Trust Layer. Setiap keputusan konsensus AI dibuatkan nilai Hash Kriptografis dan disimpan secara permanen on-chain agar tidak dapat dimodifikasi oleh siapapun (termasuk admin server).',
+            q3: 'Bagaimana jika data regulasi di RAG ada yang salah?',
+            a3: 'Elysian memiliki arsitektur MongoDB QA Gate. Dokumen harus melalui persetujuan (approval) manusia terlebih dahulu sebelum di-embed ke Qdrant Vector DB, mencegah "data kotor" dipelajari AI.',
+            q4: 'Apakah data anggaran Pemda akan tersebar ke publik?',
+            a4: 'Tidak. Kami dapat mengimplementasikan node Blockchain privat (Quorum) atau sistem on-premise sepenuhnya sesuai kebutuhan kebijakan kerahasiaan institusi Anda.'
         },
         cta_section: {
-            title1: 'Langkah Pertama',
-            title2: 'untuk Bisnis Maju',
-            description: 'Dari UMKM sampai korporasi, semua bisa nikmati mudahnya berbisnis dengan Elysian.',
-            btn: 'Coba Sekarang'
+            title1: 'Langkah Awal Menuju',
+            title2: 'Transparansi Maksimal',
+            description: 'Mari bertransformasi dari sekadar pengecekan (checking) menjadi pengawasan otonom (autonomous oversight).',
+            btn: 'Mulai Sekarang'
         },
         footer: {
-            description: 'Asisten Operasional Cerdas terdepan di Indonesia yang didedikasikan untuk membantu UMKM. Kami menggabungkan kecerdasan buatan canggih untuk mengotomatiskan proses, memberikan wawasan mendalam, dan memacu pertumbuhan bisnis Anda.',
+            description: 'Infrastruktur Audit Finansial Otonom terdepan di Indonesia. Kami memadukan Swarm Intelligence dan Blockchain untuk memastikan transparansi, integritas, dan akuntabilitas anggaran daerah.',
             solutions: {
-                title: 'Solusi Bisnis',
+                title: 'Teknologi Utama',
                 items: {
-                    docs: 'Otomatisasi Dokumen',
-                    finance: 'Analisis Keuangan AI',
-                    inventory: 'Manajemen Inventaris',
-                    trends: 'Prediksi Tren Pasar',
-                    erp: 'Integrasi ERP'
+                    docs: 'MiroFish Swarm',
+                    finance: 'OpenViking RAG',
+                    inventory: 'Nemesis Ground Truth',
+                    trends: 'Sepolia Trust Layer',
+                    erp: 'Redis Asynchronous'
                 }
             },
             support: {
-                title: 'Dukungan',
+                title: 'Eksplorasi',
                 items: {
-                    help: 'Pusat Bantuan',
-                    api: 'Dokumentasi API',
-                    status: 'Status Server',
-                    community: 'Komunitas Pengguna',
-                    sales: 'Hubungi Sales'
+                    help: 'Whitepaper Arsitektur',
+                    api: 'Dokumentasi Smart Contract',
+                    status: 'Status Testnet',
+                    community: 'Forum Pengembang',
+                    sales: 'Hubungi Tim Inti'
                 }
             },
             contact: {
-                title: 'Hubungi Kami',
-                address: 'Jl. Jend. Sudirman Kav. 52-53, Jakarta Selatan SCBD, Indonesia'
+                title: 'Kontak Kami',
+                address: 'Jakarta, Indonesia'
             },
             legal: {
-                copyright: '© 2026 Elysian.',
+                copyright: '© 2026 Elysian Rebirth v3.0.',
                 privacy: 'Kebijakan Privasi',
                 terms: 'Syarat & Ketentuan',
                 accessibility: 'Pernyataan Aksesibilitas'
             }
         },
         cookies: {
-            title: 'Kami Menggunakan Cookie',
-            description: 'Kami menggunakan cookie untuk meningkatkan pengalaman Anda, menganalisis traffic, dan personalisasi konten. Dengan melanjutkan, Anda menyetujui penggunaan cookie kami.',
-            accept: 'Terima Cookie',
+            title: 'Penggunaan Cookie',
+            description: 'Kami menggunakan cookie untuk analitik operasional dasbor. Dengan melanjutkan, Anda menyetujui kebijakan cookie kami.',
+            accept: 'Terima',
             decline: 'Tolak'
         }
     }

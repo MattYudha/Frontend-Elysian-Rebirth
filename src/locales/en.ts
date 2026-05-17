@@ -100,225 +100,225 @@ export const translationsEN = {
     },
     landingNav: {
         products: {
-            title: 'Products',
+            title: 'Core Features',
         },
         solutions: {
-            title: 'Solutions',
+            title: 'Technology',
         },
         useCases: {
-            title: 'Use Cases',
+            title: 'Users',
         },
         faq: {
             title: 'FAQ',
         },
         actions: {
-            startFree: 'Start Free',
+            startFree: 'Start Audit',
             search: 'Search',
-            microCopy: 'Takes only 30 seconds.'
+            microCopy: 'Automated audit in seconds.'
         }
     },
     landing: {
         hero: {
-            badge: 'Elysian v2.0 Public Beta',
-            title1: 'New Standard for',
-            title2: 'Product Management.',
-            description: 'Intelligent operating system for modern teams. Combine roadmap, documents, and AI in one harmony.',
-            ctaStart: 'Get Started',
+            badge: 'Autonomous Financial Oversight Infrastructure',
+            title1: 'Transform Pre-Audit for',
+            title2: 'Regional Budgets.',
+            description: 'A Multi-Agent Swarm Intelligence system to automatically detect and prevent budget markups with Immutable Audit Trail protection.',
+            ctaStart: 'Start Audit Now',
             ctaDemo: 'View Demo',
-            proof: 'No credit card required • Built for Indonesian SMEs',
+            proof: 'Built for Local Governments & Inspectorates',
         },
-        marquee: ['Retail', 'Logistics', 'Agency', 'Medical', 'F&B', 'Manufacturing', 'Consulting', 'Real Estate'],
+        marquee: ['Regional Inspectorate', 'BPK', 'BPKP', 'KPK', 'Agency Head', 'Provincial Government', 'City Government', 'LKPP'],
         showcase: {
-            badge: 'Power of Elysian',
-            title1: 'One Platform.',
+            badge: 'Power of Elysian v3.0',
+            title1: 'One Infrastructure.',
             title2: 'Three Core Strengths.',
-            description: 'Combining automation, intelligent document processing, and AI assistants into one seamless ecosystem.',
+            description: 'Combining the intelligence of Swarm AI, the factual basis of RAG, and the security of Blockchain in one autonomous ecosystem.',
             cards: {
-                dev: { title: 'Developer Integration', desc: 'Advanced technology working behind the scenes for your business.' },
-                docs: { title: 'Document Analysis (RAG)', desc: 'Advanced technology working behind the scenes for your business.' },
-                insights: { title: 'Business Insights', desc: 'Advanced technology working behind the scenes for your business.' }
+                dev: { title: 'Cognitive Swarm Engine', desc: 'MiroFish with 3 AI Agents debating each other to reach an objective audit consensus.' },
+                docs: { title: 'Ground Truth & RAG', desc: 'OpenViking & Nemesis DB secure real facts from SIRUP and Regional Regulations without compromise.' },
+                insights: { title: 'Immutable Trust Layer', desc: 'The track record of agent decisions is permanently locked on the Public EVM Testnet (Sepolia/Amoy).' }
             }
         },
         deepDive: {
             badge: 'Deep Dive',
-            title1: 'Project Management',
-            title2: 'Without Barriers.',
-            description: 'Elysian gives total visibility from idea to execution.',
+            title1: 'Automated Audit',
+            title2: 'Without Human Bias.',
+            description: 'Elysian eliminates error-prone manual checking in the budget review process.',
             cards: {
-                cycles: { title: 'Automated Cycles', desc: "Track your team's sprint progress automatically with intuitive charts." },
-                inbox: { title: 'Smart Inbox', desc: 'Review, approve, or decline incoming requests quickly.' },
-                insights: { title: 'Elysian Insights', desc: 'Predict bottlenecks and optimize team performance with AI-driven data analytics.', action: 'View Report' }
+                cycles: { title: 'Automated Price Verification', desc: 'Compare budget proposals with historical procurement data in SIRUP in seconds.' },
+                inbox: { title: 'Regulation Compliance Test', desc: 'Detect procurement rule violations using high-performance RAG.' },
+                insights: { title: 'Blockchain Provenance', desc: 'Ensure audit result reports cannot be manipulated with on-chain cryptographic trails.', action: 'View On-Chain Proof' }
             }
         },
         integration: {
             badge: 'Ecosystem',
-            title1: 'Connect with',
-            title2: 'Your Favorite Tools.',
-            description: 'Elysian integrates with hundreds of apps to keep your team flow smooth.',
-            hint: 'Swipe to see more',
+            title1: 'Connected with',
+            title2: 'Enterprise Architecture.',
+            description: 'Elysian Rebirth v3.0 is designed to integrate with the government data ecosystem and modern infrastructure.',
+            hint: 'Swipe to view ecosystem',
             items: {
-                slack: { title: 'Slack Notification', desc: 'Get real-time updates directly in your team channel.' },
-                figma: { title: 'Figma Sync', desc: 'Pull design assets and comments directly into task manager.' },
-                github: { title: 'GitHub Actions', desc: 'Automate deployment and sync issue status.' },
-                drive: { title: 'Google Drive', desc: 'Access and attach cloud documents without switching tabs.' },
-                notion: { title: 'Notion Pages', desc: 'Embed internal wiki and knowledge base pages.' },
-                postgres: { title: 'PostgreSQL', desc: 'Connect your database for custom analytics.' },
-                gmail: { title: 'Gmail Add-on', desc: 'Turn emails into tasks or support tickets in one click.' },
-                cta: 'Learn more'
+                slack: { title: 'SIRUP LKPP', desc: 'Access real historical procurement data (Nemesis DB) as a baseline for price truth.' },
+                figma: { title: 'SIPD Kemendagri', desc: 'Adjustment of integrated regional financial management standards.' },
+                github: { title: 'Qdrant Vector DB', desc: 'Ultra-fast semantic search engine to explore hundreds of pages of Regional Regulations.' },
+                drive: { title: 'MongoDB QA Gate', desc: 'Data filtering layer to ensure only valid facts are learned by AI.' },
+                notion: { title: 'Sepolia Testnet', desc: 'Stores hash approval seals immutably on a public EVM network.' },
+                postgres: { title: 'PostgreSQL IAM', desc: 'Solid role-based access control (RBAC) and authentication management.' },
+                gmail: { title: 'Redis Pub/Sub', desc: 'Real-time streaming of debate logs between AI agents without delay.' },
+                cta: 'Learn About Our Architecture'
             }
         },
         agents: {
-            badge: 'Elysian Neural Network',
-            title1: 'Delegate tasks to',
-            title2: 'Specialist AI Agents.',
-            description: 'Choose the right agent for every job. From data analysts to security auditors, all ready to work 24/7.',
+            badge: 'Cognitive Swarm Intelligence',
+            title1: 'Delegate Analysis to',
+            title2: 'Our Specialist AI Agents.',
+            description: 'MiroFish uses a Multi-Agent approach where each bot has its own role in dismantling the RAPBD.',
             demo: {
-                assign: 'Assign to...',
-                processing: 'Processing context...',
-                available: '4 Agents available'
+                assign: 'Processing Audit...',
+                processing: 'Analyzing anomalies...',
+                available: '3 Agents Ready to Work'
             },
             items: {
-                analyst: { name: 'Data Analyst AI', role: 'Financial Insights' },
-                editor: { name: 'Content Editor', role: 'SEO & Copywriting' },
-                compliance: { name: 'Compliance Bot', role: 'Legal & Audit' },
-                coder: { name: 'Dev Assistant', role: 'Code Review' }
+                analyst: { name: 'Auditor Agent', role: 'Price Markup Detection' },
+                editor: { name: 'Compliance Agent', role: 'Legal Regulation Supervisor' },
+                compliance: { name: 'Manager Agent', role: 'Decision Consensus (Manager)' },
+                coder: { name: 'Blockchain Committer', role: 'Immutable Audit Seal' }
             }
         },
         terminal: {
             logs: {
-                system: 'Starting Elysian platform... (IAM | MDM | Compliance)',
-                scan: 'Validating security modules and workflow orchestration...',
-                ready: 'Intelligent workflow orchestration enabled.',
-                success: 'System Connected. Waiting for operator instructions.',
-                compliance: 'SOC 2 Controls Verified ✓ CC1 (Entity) ✓ CC2 (Communication) ✓ CC3 (Risk)',
-                operational: 'All systems operational.',
-                welcome: 'Welcome to Elysian System Console.',
-                help: "Type 'help' to see list of commands, or click terminal icon above to return to visual mode."
+                system: 'Starting Elysian Rebirth v3.0... (Swarm Engine | Nemesis DB | Trust Layer)',
+                scan: 'Connecting to PostgreSQL IAM and Sepolia Testnet...',
+                ready: 'MiroFish Swarm ready to receive RAPBD documents.',
+                success: 'System Connected. Waiting for budget draft upload.',
+                compliance: 'On-Chain Audit Trail Active ✓ OpenViking Sync ✓ MongoDB QA Gate Online',
+                operational: 'All architecture layers operational.',
+                welcome: 'Welcome to the Autonomous Audit Infrastructure Console.',
+                help: "Type 'help' for guidance, or click the terminal icon for visual mode."
             }
         },
         problem: {
-            title1: 'Why Businesses',
-            title2: 'Often Get Stuck?',
-            description: 'Many teams get stuck in manual operations that kill innovation. Time is spent on technical issues, not strategic ones.',
+            title1: 'Why Are Budget Markups',
+            title2: 'Hard to Detect?',
+            description: 'The manual review process by Inspectorate auditors takes a long time, is prone to human error, and often lacks adequate historical data references instantly.',
             items: [
-                'Documents scattered across platforms',
-                'Slow decisions due to centralized data lack',
-                'SOPs are hard to access and execute',
-                'Manual workflows prone to human error'
+                'Manual verification of thousands of budget items is very slow',
+                'Lack of real-time procurement comparison data',
+                'Regional Price Standards (SHR) are scattered across thick PDF documents',
+                'Approval track record (audit trail) is fragile and can be altered'
             ],
-            solutionTitle: 'Elysian Solution',
+            solutionTitle: 'Elysian Innovation',
             solutionItems: [
-                { title: 'Intelligent Automation', desc: 'Reduce manual workload by up to 80%' },
-                { title: 'Single Source of Truth', desc: 'All documents and data in one access' },
-                { title: 'Integrated AI Assistant', desc: 'Work faster with contextual AI assistance' }
+                { title: 'Swarm Intelligence', desc: 'AI agents debate each other for objective decisions' },
+                { title: 'Ground Truth Database', desc: 'Extracts original price references (SIRUP) without LLM manipulation' },
+                { title: 'Immutable Audit Log', desc: 'Agent decision trails are permanently embedded in the Blockchain' }
             ],
-            cta: 'Transform Your Workflow'
+            cta: 'Transform the Audit Process'
         },
         features: {
-            title: 'Features that Elevate Business',
-            subtitle: 'All-in-one platform for modern operations',
+            title: 'Redefining Audit Standards',
+            subtitle: 'All-in-one technology for clean government governance',
             items: {
-                ai: { title: 'AI Assistant', desc: 'Intelligent partner for every decision' },
-                docs: { title: 'Document Hub', desc: 'Real-time document collaboration' },
-                security: { title: 'Enterprise Security', desc: 'Advanced data security' },
-                automation: { title: 'Workflow Engine', desc: 'Execute business processes automatically' }
+                ai: { title: 'MiroFish Engine', desc: 'Automated consensus between AI agents' },
+                docs: { title: 'OpenViking RAG', desc: 'High-precision extraction for Regional Regulations & SHR' },
+                security: { title: 'Trust Layer', desc: 'On-chain recording on Sepolia' },
+                automation: { title: 'Caveman Prompt', desc: 'JSON output without LLM hallucinations' }
             }
         },
         useCases: {
-            title: 'Built for Any Scale',
-            subtitle: 'Flexible to adapt to your team needs, from startup to enterprise.',
+            title: 'Built For All Stakeholders',
+            subtitle: 'From internal supervisors to the public, everyone gains transparency.',
             items: {
-                retail: { title: 'Product Teams', items: ['Roadmap management', 'PRD Automation', 'User Feedback'] },
-                logistics: { title: 'Operations Teams', items: ['SOP Management', 'Incident Reporting', 'Resource Planning'] },
-                agency: { title: 'Engineering Teams', items: ['Tech Specs', 'Sprint Planning', 'Knowledge Base'] },
-                clinic: { title: 'HR & Legal Teams', items: ['Onboarding Flow', 'Contract Management', 'Compliance'] }
+                retail: { title: 'Regional Inspectorate', items: ['Instant RAPBD review', 'Markup detection', 'Automatic price references'] },
+                logistics: { title: 'Head of Agency / OPD', items: ['Draft checking before signature', 'Compliance assurance', 'Risk mitigation'] },
+                agency: { title: 'BPK & BPKP', items: ['On-chain audit trail access', 'Accurate comparison data', 'In-depth investigation'] },
+                clinic: { title: 'Public & Journalists', items: ['Budget transparency', 'Track decision trails', 'Public accountability'] }
             }
         },
         cta: {
-            badge: 'Join the AI Revolution',
-            title1: 'Ready to Make Your Business',
-            title2: 'Lighter?',
-            description: 'Join thousands of teams who have switched to the future of work. Save time, reduce stress.',
-            btnStart: 'Start Free Trial',
-            btnConsult: 'Contact Sales',
-            foot: 'No credit card. Cancel anytime.'
+            badge: 'Realize Clean Government',
+            title1: 'Ready to Stop Regional Budget',
+            title2: 'Waste?',
+            description: 'Transform from passive checking to autonomous, intelligent, and transparent financial oversight.',
+            btnStart: 'Test the Audit System',
+            btnConsult: 'Technical Discussion',
+            foot: 'Built for a More Accountable Indonesia'
         },
         collaboration: {
-            badge: 'Power your workflow',
-            title1: 'Team Collaboration',
-            title2: 'Without Limits.',
-            description: 'One integrated platform to unite ideas, execution, and results. Leave silos behind, start collaborating the right way.',
+            badge: 'Automated Oversight',
+            title1: 'Financial Oversight',
+            title2: 'Without Compromise.',
+            description: 'A combination of historical procurement data, legal regulations, and autonomous agents to ensure no loopholes for markups.',
             cards: {
                 project: {
-                    title: 'Project Management',
-                    desc: 'Consolidate milestones, tasks, and deadlines in one intuitive visual dashboard.'
+                    title: 'Fact Synchronization',
+                    desc: 'Instantly access 4GB+ of SIRUP data and millions of words from Regional Regulation documents.'
                 },
                 updates: {
-                    title: 'Status Updates',
-                    desc: 'Automate progress reports. Save meeting time with asynchronous updates.'
+                    title: 'Real-time Debate Logs',
+                    desc: 'Monitor live how the AI Auditor and AI Compliance reach conclusions.'
                 },
                 workflow: {
-                    title: 'AI Workflow Orchestration',
-                    desc: 'Design and automate intelligent AI agents visually. Connect Logic Router, Reasoning Engine, and Knowledge Base without limits.',
-                    cta: 'Try Workflow'
+                    title: 'Blockchain Integrity',
+                    desc: 'Seal audit results in seconds. Prove document integrity in the future without a doubt.',
+                    cta: 'View Sample Report'
                 }
             }
         },
         faq: {
             title: 'Frequently Asked Questions',
-            subtitle: 'Answers to your doubts',
-            q1: 'Is my business data safe?',
-            a1: 'Very safe. We use industry-standard encryption (AES-256) and SOC2 compliance.',
-            q2: 'Can it integrate with other tools?',
-            a2: 'Yes! Elysian integrates with Slack, Jira, GitHub, and thousands of other apps via API.',
-            q3: 'Is there a trial period?',
-            a3: 'Sure. You can try the Pro plan for free for 14 days with no commitment.',
-            q4: 'How about Enterprise?',
-            a4: 'We provide private cloud, custom SLAs, and dedicated support for Enterprise clients.'
+            subtitle: 'Learn more about the Elysian system',
+            q1: 'How does AI prevent data hallucinations (Yapping)?',
+            a1: 'We use the "Caveman Prompt" technique which forces the LLM to output rigid JSON without free narrative, and operates on pure fact data (Ground Truth).',
+            q2: 'What is the role of Blockchain in this system?',
+            a2: 'Blockchain (Sepolia Testnet) functions as a Trust Layer. Every AI consensus decision is given a Cryptographic Hash value and permanently stored on-chain so it cannot be modified by anyone (including server admins).',
+            q3: 'What if the regulation data in RAG is wrong?',
+            a3: 'Elysian has a MongoDB QA Gate architecture. Documents must go through human approval first before being embedded into the Qdrant Vector DB, preventing "dirty data" from being learned by the AI.',
+            q4: 'Will local government budget data be distributed to the public?',
+            a4: 'No. We can implement a private Blockchain node (Quorum) or a fully on-premise system according to your institution\'s confidentiality policy needs.'
         },
         cta_section: {
-            title1: 'First Step',
-            title2: 'for Business Growth',
-            description: 'From SMEs to corporations, everyone can enjoy the ease of doing business with Elysian.',
-            btn: 'Try Now'
+            title1: 'First Step Towards',
+            title2: 'Maximum Transparency',
+            description: 'Let\'s transform from mere checking to autonomous oversight.',
+            btn: 'Start Now'
         },
         footer: {
-            description: 'Indonesia\'s leading Intelligent Operational Assistant dedicated to helping SMEs. We combine advanced artificial intelligence to automate processes, provide deep insights, and drive your business growth.',
+            description: 'Indonesia\'s leading Autonomous Financial Audit Infrastructure. We combine Swarm Intelligence and Blockchain to ensure regional budget transparency, integrity, and accountability.',
             solutions: {
-                title: 'Business Solutions',
+                title: 'Core Technologies',
                 items: {
-                    docs: 'Document Automation',
-                    finance: 'AI Financial Analysis',
-                    inventory: 'Inventory Management',
-                    trends: 'Market Trend Prediction',
-                    erp: 'ERP Integration'
+                    docs: 'MiroFish Swarm',
+                    finance: 'OpenViking RAG',
+                    inventory: 'Nemesis Ground Truth',
+                    trends: 'Sepolia Trust Layer',
+                    erp: 'Redis Asynchronous'
                 }
             },
             support: {
-                title: 'Support',
+                title: 'Explore',
                 items: {
-                    help: 'Help Center',
-                    api: 'API Documentation',
-                    status: 'Server Status',
-                    community: 'User Community',
-                    sales: 'Contact Sales'
+                    help: 'Architecture Whitepaper',
+                    api: 'Smart Contract Documentation',
+                    status: 'Testnet Status',
+                    community: 'Developer Forum',
+                    sales: 'Contact Core Team'
                 }
             },
             contact: {
                 title: 'Contact Us',
-                address: 'Jl. Jend. Sudirman Kav. 52-53, South Jakarta SCBD, Indonesia'
+                address: 'Jakarta, Indonesia'
             },
             legal: {
-                copyright: '© 2026 Elysian.',
+                copyright: '© 2026 Elysian Rebirth v3.0.',
                 privacy: 'Privacy Policy',
                 terms: 'Terms & Conditions',
                 accessibility: 'Accessibility Statement'
             }
         },
         cookies: {
-            title: 'We Use Cookies',
-            description: 'We use cookies to enhance your experience, analyze traffic, and personalize content. By continuing, you agree to our use of cookies.',
-            accept: 'Accept Cookies',
+            title: 'Cookie Usage',
+            description: 'We use cookies for dashboard operational analytics. By continuing, you agree to our cookie policy.',
+            accept: 'Accept',
             decline: 'Decline'
         }
     }
