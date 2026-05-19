@@ -21,7 +21,7 @@ export default async function DashboardLayout({
     }
 
     // Attempt to refresh the session and get user data
-    let user = { id: 'usr_fallback', name: 'Elysian User', email: 'user@elysian.com', role: 'user', avatar: null as string | null };
+    let user: { id: string; name: string; email: string; role: 'admin' | 'super_admin' | 'manager' | 'viewer'; avatar: string | null } = { id: 'usr_fallback', name: 'Elysian User', email: 'user@elysian.com', role: 'viewer', avatar: null };
     let accessToken: string | undefined;
 
     try {
@@ -70,7 +70,7 @@ export default async function DashboardLayout({
                     id: rawUser.id || user.id,
                     name: rawUser.full_name || rawUser.name || user.name,
                     email: rawUser.email || user.email,
-                    role: rawUser.role || user.role,
+                    role: (rawUser.role || 'viewer') as 'admin' | 'super_admin' | 'manager' | 'viewer',
                     avatar: rawUser.avatar_url || rawUser.avatar || null
                 };
             }
