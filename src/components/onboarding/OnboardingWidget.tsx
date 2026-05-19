@@ -8,7 +8,7 @@ import { getOnboardingSteps } from '@/config/onboarding';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Z_INDEX } from '@/config/zIndex';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 // Premium "Smooth Flow" Celebration Component
 const CelebrationOverlay = ({ onComplete }: { onComplete: () => void }) => {
@@ -94,7 +94,7 @@ export const OnboardingWidget = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
     const { toast } = useToast();
-    const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         setIsMounted(true);
@@ -109,6 +109,7 @@ export const OnboardingWidget = () => {
     const currentStepData = steps[stepNumber - 1];
     const { percent } = getTourProgress();
 
+    // Only highlight elements that exist on the current page — NEVER navigate away
     useEffect(() => {
         if (currentPhase !== 'tour' || !isOpen || !currentStepData) return;
         
@@ -118,17 +119,13 @@ export const OnboardingWidget = () => {
                 setTargetRect(el.getBoundingClientRect());
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
+                // Element not on this page — show card without spotlight
                 setTargetRect(null);
             }
         };
 
-        // If step requires navigation
-        if (currentStepData.navigateTo && window.location.pathname !== currentStepData.navigateTo) {
-            router.push(currentStepData.navigateTo);
-            setTimeout(updatePosition, 800); // Wait for navigation
-        } else {
-            updatePosition();
-        }
+        // NO router.push here — we never force navigation
+        updatePosition();
 
         window.addEventListener('resize', updatePosition);
         window.addEventListener('scroll', updatePosition, true);
@@ -138,7 +135,7 @@ export const OnboardingWidget = () => {
             window.removeEventListener('scroll', updatePosition, true);
             clearTimeout(timeout);
         };
-    }, [stepNumber, isOpen, currentStepData, currentPhase, router]);
+    }, [stepNumber, isOpen, currentStepData, currentPhase, pathname]);
 
     const handleClose = () => {
         close();
@@ -157,12 +154,16 @@ export const OnboardingWidget = () => {
 
     if (!isOpen || !currentStepData) return null;
 
+    // Check if current step's target element exists on this page
+    const isTargetOnPage = !!targetRect;
+    const needsNavigation = currentStepData.navigateTo && pathname !== currentStepData.navigateTo;
+
     const getCardPosition = () => {
         if (isMobile) return { bottom: 16, left: '50%', transform: 'translateX(-50%)', width: 'calc(100% - 32px)' };
         if (!targetRect) return { bottom: 24, right: 24 };
 
         const cardWidth = 420;
-        const cardHeight = 220; // Reduced from 280 to prevent overflow
+        const cardHeight = 220;
         const padding = 24;
         const vh = window.innerHeight;
         const vw = window.innerWidth;
@@ -261,7 +262,17 @@ export const OnboardingWidget = () => {
                             {currentStepData.description}
                         </p>
 
-                        {currentStepData.outcome && (
+                        {/* Show navigation hint if target is on another page */}
+                        {needsNavigation && !isTargetOnPage && (
+                            <div className="flex gap-2 p-2.5 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-lg">
+                                <ArrowRight className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                                <p className="text-xs font-semibold text-blue-700 dark:text-blue-400">
+                                    Klik menu <strong>{currentStepData.title.replace(/[^\w\s]/g, '').trim()}</strong> di sidebar untuk melihat fitur ini
+                                </p>
+                            </div>
+                        )}
+
+                        {currentStepData.outcome && isTargetOnPage && (
                             <div className="flex gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-lg">
                                 <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                                 <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 italic">

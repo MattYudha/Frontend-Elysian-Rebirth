@@ -65,20 +65,19 @@ const defaultProfile: UserSetupProfile = {
 };
 
 // ─── Store ──────────────────────────────────────────────────────
-// Persist ONLY the completion flag to prevent onboarding from showing again
-// All other state stays in-memory (per AGENTS.md security guidelines)
 export const useOnboardingStore = create<OnboardingState>()(
     persist(
         (set, get) => ({
-            // Initial state
-            currentPhase: 'welcome',
+            // Initial state — defaults for a user who has NOT done onboarding
+            // For returning users, persisted values will override these
+            currentPhase: 'completed' as OnboardingPhase, // Default to completed — only startOnboarding() changes this
             isFirstTimeUser: false,
             hasSeenWelcome: false,
             setupStep: 1,
             userProfile: { ...defaultProfile },
             currentMilestone: 1,
             isOpen: false,
-            isCompleted: false,
+            isCompleted: true, // Default to true — existing users should never see onboarding
             showCelebration: false,
             hasSeenOnboardingAt: null,
 
@@ -196,11 +195,14 @@ export const useOnboardingStore = create<OnboardingState>()(
         }),
         {
             name: 'elysian-onboarding-v2',
-            // Only persist the completion flag — everything else resets on page reload
-            // This ensures returning users never see onboarding again
+            // Persist ALL critical state so onboarding never re-appears for existing users
             partialize: (state) => ({
                 isCompleted: state.isCompleted,
                 hasSeenOnboardingAt: state.hasSeenOnboardingAt,
+                currentPhase: state.currentPhase,
+                isFirstTimeUser: state.isFirstTimeUser,
+                hasSeenWelcome: state.hasSeenWelcome,
+                currentMilestone: state.currentMilestone,
             }),
         }
     )

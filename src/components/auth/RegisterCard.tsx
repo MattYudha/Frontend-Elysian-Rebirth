@@ -9,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { authService } from '@/services/auth.service';
+import { useOnboardingStore } from '@/store/useOnboardingStore';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -116,6 +117,9 @@ export function RegisterCard({ isModal = false }: RegisterCardProps) {
             toast.success('Registration successful!', {
                 description: 'Please login with your new account.'
             });
+
+            // Activate onboarding for first-time users
+            useOnboardingStore.getState().startOnboarding();
 
             if (isModal) {
                 window.location.href = '/login';

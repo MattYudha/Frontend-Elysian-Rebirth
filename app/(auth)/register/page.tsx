@@ -21,6 +21,7 @@ import { APP_NAME } from '@/lib/config';
 import { ElysianTextLogo } from '@/components/ui/elysian-logo';
 import { SocialAuth } from '@/components/auth/social-auth';
 import { authService } from '@/services/auth.service';
+import { useOnboardingStore } from '@/store/useOnboardingStore';
 
 // --- LOGIC AREA (TIDAK BERUBAH SAMA SEKALI) ---
 const formSchema = z.object({
@@ -113,7 +114,8 @@ export default function RegisterPage() {
             });
 
             toast.success('Pendaftaran berhasil! Silakan masuk.');
-            localStorage.setItem('elysian-first-login', 'true');
+            // Activate onboarding for first-time users via persisted Zustand store
+            useOnboardingStore.getState().startOnboarding();
             window.location.href = '/login';
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {

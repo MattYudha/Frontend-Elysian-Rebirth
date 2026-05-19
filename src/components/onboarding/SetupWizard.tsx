@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOnboardingStore } from '@/store/useOnboardingStore';
+import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, ArrowLeft, Check, User, Briefcase, LayoutGrid } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, User, Briefcase, LayoutGrid, Loader2 } from 'lucide-react';
 
 const businessTypes = [
     { id: 'umkm', label: 'UMKM / Bisnis Lokal', desc: 'Fokus pada efisiensi operasional harian' },
@@ -31,7 +32,50 @@ export const SetupWizard = () => {
         completeSetup 
     } = useOnboardingStore();
 
+    const { user, login } = useAuthStore();
+    const [isSavingName, setIsSavingName] = useState(false);
+
     const progress = (setupStep / 3) * 100;
+
+    // Update user name via BFF proxy → Backend PUT /api/v1/users/me
+    const saveUserName = async (name: string) => {
+        if (!name.trim()) return;
+        setIsSavingName(true);
+        try {
+            const response = await fetch('/api/proxy/users/me', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ name: name.trim() }),
+            });
+
+            if (response.ok) {
+                // Update the auth store so sidebar shows new name immediately
+                if (user) {
+                    login({ ...user, name: name.trim() }, useAuthStore.getState().accessToken || undefined);
+                }
+            }
+            // Continue even if API fails — name will be updated next login
+        } catch {
+            // Non-critical — continue with onboarding
+            console.warn('Failed to update user name via API');
+        } finally {
+            setIsSavingName(false);
+        }
+    };
+
+    const handleNext = async () => {
+        if (setupStep === 1 && userProfile.displayName.trim()) {
+            // Save name to backend before advancing
+            await saveUserName(userProfile.displayName);
+        }
+        
+        if (setupStep === 3) {
+            completeSetup();
+        } else {
+            nextSetupStep();
+        }
+    };
 
     const renderStep = () => {
         switch (setupStep) {
@@ -48,14 +92,14 @@ export const SetupWizard = () => {
                                 <User className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                             </div>
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Siapa Nama Anda?</h3>
-                            <p className="text-slate-500 dark:text-slate-400">Nama ini akan digunakan AI saat berkomunikasi dengan Anda.</p>
+                            <p className="text-slate-500 dark:text-slate-400">Nama ini akan digunakan sebagai nama profil Anda di Elysian.</p>
                         </div>
                         
                         <div className="max-w-md mx-auto">
                             <Input 
                                 value={userProfile.displayName}
                                 onChange={(e) => updateProfile({ displayName: e.target.value })}
-                                placeholder="Masukkan nama panggilan Anda"
+                                placeholder="Masukkan nama lengkap Anda"
                                 className="h-14 text-lg text-center rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-blue-500"
                             />
                         </div>
@@ -180,10 +224,11 @@ export const SetupWizard = () => {
 
                         <div className="flex gap-4">
                             <Button 
-                                onClick={setupStep === 3 ? completeSetup : nextSetupStep}
-                                disabled={setupStep === 1 && !userProfile.displayName}
+                                onClick={handleNext}
+                                disabled={(setupStep === 1 && !userProfile.displayName) || isSavingName}
                                 className="h-12 px-8 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-2"
                             >
+                                {isSavingName && <Loader2 className="w-4 h-4 animate-spin" />}
                                 {setupStep === 3 ? 'Selesaikan Setup' : 'Lanjut'} 
                                 {setupStep === 3 ? <Check className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
                             </Button>

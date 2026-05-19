@@ -10,7 +10,6 @@ import { AnimatePresence } from 'framer-motion';
 export const OnboardingController = () => {
     const { 
         currentPhase, 
-        startOnboarding, 
         isCompleted, 
         syncProgress 
     } = useOnboardingStore();
@@ -20,21 +19,10 @@ export const OnboardingController = () => {
     useEffect(() => {
         setIsMounted(true);
         syncProgress();
-        
-        // If user has already completed onboarding (persisted), never show again
-        if (isCompleted) {
-            return;
-        }
-        
-        // Detect first-time login flag from registration
-        const isFirstLogin = localStorage.getItem('elysian-first-login');
-        if (isFirstLogin === 'true') {
-            startOnboarding();
-            localStorage.removeItem('elysian-first-login'); // Consume flag
-        }
-    }, [isCompleted, startOnboarding, syncProgress]);
+    }, [syncProgress]);
 
-    if (!isMounted) return null;
+    // If user has completed onboarding or never started it, render nothing
+    if (!isMounted || isCompleted || currentPhase === 'completed') return null;
 
     return (
         <AnimatePresence mode="wait">
