@@ -94,6 +94,7 @@ const nextConfig = {
                             style-src 'self' 'unsafe-inline' https://api.fontshare.com;
                             img-src 'self' blob: data: https:;
                             font-src 'self' https://api.fontshare.com https://cdn.fontshare.com;
+                            media-src 'self' https://d8j0ntlcm91z4.cloudfront.net;
                             object-src 'none';
                             base-uri 'self';
                             form-action 'self';

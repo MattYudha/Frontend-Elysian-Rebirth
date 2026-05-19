@@ -68,7 +68,7 @@ export function LoginCard({ isModal = false }: LoginCardProps) {
                 ...response.data.user // Spread user fields (id, email, name, etc.)
             };
 
-            login(user as any); // Type assertion if schema differs slightly
+            login(user as any, response.data.access_token); // Store token for authenticated API calls
 
             setSubmitStatus('success');
             toast.success('Login Successful', { description: 'Welcome back to Elysian.' });

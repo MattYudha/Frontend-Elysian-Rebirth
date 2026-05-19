@@ -92,7 +92,7 @@ export default function ElysianLanding() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className={`min-h-screen font-sans overflow-x-hidden selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900 dark:selection:text-blue-100 transition-colors duration-[600ms] ease-in-out ${isLandingDark ? 'bg-transparent' : 'bg-white'
+            className={`min-h-screen font-sans overflow-x-hidden w-full selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900 dark:selection:text-blue-100 transition-colors duration-[600ms] ease-in-out ${isLandingDark ? 'bg-transparent' : 'bg-white'
                 }`}
         >
             {/* Floating Navigation - Custom SaaS Style */}
@@ -106,6 +106,7 @@ export default function ElysianLanding() {
 
             {/* Hero Section - Anti-Gravity + Floating Bento (Combined) */}
             <section ref={heroRef} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden elysian-grid-light">
+
                 <motion.div
                     style={{ opacity: heroOpacity, y: heroY, willChange: 'transform, opacity' }}
                     className="container mx-auto px-4 pt-20 pb-8 sm:py-12 lg:py-20 relative z-10"
