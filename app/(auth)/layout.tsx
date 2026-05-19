@@ -13,8 +13,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     // Using a softer spring for the layout slide
     const layoutTransition: Transition = {
         type: "spring",
-        stiffness: 100,
-        damping: 20
+        stiffness: 80,
+        damping: 25,
+        mass: 1.2
     };
 
     return (
@@ -34,10 +35,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={pathname}
-                            initial={{ opacity: 0, x: isRegister ? 20 : -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: isRegister ? -20 : 20 }}
-                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                            initial={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
+                            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                            exit={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
+                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                             className="h-full w-full overflow-y-auto overflow-x-hidden"
                         >
                             {children}
@@ -68,9 +69,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                         {/* Centered Illustration */}
                         <motion.div
                             key={isRegister ? 'register-illust' : 'login-illust'}
-                            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ delay: 0.2, duration: 0.6 }}
+                            initial={{ opacity: 0, scale: 0.85, y: 15, filter: "blur(4px)" }}
+                            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+                            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                             className="mb-0"
                         >
                             <Image
@@ -87,10 +88,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={isRegister ? 'register-text' : 'login-text'}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                transition={{ duration: 0.5, ease: "easeOut" }}
+                                initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+                                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                                exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
+                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                                 className="max-w-xl text-center space-y-4 p-8 -mt-10"
                             >
                                 <h2 className="text-5xl font-bold tracking-tight drop-shadow-lg">

@@ -85,7 +85,6 @@ const formSchema = z.object({
 });
 
 export default function RegisterPage() {
-    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -114,6 +113,7 @@ export default function RegisterPage() {
             });
 
             toast.success('Pendaftaran berhasil! Silakan masuk.');
+            localStorage.setItem('elysian-first-login', 'true');
             window.location.href = '/login';
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
@@ -175,7 +175,7 @@ export default function RegisterPage() {
                                             <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Lengkap</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
+                                                    className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
                                                     placeholder="Aditya..."
                                                     disabled={isLoading}
                                                     {...field}
@@ -199,7 +199,7 @@ export default function RegisterPage() {
                                                 </div>
                                                 <FormControl>
                                                     <Input
-                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all flex-1"
+                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium flex-1"
                                                         placeholder="812-3456-7890"
                                                         type="tel"
                                                         disabled={isLoading}
@@ -243,7 +243,7 @@ export default function RegisterPage() {
                                                 <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Password</FormLabel>
                                                 <FormControl>
                                                     <InputPassword
-                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
+                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
                                                         placeholder="Rahasia..."
                                                         disabled={isLoading}
                                                         {...field}
@@ -263,7 +263,7 @@ export default function RegisterPage() {
                                                 <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Ulangi Password</FormLabel>
                                                 <FormControl>
                                                     <InputPassword
-                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
+                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
                                                         placeholder="Konfirmasi..."
                                                         disabled={isLoading}
                                                         {...field}
@@ -284,7 +284,7 @@ export default function RegisterPage() {
                                             <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Kode Referral (Opsional)</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
+                                                    className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
                                                     placeholder="ELYSIAN2024"
                                                     disabled={isLoading}
                                                     {...field}
@@ -388,7 +388,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                             <Input
                                                 disabled={isLoading}
-                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400"
+                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
                                                 placeholder="cth. Aditya Pangestu"
                                                 {...field}
                                             />
@@ -414,7 +414,7 @@ export default function RegisterPage() {
                                             <FormControl>
                                                 <Input
                                                     disabled={isLoading}
-                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400"
+                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
                                                     placeholder="812..."
                                                     {...field}
                                                 />
@@ -435,7 +435,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                             <Input
                                                 disabled={isLoading}
-                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400"
+                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
                                                 placeholder="cth. elysian@example.com"
                                                 {...field}
                                             />
@@ -456,7 +456,7 @@ export default function RegisterPage() {
                                             <FormControl>
                                                 <InputPassword
                                                     disabled={isLoading}
-                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400"
+                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
                                                     placeholder="Rahasia..."
                                                     {...field}
                                                 />
@@ -477,7 +477,7 @@ export default function RegisterPage() {
                                             <FormControl>
                                                 <InputPassword
                                                     disabled={isLoading}
-                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400"
+                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
                                                     placeholder="Ulangi..."
                                                     {...field}
                                                 />
@@ -498,7 +498,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                             <Input
                                                 disabled={isLoading}
-                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400"
+                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
                                                 placeholder="cth. ELYSIAN2024"
                                                 {...field}
                                             />

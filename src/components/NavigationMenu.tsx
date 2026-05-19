@@ -7,24 +7,37 @@ import { useSettingsUiStore } from '@/store/ui/settingsStore';
 import { mainNav } from '@/config/nav';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import * as LucideIcons from 'lucide-react';
+import {
+    LayoutDashboard,
+    Bot,
+    Book,
+    Settings,
+    Workflow,
+    FileText,
+    Briefcase,
+    Activity,
+    ShieldAlert,
+    Users,
+    Database,
+    Home
+} from 'lucide-react';
 
 // Icon mapping from string names to Lucide components
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const iconMap: Record<string, any> = {
-    Home: LucideIcons.LayoutDashboard,
-    dashboard: LucideIcons.LayoutDashboard, // Fix for nav.ts key
-    chat: LucideIcons.Bot, // Fix for nav.ts key
-    Message: LucideIcons.Bot,
-    Book: LucideIcons.Book,
-    Settings: LucideIcons.Settings,
-    Workflow: LucideIcons.Workflow,
-    FileText: LucideIcons.FileText,
-    Briefcase: LucideIcons.Briefcase,
-    Activity: LucideIcons.Activity,
-    ShieldAlert: LucideIcons.ShieldAlert,
-    Users: LucideIcons.Users,
-    Database: LucideIcons.Database,
+    Home: LayoutDashboard,
+    dashboard: LayoutDashboard, // Fix for nav.ts key
+    chat: Bot, // Fix for nav.ts key
+    Message: Bot,
+    Book: Book,
+    Settings: Settings,
+    Workflow: Workflow,
+    FileText: FileText,
+    Briefcase: Briefcase,
+    Activity: Activity,
+    ShieldAlert: ShieldAlert,
+    Users: Users,
+    Database: Database,
 
 };
 
@@ -135,5 +148,5 @@ export function NavigationMenu() {
 }
 
 function getIcon(iconName: string) {
-    return iconMap[iconName] || LucideIcons.Home;
+    return iconMap[iconName] || Home;
 }

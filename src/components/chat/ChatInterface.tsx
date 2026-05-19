@@ -180,7 +180,7 @@ export function ChatInterface() {
                                 {/* Desktop Logo */}
                                 {/* Mobile Logo (Smaller) */}
                                 <div className="md:hidden h-9 w-9 rounded-lg bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-blue-900/30 flex items-center justify-center shadow-md">
-                                    <NextImage src="/logo.svg" alt="Elysian" width={20} height={20} className="drop-shadow-sm" />
+                                    <NextImage src="/assets/logo.svg" alt="Elysian" width={20} height={20} className="drop-shadow-sm" />
                                 </div>
                                 <div>
                                     <h2 className="text-sm font-bold text-slate-800 dark:text-slate-50 tracking-tight">Elysian Assistant</h2>
@@ -204,7 +204,7 @@ export function ChatInterface() {
                                 {/* Hero Greeting */}
                                 <div className="space-y-4 md:space-y-6 max-w-3xl px-4 mt-4 md:mt-0 text-center">
                                     <div className="h-16 w-16 md:h-24 md:w-24 bg-white/60 dark:bg-slate-800/60 backdrop-blur-2xl border border-white/50 dark:border-slate-700/50 rounded-2xl md:rounded-[2rem] shadow-xl flex items-center justify-center mx-auto mb-6 md:mb-8 transform hover:scale-105 transition-transform duration-500">
-                                        <NextImage src="/logo.svg" alt="Elysian" width={56} height={56} className="drop-shadow-sm w-10 h-10 md:w-14 md:h-14" />
+                                        <NextImage src="/assets/logo.svg" alt="Elysian" width={56} height={56} className="drop-shadow-sm w-10 h-10 md:w-14 md:h-14" />
                                     </div>
 
                                     <div className="space-y-2">

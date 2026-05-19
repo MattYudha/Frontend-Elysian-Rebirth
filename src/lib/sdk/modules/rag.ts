@@ -91,5 +91,61 @@ export const rag = {
             success: true,
             message: "Dokumen berhasil dikirim ke pipeline RAG. AI akan mempelajarinya."
         };
+    },
+
+    /**
+     * Enterprise Asynchronous Upload Flow (Step 1)
+     */
+    uploadDocument: async (file: File, category: string, tenantId: string): Promise<{ success: boolean; documentId?: string; message: string }> => {
+        // Build FormData for multipart upload
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('title', file.name);
+        formData.append('category', category);
+
+        // Simulate sending to backend and getting an HTTP 202 Accepted
+        await delay(800); 
+        
+        return {
+            success: true,
+            documentId: `doc-${Date.now()}`,
+            message: "HTTP 202 Accepted: Document queued for processing."
+        };
+    },
+
+    /**
+     * Enterprise Polling mechanism (Step 2)
+     */
+    pollDocumentStatus: async (documentId: string, elapsedMs: number): Promise<{ status: 'PENDING' | 'PARSING' | 'VECTORIZING' | 'COMPLETED' | 'FAILED', progress: number }> => {
+        // Simulate a real backend processing pipeline based on time elapsed instead of random jumps
+        await delay(200);
+
+        if (elapsedMs < 3000) {
+            return { status: 'PENDING', progress: 15 };
+        } else if (elapsedMs < 7000) {
+            return { status: 'PARSING', progress: 45 };
+        } else if (elapsedMs < 12000) {
+            return { status: 'VECTORIZING', progress: 80 };
+        } else {
+            return { status: 'COMPLETED', progress: 100 };
+        }
+    },
+
+    /**
+     * Enterprise RAG Evaluator (Phase 3)
+     */
+    evaluateGuardrails: async (text: string) => {
+        await delay(1200); // Simulate network and Gemini Semantic Analysis
+
+        // FDS Hackathon strict rule matching
+        if (text.includes("25.000.000") || text.toLowerCase().includes("25 juta")) {
+            return {
+                isAnomaly: true,
+                reason: "Terindikasi Mark-up Anggaran. Harga yang diajukan melebih batas regulasi Pengadaan IT.",
+                quote: 'Ref: "DUMMY_POJK_Standar_Harga.md (Bab 2.1)"\n\n"Batas Maksimum Harga Satuan: Rp 15.000.000. Pengajuan di atas batas maksimal harus ditandai sebagai FRAUD WARNING."'
+            };
+        }
+
+        return { isAnomaly: false };
     }
 };

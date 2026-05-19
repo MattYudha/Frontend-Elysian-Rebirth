@@ -4,7 +4,7 @@
 import React from 'react';
 import { useWorkflowStore } from './store';
 import { Input, Label, Textarea, Button, Separator, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/';
-import { Settings2, X, Trash2, Bot, GitFork, FileText } from 'lucide-react';
+import { Settings2, X, Trash2, Bot, GitFork, FileText, UserCog, Database } from 'lucide-react';
 
 export function ConfigPanel() {
     const { ui, nodes, updateNodeData, setSelectedNode } = useWorkflowStore();
@@ -48,19 +48,27 @@ export function ConfigPanel() {
                         <div className="mt-1 text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 p-1 rounded shadow-sm border border-slate-100 dark:border-slate-800">
                             {selectedNode.type === 'llm' ? <Bot className="h-3.5 w-3.5" /> :
                                 selectedNode.type === 'branch' ? <GitFork className="h-3.5 w-3.5" /> :
-                                    selectedNode.type === 'document' ? <FileText className="h-3.5 w-3.5" /> : <Settings2 className="h-3.5 w-3.5" />}
+                                    selectedNode.type === 'document' ? <FileText className="h-3.5 w-3.5" /> :
+                                        selectedNode.type === 'agent' ? <UserCog className="h-3.5 w-3.5" /> :
+                                            selectedNode.type === 'data_ingestion' ? <Database className="h-3.5 w-3.5" /> :
+                                                <Settings2 className="h-3.5 w-3.5" />}
                         </div>
                         <div>
                             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
                                 {selectedNode.type === 'llm' ? 'Reasoning Engine' :
                                     selectedNode.type === 'document' ? 'Knowledge Source' :
-                                        selectedNode.type === 'branch' ? 'Logic Router' : 'Static Input'}
+                                        selectedNode.type === 'branch' ? 'Logic Router' :
+                                            selectedNode.type === 'agent' ? 'AI Agent' :
+                                                selectedNode.type === 'data_ingestion' ? 'Data Ingestion' :
+                                                    'Static Input'}
                             </h4>
                             <p className="text-[10px] text-slate-500 leading-relaxed mt-1">
                                 {selectedNode.type === 'llm' ? 'Configures the artificial intelligence model, instruction set, and output parameters.' :
                                     selectedNode.type === 'document' ? 'Manages external data references and vector indexing for RAG pipelines.' :
                                         selectedNode.type === 'branch' ? 'Determines execution path based on boolean logic evaluation.' :
-                                            'Defines constant variables for the workflow.'}
+                                            selectedNode.type === 'agent' ? 'Defines autonomous agent role, objective, and tools it can use.' :
+                                                selectedNode.type === 'data_ingestion' ? 'Configures the data source (RAG/SQL/Web) that feeds into downstream agents.' :
+                                                    'Defines constant variables for the workflow.'}
                             </p>
                         </div>
                     </div>
@@ -89,7 +97,9 @@ export function ConfigPanel() {
                             {selectedNode.type === 'llm' ? 'Engine Configuration' :
                                 selectedNode.type === 'branch' ? 'Routing Logic' :
                                     selectedNode.type === 'document' ? 'Source Properties' :
-                                        'Parameters'}
+                                        selectedNode.type === 'agent' ? 'Agent Configuration' :
+                                            selectedNode.type === 'data_ingestion' ? 'Ingestion Configuration' :
+                                                'Parameters'}
                         </AccordionTrigger>
                         <AccordionContent className="space-y-5 pt-2">
 
@@ -192,6 +202,105 @@ export function ConfigPanel() {
                                         className="min-h-[100px] bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 dark:text-slate-100"
                                     />
                                 </div>
+                            )}
+
+                            {/* ========== AGENT NODE CONFIG ========== */}
+                            {selectedNode.type === 'agent' && (
+                                <>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Agent Role</Label>
+                                        <Select
+                                            value={(selectedNode.data.role as string) || ''}
+                                            onValueChange={(val) => handleChange('role', val)}
+                                        >
+                                            <SelectTrigger className="h-8 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-blue-900/50 dark:text-slate-100">
+                                                <SelectValue placeholder="Select role..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="analyst">Analyst</SelectItem>
+                                                <SelectItem value="writer">Writer</SelectItem>
+                                                <SelectItem value="researcher">Researcher</SelectItem>
+                                                <SelectItem value="support">Support Agent</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Objective</Label>
+                                        <Textarea
+                                            placeholder="Describe what this agent should accomplish..."
+                                            value={(selectedNode.data.objective as string) || ''}
+                                            onChange={(e) => handleChange('objective', e.target.value)}
+                                            className="min-h-[100px] bg-white dark:bg-slate-900 font-mono text-xs border-slate-200 dark:border-blue-900/50 dark:text-slate-200 resize-none p-3"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Available Tools</Label>
+                                        <div className="flex flex-col gap-2">
+                                            {(['web_search', 'calculator', 'code_executor'] as const).map((tool) => {
+                                                const tools = (selectedNode.data.tools as string[]) || [];
+                                                const active = tools.includes(tool);
+                                                const TOOL_LABELS: Record<string, string> = { web_search: 'Web Search', calculator: 'Calculator', code_executor: 'Code Executor' };
+                                                return (
+                                                    <button
+                                                        key={tool}
+                                                        onClick={() => handleChange('tools', active ? tools.filter((t: string) => t !== tool) : [...tools, tool])}
+                                                        className={`text-xs px-3 py-1.5 rounded-md border font-medium transition-all text-left ${active
+                                                                ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300'
+                                                                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                                                            }`}
+                                                    >
+                                                        {active ? '✓ ' : '+ '}{TOOL_LABELS[tool]}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* ========== DATA INGESTION NODE CONFIG ========== */}
+                            {selectedNode.type === 'data_ingestion' && (
+                                <>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Ingestion Type</Label>
+                                        <div className="grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-md border border-slate-100 dark:border-blue-900/30">
+                                            {(['rag', 'sql', 'web_scraper'] as const).map((type) => (
+                                                <button
+                                                    key={type}
+                                                    onClick={() => handleChange('ingestionType', type)}
+                                                    className={`text-[10px] font-medium py-1.5 px-2 rounded capitalize transition-all ${(selectedNode.data.ingestionType as string) === type
+                                                            ? 'bg-white dark:bg-slate-700 text-teal-700 dark:text-teal-300 shadow-sm border border-teal-200 dark:border-teal-800'
+                                                            : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
+                                                        }`}
+                                                >
+                                                    {type === 'web_scraper' ? 'Web' : type.toUpperCase()}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-semibold text-slate-600 dark:text-slate-300">Source Name</Label>
+                                        <Input
+                                            value={(selectedNode.data.sourceName as string) || ''}
+                                            onChange={(e) => handleChange('sourceName', e.target.value)}
+                                            placeholder="e.g. Customer Support KB"
+                                            className="h-8 text-xs bg-white dark:bg-slate-900 border-slate-200 dark:border-blue-900/50 dark:text-slate-100"
+                                        />
+                                    </div>
+                                    <div className="pt-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full text-xs h-8 border-dashed border-teal-300 dark:border-teal-700 text-teal-600 dark:text-teal-400 hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/20"
+                                            onClick={() => {
+                                                handleChange('status', 'indexing');
+                                                setTimeout(() => handleChange('status', 'ready'), 1500);
+                                            }}
+                                        >
+                                            Simulate Index Job
+                                        </Button>
+                                    </div>
+                                </>
                             )}
 
                         </AccordionContent>

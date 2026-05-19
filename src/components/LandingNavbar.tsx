@@ -116,7 +116,7 @@ export function LandingNavbar({ showTerminal, setShowTerminal }: LandingNavbarPr
                     {/* Logo Area - Left */}
                     <Link href="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2 group cursor-pointer focus:outline-none">
                         <Image
-                            src="/logo.svg"
+                            src="/assets/logo.svg"
                             alt="Elysian Logo"
                             width={40}
                             height={40}
@@ -264,7 +264,7 @@ export function LandingNavbar({ showTerminal, setShowTerminal }: LandingNavbarPr
                                 {/* Header */}
                                 <div className="p-6 flex items-center justify-between border-b border-slate-100/50 dark:border-slate-800/50">
                                     <div className="flex items-center gap-3">
-                                        <Image src="/logo.svg" alt="Elysian Logo" width={32} height={32} />
+                                        <Image src="/assets/logo.svg" alt="Elysian Logo" width={32} height={32} />
                                         <span className="font-bold text-xl font-heading text-slate-900 dark:text-white tracking-wide">
                                             Menu
                                         </span>

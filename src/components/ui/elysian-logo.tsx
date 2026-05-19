@@ -9,7 +9,7 @@ interface ElysianLogoProps {
 export function ElysianLogo({ className = "", size = 54 }: ElysianLogoProps) {
     return (
         <Image
-            src="/logo.svg"
+            src="/assets/logo.svg"
             alt="Elysian Logo"
             width={size}
             height={size}

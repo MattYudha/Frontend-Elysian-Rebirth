@@ -107,10 +107,10 @@ export const useWorkflowStore = create<WorkflowState>()(
             // Logic & Validation
             isValidConnection: (connection: Edge | Connection) => {
                 const { edges } = get();
-                // 1. Connectivity Rules
+                // Rule 1: No self-connections
                 if (connection.source === connection.target) return false;
 
-                // No duplicate edges
+                // Rule 2: No duplicate edges
                 const isDuplicate = edges.some(
                     (e) =>
                         e.source === connection.source &&
@@ -119,6 +119,29 @@ export const useWorkflowStore = create<WorkflowState>()(
                         e.targetHandle === connection.targetHandle
                 );
                 if (isDuplicate) return false;
+
+                // Rule 3: DAG Cycle Detection (BFS)
+                // If we can walk from connection.target back to connection.source
+                // via existing edges, adding this edge would create a cycle → reject it.
+                const adjacency: Record<string, string[]> = {};
+                edges.forEach((e) => {
+                    if (!adjacency[e.source]) adjacency[e.source] = [];
+                    adjacency[e.source].push(e.target);
+                });
+
+                const queue = [connection.target!];
+                const visited = new Set<string>();
+                while (queue.length > 0) {
+                    const current = queue.shift()!;
+                    if (current === connection.source) {
+                        toast.warning('Koneksi memutar (loop) tidak diizinkan.');
+                        return false;
+                    }
+                    if (!visited.has(current)) {
+                        visited.add(current);
+                        (adjacency[current] || []).forEach((n) => queue.push(n));
+                    }
+                }
 
                 return true;
             },
@@ -172,36 +195,58 @@ export const useWorkflowStore = create<WorkflowState>()(
             },
 
             executeWorkflow: async () => {
-                const { meta, startExecution, pollExecution } = get();
-                startExecution(); // Resets local state
+                const { nodes, edges, startExecution, setNodeStatus } = get();
+                startExecution();
 
-                try {
-                    // Call API: POST /execute
-                    const { executionId } = await executeWorkflow(meta.workflowId);
-
-                    set((state) => ({
-                        execution: {
-                            ...state.execution,
-                            runId: executionId,
-                            status: 'running',
-                        }
-                    }));
-
-                    toast.success("Workflow Execution Started", {
-                        description: `Run ID: ${executionId}`
+                // --- Build topological order (BFS/Kahn's algorithm) ---
+                const inDegree: Record<string, number> = {};
+                const adjacency: Record<string, string[]> = {};
+                nodes.forEach((n) => { inDegree[n.id] = 0; adjacency[n.id] = []; });
+                edges.forEach((e) => {
+                    adjacency[e.source].push(e.target);
+                    inDegree[e.target] = (inDegree[e.target] || 0) + 1;
+                });
+                const queue = nodes.filter((n) => inDegree[n.id] === 0).map((n) => n.id);
+                const order: string[] = [];
+                while (queue.length > 0) {
+                    const nodeId = queue.shift()!;
+                    order.push(nodeId);
+                    (adjacency[nodeId] || []).forEach((neighbor) => {
+                        inDegree[neighbor]--;
+                        if (inDegree[neighbor] === 0) queue.push(neighbor);
                     });
-
-                    // Start polling
-                    pollExecution();
-
-                } catch (error) {
-                    toast.error("Execution Failed", {
-                        description: error instanceof Error ? error.message : "Unknown error"
-                    });
-                    set((state) => ({
-                        execution: { ...state.execution, status: 'failed' }
-                    }));
                 }
+
+                // --- Sequential simulation: each node lights up in order ---
+                const NODE_DURATIONS: Record<string, number> = {
+                    start: 300,
+                    data_ingestion: 900,
+                    document: 800,
+                    agent: 1500,
+                    llm: 1200,
+                    branch: 400,
+                    text: 300,
+                };
+
+                let delay = 0;
+                order.forEach((nodeId) => {
+                    const node = nodes.find((n) => n.id === nodeId);
+                    if (!node) return;
+                    const duration = NODE_DURATIONS[node.type || 'llm'] || 800;
+
+                    setTimeout(() => setNodeStatus(nodeId, 'running'), delay);
+                    delay += duration;
+                    setTimeout(() => setNodeStatus(nodeId, 'success'), delay);
+                    delay += 200;
+                });
+
+                // Mark execution complete after all nodes are done
+                setTimeout(() => {
+                    set((state) => ({ execution: { ...state.execution, status: 'completed' } }));
+                    toast.success('Workflow Simulation Complete', {
+                        description: `${order.length} nodes executed successfully.`
+                    });
+                }, delay + 300);
             },
 
             pollExecution: async () => {

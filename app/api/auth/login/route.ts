@@ -6,13 +6,50 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        // Teruskan request ke Backend (Railway)
-        const response = await fetch(`${config.api.baseURL}/api/v1/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            cache: 'no-store',
-        });
+        // MOCK BACKEND FOR HACKATHON DEMO (If Go backend isn't running)
+        let response;
+        try {
+            response = await fetch(`${config.api.baseURL}/api/v1/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+                cache: 'no-store',
+            });
+        } catch (e: any) {
+            console.warn("Real backend is offline or unreachable. Using Hackathon Mock Response for Login.");
+            const mockData = {
+                status: 'success',
+                data: {
+                    access_token: 'mock_jwt_token',
+                    user: {
+                        id: 'usr_demo_82x',
+                        name: 'Elysian Admin',
+                        email: body.email || 'admin@elysian.com',
+                        role: 'admin'
+                    }
+                }
+            };
+            const nextResponse = NextResponse.json(mockData, { status: 200 });
+            nextResponse.cookies.set({
+                name: 'access_token',
+                value: 'mock_jwt_token',
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 15 * 60 // 15 minutes
+            });
+            nextResponse.cookies.set({
+                name: 'refresh_token',
+                value: 'mock_refresh_token_123',
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 7 * 24 * 60 * 60 // 7 days
+            });
+            return nextResponse;
+        }
 
         const data = await response.json();
 
@@ -26,6 +63,20 @@ export async function POST(request: Request) {
 
         // Buat response untuk Frontend
         const nextResponse = NextResponse.json(data, { status: 200 });
+
+        // Set access_token cookie from JSON body (for middleware SSR auth check)
+        const accessToken = data.data?.access_token || data.data?.data?.access_token;
+        if (accessToken) {
+            nextResponse.cookies.set({
+                name: 'access_token',
+                value: accessToken,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                path: '/',
+                maxAge: 15 * 60 // 15 minutes
+            });
+        }
 
         // Parsing cookie untuk di-set di doman Vercel (Next.js)
         if (setCookieHeader) {

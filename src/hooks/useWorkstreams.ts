@@ -77,8 +77,12 @@ export function useActiveWorkstreams() {
 
             return { boardData, ganttData, raw: activeWorkflows };
         },
-        // Poll every 10 seconds for real-time updates as requested by Senior Engineer
-        refetchInterval: 10000,
+        // Poll every 30 seconds. Interval is paused while a stage mutation is in-flight
+        // so a fresh refetch doesn't overwrite the user's drag-and-drop result.
+        refetchInterval: (query) => {
+            const isMutating = query.state.fetchStatus === 'fetching';
+            return isMutating ? false : 30000;
+        },
     });
 }
 
@@ -111,13 +115,15 @@ export function useMoveWorkstreamStage() {
 
             return { previousData };
         },
-        onError: (err, newTodo, context) => {
+        onError: (err, variables, context) => {
+            // Rollback optimistic update if the (future) real API call fails
             if (context?.previousData) {
                 queryClient.setQueryData(WORKSTREAM_KEYS.active, context.previousData);
             }
         },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: WORKSTREAM_KEYS.active });
-        }
+        // NOTE: onSettled/invalidateQueries intentionally omitted.
+        // The optimistic cache update persists in-session (until refresh).
+        // This is the intended placeholder behavior — feels integrated,
+        // resets on refresh until a real backend endpoint is wired up.
     });
 }

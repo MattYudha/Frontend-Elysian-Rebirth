@@ -29,7 +29,7 @@ export function SiteFooter() {
                     <div className="lg:col-span-2 space-y-6">
                         <div className="flex items-center gap-2 mb-2">
                             <Image
-                                src="/logo.svg"
+                                src="/assets/logo.svg"
                                 alt="Elysian Logo"
                                 width={40}
                                 height={40}

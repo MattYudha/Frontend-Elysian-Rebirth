@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect, useRef } from "react"
 import {
     DndContext,
     DragOverlay,
@@ -11,6 +11,7 @@ import {
     useSensors,
     DragStartEvent,
     DragEndEvent,
+    DragOverEvent,
 } from "@dnd-kit/core"
 import {
     SortableContext,
@@ -22,7 +23,6 @@ import {
 import { AgentTaskCard, PipelineAgentTask, AgentTaskStatus } from "./AgentTaskCard"
 import { PipelineColumn } from "./PipelineColumn"
 import { useMoveWorkstreamStage } from "@/hooks/useWorkstreams"
-import { useEffect } from "react"
 
 export type PipelineBoardProps = {
     initialTasks: PipelineAgentTask[]
@@ -37,6 +37,7 @@ const COLUMNS: { id: AgentTaskStatus; title: string }[] = [
 export function PipelineBoard({ initialTasks }: PipelineBoardProps) {
     const [tasks, setTasks] = useState<PipelineAgentTask[]>(initialTasks)
     const [activeId, setActiveId] = useState<string | null>(null)
+    const isDragging = useRef(false)
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -51,9 +52,12 @@ export function PipelineBoard({ initialTasks }: PipelineBoardProps) {
 
     const { mutate: moveStage } = useMoveWorkstreamStage();
 
-    // Sync state with upstream TanStack Query
+    // Only sync from props if NOT currently dragging
+    // This prevents the 10-second refetch from resetting the board mid-drag
     useEffect(() => {
-        setTasks(initialTasks);
+        if (!isDragging.current) {
+            setTasks(initialTasks);
+        }
     }, [initialTasks]);
 
     const columns = useMemo(() => {
@@ -64,17 +68,18 @@ export function PipelineBoard({ initialTasks }: PipelineBoardProps) {
     }, [tasks])
 
     function handleDragStart(event: DragStartEvent) {
+        isDragging.current = true
         setActiveId(event.active.id as string)
     }
 
-    function handleDragOver(event: any) {
+    function handleDragOver(event: DragOverEvent) {
         const { active, over } = event
         if (!over) return
 
-        const activeId = active.id
-        const overId = over.id
+        const activeTaskId = active.id as string
+        const overId = over.id as string
 
-        if (activeId === overId) return
+        if (activeTaskId === overId) return
 
         const isActiveTask = active.data.current?.type === "Task"
         const isOverTask = over.data.current?.type === "Task"
@@ -82,46 +87,53 @@ export function PipelineBoard({ initialTasks }: PipelineBoardProps) {
 
         if (!isActiveTask) return
 
-        // Dropping a Task over another Task
+        // Dropping over another Task in a different column → move column, reorder
         if (isActiveTask && isOverTask) {
-            setTasks(tasks => {
-                const activeIndex = tasks.findIndex(t => t.id === activeId)
-                const overIndex = tasks.findIndex(t => t.id === overId)
+            setTasks(prev => {
+                const activeIndex = prev.findIndex(t => t.id === activeTaskId)
+                const overIndex = prev.findIndex(t => t.id === overId)
+                if (activeIndex === -1 || overIndex === -1) return prev
 
-                if (tasks[activeIndex].status !== tasks[overIndex].status) {
-                    const newStatus = tasks[overIndex].status;
-                    const updatedTasks = [...tasks]
-                    updatedTasks[activeIndex].status = newStatus;
-
-                    // Trigger async TanStack Mutation for Optimistic Update sync
-                    moveStage({ id: activeId as string, newStatus });
-
-                    return arrayMove(updatedTasks, activeIndex, overIndex)
+                if (prev[activeIndex].status !== prev[overIndex].status) {
+                    const updated = prev.map((t, i) =>
+                        i === activeIndex ? { ...t, status: prev[overIndex].status } : t
+                    )
+                    return arrayMove(updated, activeIndex, overIndex)
                 }
 
-                return arrayMove(tasks, activeIndex, overIndex)
+                return arrayMove(prev, activeIndex, overIndex)
             })
         }
 
-        // Dropping a Task over an empty Column area
+        // Dropping over an empty column area
         if (isActiveTask && isOverColumn) {
-            setTasks(tasks => {
-                const activeIndex = tasks.findIndex(t => t.id === activeId)
-                const newStatus = overId as AgentTaskStatus;
+            const newStatus = overId as AgentTaskStatus
+            setTasks(prev => {
+                const activeIndex = prev.findIndex(t => t.id === activeTaskId)
+                if (activeIndex === -1) return prev
+                if (prev[activeIndex].status === newStatus) return prev
 
-                const updatedTasks = [...tasks]
-                updatedTasks[activeIndex].status = newStatus
-
-                // Trigger async TanStack Mutation for Optimistic Update sync
-                moveStage({ id: activeId as string, newStatus });
-
-                return arrayMove(updatedTasks, activeIndex, activeIndex)
+                return prev.map((t, i) =>
+                    i === activeIndex ? { ...t, status: newStatus } : t
+                )
             })
         }
     }
 
     function handleDragEnd(event: DragEndEvent) {
+        const { active, over } = event
+        isDragging.current = false
         setActiveId(null)
+
+        if (!over) return
+
+        const activeTaskId = active.id as string
+
+        // Find the final status of the dragged task and commit it via mutation
+        const movedTask = tasks.find(t => t.id === activeTaskId)
+        if (movedTask) {
+            moveStage({ id: activeTaskId, newStatus: movedTask.status })
+        }
     }
 
     const activeTask = useMemo(

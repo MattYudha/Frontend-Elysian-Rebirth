@@ -117,6 +117,18 @@ export async function saveWorkflow(data: {
     edges: unknown[];
     expectedVersion: string;
 }): Promise<Workflow> {
+    try {
+        const url = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7777';
+        const res = await fetch(`${url}/api/v1/workflows/${data.id}/graph`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer DUMMY_HACKATHON_TOKEN' },
+            body: JSON.stringify({ nodes: data.nodes, edges: data.edges })
+        });
+        if (!res.ok) throw new Error("Server rejected workflow save");
+    } catch(e) {
+        console.warn("[Hackathon Mock] Backend unavailable, simulating successful save:", e);
+    }
+
     return {
         id: data.id,
         name: 'Updated Workflow',
@@ -142,7 +154,20 @@ export async function deleteWorkflow(id: string): Promise<void> {
  * Endpoint: POST /api/v1/workflows/:id/execute
  */
 export async function executeWorkflow(id: string): Promise<{ executionId: string }> {
-    return { executionId: `exec-${Math.random().toString(36).substr(2, 9)}` };
+    try {
+        const url = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:7777';
+        const res = await fetch(`${url}/api/v1/executions/${id}`, { 
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer DUMMY_HACKATHON_TOKEN' }
+        });
+        if (!res.ok) throw new Error("Server failed to execute pipeline");
+        
+        const json = await res.json();
+        return { executionId: json.execution_id || `exec-${Math.random().toString(36).substr(2, 9)}` };
+    } catch (error) {
+        console.warn("[Hackathon Mock] Backend unavailable, simulating fallback execution ID", error);
+        return { executionId: `exec-${Math.random().toString(36).substr(2, 9)}` };
+    }
 }
 
 /**

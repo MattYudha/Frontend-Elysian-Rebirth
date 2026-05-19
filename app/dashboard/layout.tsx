@@ -4,8 +4,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { DashboardNavbar } from '@/components/DashboardNavbar';
 import { ElysianGrid } from '@/components/backgrounds/ElysianGrid';
 import { StoreInitializer } from '@/components/providers/StoreInitializer';
-import { SpotlightDriver } from '@/components/onboarding/SpotlightDriver';
-import { OnboardingWidget } from '@/components/onboarding/OnboardingWidget';
+import { OnboardingController } from '@/components/onboarding/OnboardingController';
 import { config } from '@/lib/config';
 
 export default async function DashboardLayout({
@@ -15,30 +14,66 @@ export default async function DashboardLayout({
 }) {
     const cookieStore = cookies();
     // In Edge middleware, we rely on standard next/server. Here we use next/headers
-    const refreshCookie = cookieStore.get('refresh_token')?.value || cookieStore.get('auth_token')?.value;
+    const refreshCookie = cookieStore.get('refresh_token')?.value;
 
     if (!refreshCookie) {
+        // No refresh token means no session, redirect to login
         redirect('/login');
     }
 
-    // Heavy Lifter: Server-to-Server Session Validation
-    // This executes securely in the Node environment before the React UI tree ever mounts.
     try {
-        const response = await fetch(`${config.api.baseURL}/api/v1/auth/refresh`, {
+        // Use the BFF proxy route so cookies are forwarded correctly
+        // In SSR, we must use absolute URL. Detect the current host from headers or fallback.
+        const baseUrl = process.env.VERCEL_URL 
+            ? `https://${process.env.VERCEL_URL}` 
+            : `http://localhost:${process.env.PORT || 3000}`;
+        const response = await fetch(`${baseUrl}/api/proxy/auth/refresh`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Cookie: `refresh_token=${refreshCookie}`,
+                'Cookie': `refresh_token=${refreshCookie}`,
             },
-            cache: 'no-store', // Crucial: Never cache raw authentication state
+            body: JSON.stringify({ refresh_token: refreshCookie }),
+            cache: 'no-store',
         });
 
         if (!response.ok) {
-            // The cookie exists but the Backend rejected it (e.g. revoked or expired in DB).
-            throw new Error('Server rejected the session cookie.');
+            // Only redirect if the error is 401 (Unauthorized) or 403 (Forbidden)
+            if (response.status === 401 || response.status === 403) {
+                redirect('/login?session_expired=true');
+            }
+            // For other errors (500, 502, etc.), throw to let the catch block handle it
+            throw new Error(`Backend refresh failed with status: ${response.status}`);
         }
 
         const responseData = await response.json();
+        
+        // --- Token Rotation Sync ---
+        // If the backend sent a new refresh_token in the set-cookie header, 
+        // we should ideally update the browser's cookie.
+        const setCookieHeader = response.headers.get('set-cookie');
+        if (setCookieHeader) {
+            const match = setCookieHeader.match(/refresh_token=([^;]+)/);
+            if (match && match[1]) {
+                const newToken = match[1];
+                try {
+                    // Try to set the rotated cookie back to the browser
+                    // Note: This works in Next.js Server Components if called before streaming
+                    cookieStore.set({
+                        name: 'refresh_token',
+                        value: newToken,
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'lax',
+                        path: '/',
+                        maxAge: 7 * 24 * 60 * 60 
+                    });
+                } catch {
+                    console.warn("Could not sync rotated cookie in SSR Layout (expected in some Next.js versions). Rotation might rely on next client-side refresh.");
+                }
+            }
+        }
+
         const rawUser = responseData.data?.user || responseData.data;
         const user = rawUser ? {
             id: rawUser.id,
@@ -56,8 +91,7 @@ export default async function DashboardLayout({
                     Obliterates the client waterfall by passing the validated SSR user directly into Zustand.
                 */}
                 <StoreInitializer user={user} accessToken={accessToken} />
-                <SpotlightDriver />
-                <OnboardingWidget />
+                <OnboardingController />
 
                 <ElysianGrid />
 

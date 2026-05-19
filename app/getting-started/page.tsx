@@ -18,8 +18,18 @@ interface Step {
     isCompleted: boolean;
 }
 
+import { useOnboardingStore } from '@/store/useOnboardingStore';
+
 export default function GettingStartedPage() {
+    const { 
+        getTourProgress, 
+        resetOnboarding, 
+        open, 
+        isCompleted 
+    } = useOnboardingStore();
+    
     const [activeStep, setActiveStep] = useState(1);
+    const { current, total, percent } = getTourProgress();
 
     const steps: Step[] = [
         {
@@ -112,15 +122,33 @@ export default function GettingStartedPage() {
                                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Selesaikan langkah ini untuk membuka fitur premium.</p>
                                 </div>
                                 <div className="text-right">
-                                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{completedCount}/{steps.length}</span>
+                                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                        {isCompleted ? total : current-1}/{total}
+                                    </span>
                                     <span className="block text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Langkah Selesai</span>
                                 </div>
                             </div>
                             <Progress
-                                value={progressPercent}
+                                value={isCompleted ? 100 : percent}
                                 className="h-3 bg-slate-100/50"
                                 indicatorClassName="bg-gradient-to-r from-blue-500 to-indigo-500 shadow-[0_0_15px_rgba(59,130,246,0.4)]"
                             />
+                            
+                            <div className="mt-8 flex gap-4">
+                                <Button 
+                                    onClick={() => open()}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold"
+                                >
+                                    {isCompleted ? 'Mulai Ulang Tour' : 'Lanjutkan Tour'}
+                                </Button>
+                                <Button 
+                                    variant="outline"
+                                    onClick={() => resetOnboarding()}
+                                    className="text-slate-500 border-slate-200"
+                                >
+                                    Reset Semua Data Onboarding
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Steps Container */}

@@ -29,6 +29,21 @@ export interface WorkflowNodeData {
     [key: string]: unknown;
 }
 
+// Agent Node data
+export interface AgentNodeData extends WorkflowNodeData {
+    role?: 'analyst' | 'writer' | 'researcher' | 'support';
+    objective?: string;
+    tools?: string[]; // e.g. ['web_search', 'calculator', 'code_executor']
+}
+
+// Data Ingestion Node data
+export interface DataIngestionNodeData extends WorkflowNodeData {
+    ingestionType?: 'rag' | 'sql' | 'web_scraper';
+    sourceName?: string;
+    sourceUrl?: string;
+    status?: 'ready' | 'indexing' | 'error';
+}
+
 export interface WorkflowMeta {
     workflowId: string;
     name: string;

@@ -20,6 +20,9 @@ import { BranchNode } from './nodes/BranchNode';
 import { TextNode } from './nodes/TextNode';
 import { DocumentNode } from './nodes/DocumentNode';
 import { StartNode } from './nodes/StartNode';
+import { AgentNode } from './nodes/AgentNode';
+import { DataIngestionNode } from './nodes/DataIngestionNode';
+import { GuardrailNode } from './nodes/GuardrailNode';
 import { AnimatedEdge } from './edges/AnimatedEdge';
 
 const nodeTypes: NodeTypes = {
@@ -28,8 +31,11 @@ const nodeTypes: NodeTypes = {
     text: TextNode,
     document: DocumentNode,
     start: StartNode,
-    // Add more types here
+    agent: AgentNode,
+    data_ingestion: DataIngestionNode,
+    guardrail: GuardrailNode,
 };
+
 
 const edgeTypes = {
     animated: AnimatedEdge,

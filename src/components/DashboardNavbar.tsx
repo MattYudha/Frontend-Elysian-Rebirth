@@ -123,7 +123,7 @@ export function DashboardNavbar({ staticMode = false }: { staticMode?: boolean }
                     <div className="flex items-center gap-2 md:hidden">
                         <MobileSidebar />
                         <Link href="/dashboard">
-                            <Image src="/logo.svg" alt="Elysian Logo" width={54} height={54} className="scale-100 drop-shadow-md" />
+                            <Image src="/assets/logo.svg" alt="Elysian Logo" width={54} height={54} className="scale-100 drop-shadow-md" />
                         </Link>
                     </div>
 

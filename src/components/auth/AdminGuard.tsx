@@ -19,14 +19,14 @@ export function AdminGuard({ children }: AdminGuardProps) {
             return;
         }
 
-        if (user?.role !== 'admin') {
+        if (user?.role !== 'admin' && user?.role !== 'super_admin') {
             // Redirect unauthorized users to regular dashboard
             router.push('/dashboard');
         }
     }, [isAuthenticated, user, router]);
 
     // Show loading or nothing while checking
-    if (!isAuthenticated || user?.role !== 'admin') {
+    if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'super_admin')) {
         return (
             <div className="h-screen w-full flex items-center justify-center bg-slate-50">
                 <div className="flex flex-col items-center gap-2">

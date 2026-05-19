@@ -51,7 +51,7 @@ export function MobileSidebar() {
                             <div className="relative">
                                 <div className="absolute inset-0 bg-blue-400 blur-lg opacity-20 rounded-full" />
                                 <Image
-                                    src="/logo.svg"
+                                    src="/assets/logo.svg"
                                     alt="Elysian"
                                     width={42}
                                     height={42}
@@ -88,7 +88,7 @@ export function MobileSidebar() {
 
                         {/* WIDGETS SECTION (Restored & Styled) */}
                         <div className="space-y-2 pt-1">
-                            {user?.role === 'admin' && (
+                            {(user?.role === 'admin' || user?.role === 'super_admin') && (
                                 <Link href="/admin" onClick={() => setMobileOpen(false)} className='block'>
                                     <Button variant="outline" className="w-full justify-start gap-2 bg-gradient-to-r from-sky-50 to-white/60 dark:from-sky-950/40 dark:to-slate-900/40 hover:from-sky-100 dark:hover:from-sky-900/60 hover:to-sky-50 dark:hover:to-slate-800/60 border-sky-200 dark:border-sky-800/50 text-sky-700 dark:text-sky-300 h-9 rounded-lg text-sm font-semibold shadow-sm transition-all">
                                         <Shield className="h-4 w-4 text-sky-500 dark:text-sky-400" />

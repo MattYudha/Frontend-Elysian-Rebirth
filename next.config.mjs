@@ -99,7 +99,7 @@ const nextConfig = {
                             base-uri 'self';
                             form-action 'self';
                             frame-ancestors 'none';
-                            connect-src 'self' https://backend-elysian-production.up.railway.app ws://localhost:3000 wss://localhost:3000 https://*.ingest.sentry.io https://unpkg.com https://cdn.jsdelivr.net;
+                            connect-src 'self' https://backend-elysian-production.up.railway.app https://i.pravatar.cc https://api.fontshare.com https://cdn.fontshare.com https://vitals.vercel-insights.com ws://localhost:3000 wss://localhost:3000 https://*.ingest.sentry.io https://unpkg.com https://cdn.jsdelivr.net;
                         `.replace(/\s{2,}/g, ' ').trim(),
                     }
                 ],
