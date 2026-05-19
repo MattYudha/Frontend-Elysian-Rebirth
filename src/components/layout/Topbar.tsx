@@ -20,6 +20,9 @@ import {
     LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/authStore';
+import { authService } from '@/services/auth.service';
+import { useRouter } from 'next/navigation';
 
 export interface TopbarProps {
     logo?: React.ReactNode;
@@ -49,6 +52,18 @@ export const Topbar: React.FC<TopbarProps> = ({
     actions,
     className,
 }) => {
+    const { logout } = useAuthStore();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            await authService.logout();
+        } finally {
+            logout();
+            router.push('/login');
+        }
+    };
+
     return (
         <div
             className={cn(
@@ -140,7 +155,7 @@ export const Topbar: React.FC<TopbarProps> = ({
                                 <span>Settings</span>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10">
+                            <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10 cursor-pointer" onClick={handleLogout}>
                                 <LogOut className="mr-2 h-4 w-4" />
                                 <span>Log out</span>
                             </DropdownMenuItem>

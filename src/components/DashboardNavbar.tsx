@@ -22,6 +22,8 @@ import { NotificationPopover } from '@/components/NotificationPopover';
 import { useUiStore } from '@/store/uiStore';
 import { useSettingsUiStore } from '@/store/ui/settingsStore';
 import { useAuthStore } from '@/store/authStore';
+import { authService } from '@/services/auth.service';
+import { useRouter } from 'next/navigation';
 
 // User avatar using data from store
 const UserAvatar = ({ avatarUrl }: { avatarUrl?: string | null }) => {
@@ -49,6 +51,16 @@ export function DashboardNavbar({ staticMode = false }: { staticMode?: boolean }
     const { isGridVisible, toggleGrid } = useUiStore();
     const setReturnUrl = useSettingsUiStore((s) => s.setReturnUrl);
     const { user, logout } = useAuthStore();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            await authService.logout(); // Clears HttpOnly cookies via BFF
+        } finally {
+            logout(); // Clears Zustand store
+            router.push('/login'); // Redirect to login
+        }
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -225,7 +237,7 @@ export function DashboardNavbar({ staticMode = false }: { staticMode?: boolean }
                                     <DropdownMenuItem className="cursor-pointer"><Settings className="mr-2 h-4 w-4" />Settings</DropdownMenuItem>
                                 </Link>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={() => logout()}><LogOut className="mr-2 h-4 w-4" />Log out</DropdownMenuItem>
+                                <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" />Log out</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>

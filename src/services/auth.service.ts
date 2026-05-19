@@ -54,11 +54,11 @@ export const authService = {
      */
     async logout(): Promise<void> {
         try {
-            await http.post('/api/v1/auth/logout');
+            // Point to BFF proxy to clear HttpOnly cookies set by Next.js
+            await http.post('/api/auth/logout', {}, { baseURL: '' });
         } catch (error) {
             console.warn('Logout API failed', error);
         }
-        // State cleanup relies entirely on HTTP interceptors and Zustand memory clear
     },
 
     /**
