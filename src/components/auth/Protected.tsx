@@ -1,45 +1,37 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
+/**
+ * Protected is now a lightweight client-side guard.
+ * The REAL auth enforcement happens in:
+ * 1. middleware.ts (Edge) — checks refresh_token cookie
+ * 2. dashboard/layout.tsx (SSR) — refreshes token & hydrates store
+ * 
+ * This component only handles the edge case where Zustand
+ * hasn't hydrated yet from localStorage (prevents flash of empty content).
+ */
 export function Protected({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated } = useAuthStore();
-    const router = useRouter();
-    const pathname = usePathname();
     const [isHydrated, setIsHydrated] = useState(false);
 
     useEffect(() => {
-        // Wait for Zustand persist rehydration to complete
-        const unsub = useAuthStore.persist.onFinishHydration(() => {
+        // Wait for Zustand persist rehydration
+        if (useAuthStore.persist?.hasHydrated()) {
             setIsHydrated(true);
-        });
-
-        // If already hydrated (e.g. fast localStorage read), set immediately
-        if (useAuthStore.persist.hasHydrated()) {
-            setIsHydrated(true);
+        } else {
+            const unsub = useAuthStore.persist?.onFinishHydration?.(() => {
+                setIsHydrated(true);
+            });
+            // Safety: if persist isn't configured, just render immediately
+            if (!useAuthStore.persist) {
+                setIsHydrated(true);
+            }
+            return unsub;
         }
-
-        return unsub;
     }, []);
 
-    useEffect(() => {
-        if (!isHydrated) return;
-
-        // Whitelist public routes
-        const publicRoutes = ['/login', '/register', '/', '/about'];
-
-        if (!isAuthenticated && !publicRoutes.includes(pathname)) {
-            // Save intended destination so login can redirect back
-            if (typeof window !== 'undefined') {
-                sessionStorage.setItem('redirect_after_login', pathname);
-            }
-            router.replace('/login');
-        }
-    }, [isAuthenticated, router, pathname, isHydrated]);
-
-    // Don't render anything until hydration is done (prevents flash)
+    // Show nothing until hydration is done (prevents flash)
     if (!isHydrated) return null;
 
     return <>{children}</>;

@@ -30,9 +30,11 @@ export function middleware(request: NextRequest) {
     pathname === path || pathname.startsWith(`${path}/`)
   );
 
-  // Read access_token from HTTP-Only Cookie
-  const accessToken = request.cookies.get('access_token')?.value;
-  const isAuthenticated = !!accessToken;
+  // Use refresh_token cookie as the session indicator.
+  // access_token is short-lived and may not always be present,
+  // but refresh_token is set by BFF login and lasts 7 days.
+  const refreshToken = request.cookies.get('refresh_token')?.value;
+  const isAuthenticated = !!refreshToken;
 
   // Redirect unauthenticated users from protected pages to login
   if (isProtected && !isAuthenticated) {
