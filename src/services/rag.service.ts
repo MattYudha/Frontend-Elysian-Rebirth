@@ -23,7 +23,9 @@ export interface DocumentRecord {
     user_id: string;
     title: string;
     source_uri: string;
-    status: 'pending' | 'processing' | 'ready' | 'failed' | 'queued_failed';
+    status: 'pending' | 'pending_qa' | 'processing' | 'ready' | 'failed' | 'queued_failed';
+    category?: string;
+    ai_analysis_json?: any;
     created_at: string;
     last_updated_at: string;
 }
@@ -180,5 +182,28 @@ export async function listDocuments(
         },
     });
     if (!res.ok) throw new Error(`Failed to list documents: HTTP ${res.status}`);
+    return res.json();
+}
+
+/**
+ * Approves a parsed document that is in 'pending_qa' status.
+ * Triggers backend vectorization.
+ */
+export async function approveDocument(
+    authToken: string,
+    tenantId: string,
+    documentId: string,
+): Promise<{ status: string; document_id: string; message: string }> {
+    const res = await fetch(`${API_BASE}/api/v1/documents/${documentId}/approve`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${authToken}`,
+            'X-Tenant-ID': tenantId,
+        },
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Approval failed: HTTP ${res.status}`);
+    }
     return res.json();
 }

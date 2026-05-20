@@ -2,10 +2,17 @@
 
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Shield, ArrowUpRight } from 'lucide-react';
+import { Shield, ArrowUpRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useTenant } from '@/contexts/TenantContext';
+import { useUpdateTenant } from '@/queries/tenant.queries';
 
 export default function IdentityPage() {
+    const { currentTenant, isLoading } = useTenant();
+    const updateTenantMutation = useUpdateTenant();
+
+    const isEnterprise = currentTenant?.plan_tier?.toLowerCase() === 'enterprise';
+
     const identityCards = [
         {
             id: "saml",
@@ -13,7 +20,7 @@ export default function IdentityPage() {
             description: "Allow users to log in with SAML single sign-on (SSO). Security configuration required at the Identity Provider level.",
             helpHref: "#",
             toggleLabel: "Enable SAML SSO",
-            enabled: false,
+            enabled: isEnterprise,
         },
         {
             id: "scim",
@@ -21,9 +28,18 @@ export default function IdentityPage() {
             description: "Use SCIM to automatically create, update, and delete users from your active directory.",
             helpHref: "#",
             toggleLabel: "Enable SCIM",
-            enabled: false,
+            enabled: isEnterprise,
         },
     ];
+
+    if (isLoading) {
+        return (
+            <div className="h-full flex items-center justify-center p-8 text-sm text-slate-500">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-500 mr-2" />
+                Loading identity configuration...
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -60,16 +76,28 @@ export default function IdentityPage() {
                 ))}
             </div>
 
-            {/* Upgrade CTA for Free tier */}
-            <div className="mt-8 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-100 dark:border-blue-900/30 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                    <h4 className="font-semibold text-blue-900 dark:text-blue-100">Enterprise Feature</h4>
-                    <p className="text-sm text-blue-700/80 dark:text-blue-300/80 mt-1">SAML & SCIM require an Enterprise subscription.</p>
+            {/* Upgrade CTA for Free/Pro tier */}
+            {!isEnterprise && (
+                <div className="mt-8 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-100 dark:border-blue-900/30 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h4 className="font-semibold text-blue-900 dark:text-blue-100">Enterprise Feature</h4>
+                        <p className="text-sm text-blue-700/80 dark:text-blue-300/80 mt-1">SAML & SCIM require an Enterprise subscription.</p>
+                    </div>
+                    <Button
+                        className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shrink-0 mt-2 sm:mt-0"
+                        disabled={updateTenantMutation.isPending}
+                        onClick={() => {
+                            if (!currentTenant) return;
+                            updateTenantMutation.mutate({
+                                id: currentTenant.id,
+                                data: { plan_tier: 'enterprise' }
+                            });
+                        }}
+                    >
+                        {updateTenantMutation.isPending ? "Upgrading..." : "Upgrade to Enterprise"}
+                    </Button>
                 </div>
-                <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shrink-0 mt-2 sm:mt-0">
-                    Upgrade to Enterprise
-                </Button>
-            </div>
+            )}
         </div>
     );
 }

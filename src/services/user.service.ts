@@ -25,7 +25,7 @@ export interface UserPreferences {
 }
 
 export interface UpdatePasswordDTO {
-    old_password?: string;
+    current_password?: string;
     new_password?: string;
 }
 
@@ -41,29 +41,81 @@ export const userService = {
      * Gets the current authenticated user's fresh data from the backend
      */
     getMe: async (): Promise<{ status: string; data: User }> => {
-        return http.get<{ status: string; data: User }>('/api/v1/users/me');
+        const response = await http.get<{ status: string; data: any }>('/api/v1/users/me');
+        const rawUser = response.data;
+        const mappedUser: User = {
+            ...rawUser,
+            name: rawUser.name || rawUser.full_name || '',
+            avatar: rawUser.avatar || rawUser.avatar_url || '',
+        };
+        return {
+            status: response.status,
+            data: mappedUser,
+        };
     },
 
     /**
      * Gets user preferences
      */
     getPreferences: async (): Promise<UserPreferences> => {
-        const response = await http.get<{ status: string; data: UserPreferences }>('/api/v1/users/me/preferences');
-        return response.data;
+        const response = await http.get<{ status: string; data: any }>('/api/v1/users/me/preferences');
+        const rawPrefs = response.data;
+        
+        let notifEnabled = true;
+        if (rawPrefs.notifications) {
+            // Support both standard JSON string parsing or direct object
+            const notifs = typeof rawPrefs.notifications === 'string' 
+                ? JSON.parse(rawPrefs.notifications) 
+                : rawPrefs.notifications;
+            notifEnabled = notifs.email !== false;
+        }
+
+        return {
+            theme: rawPrefs.appearance || 'system',
+            language: 'en',
+            notifications_enabled: notifEnabled,
+        };
     },
 
     /**
      * Updates user preferences
      */
     updatePreferences: async (prefs: Partial<UserPreferences>): Promise<UserPreferences> => {
-        const response = await http.put<{ status: string; data: UserPreferences }>('/api/v1/users/me/preferences', prefs);
-        return response.data;
+        const payload: any = {};
+        if (prefs.theme) {
+            payload.appearance = prefs.theme;
+        }
+        if (prefs.notifications_enabled !== undefined) {
+            payload.notifications = {
+                email: prefs.notifications_enabled,
+                inApp: true,
+                recommended: true
+            };
+        }
+
+        const response = await http.put<{ status: string; data: any }>('/api/v1/users/me/preferences', payload);
+        const rawPrefs = response.data;
+
+        let notifEnabled = true;
+        if (rawPrefs.notifications) {
+            const notifs = typeof rawPrefs.notifications === 'string' 
+                ? JSON.parse(rawPrefs.notifications) 
+                : rawPrefs.notifications;
+            notifEnabled = notifs.email !== false;
+        }
+
+        return {
+            theme: rawPrefs.appearance || 'system',
+            language: 'en',
+            notifications_enabled: notifEnabled,
+        };
     },
 
     /**
      * Updates user password
      */
     updatePassword: async (data: UpdatePasswordDTO): Promise<{ message: string }> => {
+        // Backend expects 'current_password' and 'new_password'
         const response = await http.put<{ message: string }>('/api/v1/users/me/password', data);
         return response;
     }

@@ -19,7 +19,10 @@ import {
     ShieldAlert,
     Users,
     Database,
-    Home
+    Home,
+    Shield,
+    CheckSquare,
+    Link2
 } from 'lucide-react';
 
 // Icon mapping from string names to Lucide components
@@ -38,7 +41,9 @@ const iconMap: Record<string, any> = {
     ShieldAlert: ShieldAlert,
     Users: Users,
     Database: Database,
-
+    Shield: Shield,
+    CheckSquare: CheckSquare,
+    Link2: Link2,
 };
 
 export function NavigationMenu() {

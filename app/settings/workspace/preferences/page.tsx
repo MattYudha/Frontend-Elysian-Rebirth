@@ -3,16 +3,25 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Loader2 } from 'lucide-react';
 import { useSettingsUiStore } from '@/store/ui/settingsStore';
+import { useTenant } from '@/contexts/TenantContext';
+import { useUpdateTenant } from '@/queries/tenant.queries';
 
 export default function PreferencesPage() {
     const [copied, setCopied] = useState(false);
     const { setDirty } = useSettingsUiStore();
+    const { currentTenant, isLoading } = useTenant();
+    const updateTenantMutation = useUpdateTenant();
 
-    // Mock initial data
-    const [workspaceName, setWorkspaceName] = useState("Elysian Global");
-    const workspaceId = "ws_ely2r2nVMXkdxl";
+    const [workspaceName, setWorkspaceName] = useState("");
+    const workspaceId = currentTenant?.id || "";
+
+    useEffect(() => {
+        if (currentTenant) {
+            setWorkspaceName(currentTenant.name);
+        }
+    }, [currentTenant]);
 
     useEffect(() => {
         if (!copied) return;
@@ -31,8 +40,18 @@ export default function PreferencesPage() {
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setWorkspaceName(e.target.value);
-        setDirty('/settings/workspace/preferences', true); // Mark form as dirty when name changes
+        const isNameChanged = e.target.value !== (currentTenant?.name || "");
+        setDirty('/settings/workspace/preferences', isNameChanged);
     };
+
+    if (isLoading) {
+        return (
+            <div className="h-full flex items-center justify-center p-8 text-sm text-slate-500">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-500 mr-2" />
+                Loading workspace details...
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -102,9 +121,20 @@ export default function PreferencesPage() {
             <div className="pt-4 flex justify-end">
                 <Button
                     className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
-                    onClick={() => { setDirty('/settings/workspace/preferences', false); /* MSW Mutation will go here */ }}
+                    disabled={updateTenantMutation.isPending || workspaceName === (currentTenant?.name || "")}
+                    onClick={() => {
+                        if (!currentTenant) return;
+                        updateTenantMutation.mutate({
+                            id: currentTenant.id,
+                            data: { name: workspaceName }
+                        }, {
+                            onSuccess: () => {
+                                setDirty('/settings/workspace/preferences', false);
+                            }
+                        });
+                    }}
                 >
-                    Save Changes
+                    {updateTenantMutation.isPending ? "Saving..." : "Save Changes"}
                 </Button>
             </div>
         </div>

@@ -38,6 +38,15 @@ export const useAuthStore = create<AuthState>()(
                 accessToken: state.accessToken,
                 isAuthenticated: state.isAuthenticated,
             }),
+            merge: (persistedState: any, currentState: AuthState) => {
+                if (currentState.isAuthenticated && currentState.accessToken) {
+                    return currentState;
+                }
+                return {
+                    ...currentState,
+                    ...(persistedState as object),
+                };
+            }
         }
     )
 );

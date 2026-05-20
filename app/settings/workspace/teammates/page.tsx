@@ -5,37 +5,24 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Mail } from 'lucide-react';
+import { Mail, Loader2 } from 'lucide-react';
+import { useTenant } from '@/contexts/TenantContext';
+import { useTenantMembers, useUpdateMemberRole } from '@/queries/tenant.queries';
 
 export default function TeammatesPage() {
     const [inviteRole, setInviteRole] = useState("member");
+    const { currentTenant, isLoading: isTenantLoading } = useTenant();
+    const { data: teammates = [], isLoading: isMembersLoading } = useTenantMembers(currentTenant?.id || "");
+    const updateRoleMutation = useUpdateMemberRole();
 
-    const teammates = [
-        {
-            id: "u1",
-            name: "Alex Morgan",
-            email: "alex@elysian.app",
-            status: "Active",
-            role: "Owner",
-            avatar: "",
-        },
-        {
-            id: "u2",
-            name: "Sarah Chen",
-            email: "sarah.chen@elysian.app",
-            status: "Active",
-            role: "Admin",
-            avatar: "",
-        },
-        {
-            id: "u3",
-            name: "David Kumar",
-            email: "david.k@elysian.app",
-            status: "Pending",
-            role: "Member",
-            avatar: "",
-        }
-    ];
+    if (isTenantLoading || isMembersLoading) {
+        return (
+            <div className="h-full flex items-center justify-center p-8 text-sm text-slate-500">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-500 mr-2" />
+                Loading teammates...
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -84,49 +71,64 @@ export default function TeammatesPage() {
                 </div>
 
                 <div className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-[#0B1120]">
-                    {teammates.map((mate) => (
-                        <div key={mate.id} className="grid grid-cols-12 items-center px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                            <div className="col-span-12 sm:col-span-6 flex items-center gap-4">
-                                <Avatar className="h-10 w-10 border border-slate-200 dark:border-slate-700">
-                                    <AvatarImage src={mate.avatar} />
-                                    <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                                        {mate.name.split(' ').map(n => n[0]).join('')}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="flex flex-col leading-tight gap-1">
-                                    <span className="text-sm font-medium text-slate-900 dark:text-white">{mate.name}</span>
-                                    <span className="text-xs text-slate-500">{mate.email}</span>
+                    {teammates.map((mate) => {
+                        const status = mate.status || 'Active';
+                        const initials = mate.name
+                            ? mate.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+                            : 'U';
+                        const role = mate.role || 'member';
+                        
+                        return (
+                            <div key={mate.id} className="grid grid-cols-12 items-center px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <div className="col-span-12 sm:col-span-6 flex items-center gap-4">
+                                    <Avatar className="h-10 w-10 border border-slate-200 dark:border-slate-700">
+                                        <AvatarImage src={mate.avatar} />
+                                        <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                                            {initials}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col leading-tight gap-1">
+                                        <span className="text-sm font-medium text-slate-900 dark:text-white">{mate.name}</span>
+                                        <span className="text-xs text-slate-500">{mate.email}</span>
+                                    </div>
+                                </div>
+
+                                {/* Mobile only elements - hidden on sm and up */}
+                                <div className="col-span-12 mt-3 flex sm:hidden items-center justify-between text-xs">
+                                    <span className={`px-2 py-1 rounded-full ${status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                                        {status}
+                                    </span>
+                                    <span className="font-medium text-slate-700 dark:text-slate-300 capitalize">{role}</span>
+                                </div>
+
+                                {/* Desktop only elements */}
+                                <div className="hidden sm:block sm:col-span-3 text-sm">
+                                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                                        {status}
+                                    </span>
+                                </div>
+                                <div className="hidden sm:block sm:col-span-3 text-sm text-right">
+                                    <Select 
+                                        value={role.toLowerCase()} 
+                                        onValueChange={(newRole) => {
+                                            if (newRole !== role.toLowerCase()) {
+                                                updateRoleMutation.mutate({ userId: mate.id, role: newRole });
+                                            }
+                                        }}
+                                    >
+                                        <SelectTrigger className="h-8 w-[110px] ml-auto border-transparent hover:border-slate-200 dark:hover:border-slate-700 capitalize">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="owner" disabled={role.toLowerCase() === 'owner'}>Owner</SelectItem>
+                                            <SelectItem value="admin">Admin</SelectItem>
+                                            <SelectItem value="member">Member</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
-
-                            {/* Mobile only elements - hidden on sm and up */}
-                            <div className="col-span-12 mt-3 flex sm:hidden items-center justify-between text-xs">
-                                <span className={`px-2 py-1 rounded-full ${mate.status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
-                                    {mate.status}
-                                </span>
-                                <span className="font-medium text-slate-700 dark:text-slate-300">{mate.role}</span>
-                            </div>
-
-                            {/* Desktop only elements */}
-                            <div className="hidden sm:block sm:col-span-3 text-sm">
-                                <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium ${mate.status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
-                                    {mate.status}
-                                </span>
-                            </div>
-                            <div className="hidden sm:block sm:col-span-3 text-sm text-right">
-                                <Select defaultValue={mate.role.toLowerCase()}>
-                                    <SelectTrigger className="h-8 w-[110px] ml-auto border-transparent hover:border-slate-200 dark:hover:border-slate-700">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="owner" disabled={mate.role === 'Owner'}>Owner</SelectItem>
-                                        <SelectItem value="admin">Admin</SelectItem>
-                                        <SelectItem value="member">Member</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>

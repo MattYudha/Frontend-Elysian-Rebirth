@@ -1,15 +1,52 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, GripVertical, MoreHorizontal, Settings2 } from 'lucide-react';
+import { Plus, GripVertical, Settings2, Loader2, Trash2 } from 'lucide-react';
+import { useDataTypes, useCreateDataType, useDeleteDataType } from '@/queries/data_type.queries';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function TypesPage() {
-    const dataTypes = [
-        { id: "task", name: "Task", description: "Standard unit of work", fields: 12, isSystem: true },
-        { id: "project", name: "Project", description: "Container for tasks", fields: 8, isSystem: true },
-        { id: "doc", name: "Document", description: "Rich text knowledge base", fields: 3, isSystem: true },
-        { id: "custom1", name: "Client Brief", description: "Custom intake form", fields: 15, isSystem: false },
-    ];
+    const { data: dataTypes = [], isLoading } = useDataTypes();
+    const createMutation = useCreateDataType();
+    const deleteMutation = useDeleteDataType();
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+
+    const handleCreate = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!name.trim()) return;
+
+        createMutation.mutate({
+            name,
+            description
+        }, {
+            onSuccess: () => {
+                setIsDialogOpen(false);
+                setName("");
+                setDescription("");
+            }
+        });
+    };
+
+    const handleDelete = (id: string) => {
+        if (confirm("Are you sure you want to delete this custom data type?")) {
+            deleteMutation.mutate(id);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="h-full flex items-center justify-center p-8 text-sm text-slate-500">
+                <Loader2 className="h-5 w-5 animate-spin text-blue-500 mr-2" />
+                Loading data types...
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -20,10 +57,57 @@ export default function TypesPage() {
                         Customize the taxonomy of data that your workspace and AI agents recognize.
                     </p>
                 </div>
-                <Button className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white gap-2 hidden sm:flex">
-                    <Plus className="h-4 w-4" />
-                    New Type
-                </Button>
+                
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white gap-2 hidden sm:flex">
+                            <Plus className="h-4 w-4" />
+                            New Type
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                        <form onSubmit={handleCreate}>
+                            <DialogHeader>
+                                <DialogTitle>Create Custom Data Type</DialogTitle>
+                                <DialogDescription>
+                                    Add a new classification category for your workspace budget items.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="name" className="text-right">
+                                        Name
+                                    </Label>
+                                    <Input
+                                        id="name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="e.g. Travel Expense"
+                                        className="col-span-3 h-10 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="description" className="text-right">
+                                        Description
+                                    </Label>
+                                    <Input
+                                        id="description"
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        placeholder="Brief purpose description"
+                                        className="col-span-3 h-10 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="submit" disabled={createMutation.isPending} className="bg-blue-600 hover:bg-blue-700 text-white">
+                                    {createMutation.isPending ? "Creating..." : "Save Type"}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             <hr className="border-slate-200 dark:border-slate-800" />
@@ -45,7 +129,7 @@ export default function TypesPage() {
                             <div className="col-span-9 sm:col-span-5 flex flex-col gap-1">
                                 <div className="flex items-center gap-2">
                                     <span className="font-medium text-slate-900 dark:text-white">{type.name}</span>
-                                    {type.isSystem && (
+                                    {type.is_system && (
                                         <span className="px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] uppercase font-bold tracking-wider">
                                             System
                                         </span>
@@ -55,22 +139,34 @@ export default function TypesPage() {
                             </div>
                             <div className="col-span-4 hidden sm:flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                                 <Settings2 className="h-4 w-4" />
-                                {type.fields} custom fields
+                                {type.fields_count} fields
                             </div>
                             <div className="col-span-2 flex items-center justify-end">
-                                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-900 dark:hover:text-white">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                </Button>
+                                {!type.is_system && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        disabled={deleteMutation.isPending}
+                                        className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                        onClick={() => handleDelete(type.id)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <Button className="w-full sm:hidden border-dashed bg-transparent text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950 gap-2">
-                <Plus className="h-4 w-4" />
-                New Type
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                    <Button className="w-full sm:hidden border-dashed bg-transparent text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950 gap-2">
+                        <Plus className="h-4 w-4" />
+                        New Type
+                    </Button>
+                </DialogTrigger>
+            </Dialog>
         </div>
     );
 }

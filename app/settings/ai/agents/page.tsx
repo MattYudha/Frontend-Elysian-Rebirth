@@ -3,18 +3,19 @@
 import { Button } from '@/components/ui/button';
 import {
     Bot, CheckCircle2, FileEdit, ShieldCheck, Zap,
-    Plus, MessageSquare, Briefcase, UserCog, Loader2
+    Plus, MessageSquare, Briefcase, UserCog, Loader2, Trash2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQueryState } from 'nuqs';
 import { AgentConfigSlideOver } from '@/components/settings/ai/AgentConfigSlideOver';
 import { Suspense } from 'react';
-import { useAgents, useCreateAgent } from '@/queries/agent.queries';
+import { useAgents, useCreateAgent, useDeleteAgent } from '@/queries/agent.queries';
 
 function AgentsContent() {
     const [, setAgentId] = useQueryState('agent');
     const { data: dbAgents = [], isLoading } = useAgents();
     const createMutation = useCreateAgent();
+    const deleteMutation = useDeleteAgent();
 
     const capabilityHighlights = [
         { id: "planning", label: "Plan work and break it into tasks with clear owners.", icon: CheckCircle2 },
@@ -139,6 +140,20 @@ function AgentsContent() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 w-full sm:w-auto">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (confirm('Delete this agent?')) {
+                                                    deleteMutation.mutate(agent.id);
+                                                }
+                                            }}
+                                            disabled={deleteMutation.isPending}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                         <Button variant="outline" size="sm" className="flex-1 sm:flex-none">View activity</Button>
                                         <Button
                                             size="sm"
