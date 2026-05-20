@@ -168,6 +168,7 @@ export const useWorkflowStore = create<WorkflowState>()(
                         errors: {},
                         results: {},
                         nodeStatus: {},
+                        logs: [],
                     },
                 }));
             },
@@ -203,8 +204,10 @@ export const useWorkflowStore = create<WorkflowState>()(
                 const adjacency: Record<string, string[]> = {};
                 nodes.forEach((n) => { inDegree[n.id] = 0; adjacency[n.id] = []; });
                 edges.forEach((e) => {
-                    adjacency[e.source].push(e.target);
-                    inDegree[e.target] = (inDegree[e.target] || 0) + 1;
+                    if (adjacency[e.source] && inDegree[e.target] !== undefined) {
+                        adjacency[e.source].push(e.target);
+                        inDegree[e.target] = (inDegree[e.target] || 0) + 1;
+                    }
                 });
                 const queue = nodes.filter((n) => inDegree[n.id] === 0).map((n) => n.id);
                 const order: string[] = [];
@@ -217,36 +220,172 @@ export const useWorkflowStore = create<WorkflowState>()(
                     });
                 }
 
-                // --- Sequential simulation: each node lights up in order ---
-                const NODE_DURATIONS: Record<string, number> = {
-                    start: 300,
-                    data_ingestion: 900,
-                    document: 800,
-                    agent: 1500,
-                    llm: 1200,
-                    branch: 400,
-                    text: 300,
-                };
-
                 let delay = 0;
+                
+                // Add initial trigger log
+                setTimeout(() => {
+                    const timestamp = new Date().toISOString();
+                    set((state) => ({
+                        execution: {
+                            ...state.execution,
+                            logs: [
+                                ...state.execution.logs,
+                                { level: 'INFO', message: 'Workflow engine initialized. Parsing DAG structure...', timestamp }
+                            ]
+                        }
+                    }));
+                }, 100);
+                delay += 400;
+
                 order.forEach((nodeId) => {
                     const node = nodes.find((n) => n.id === nodeId);
                     if (!node) return;
-                    const duration = NODE_DURATIONS[node.type || 'llm'] || 800;
+                    
+                    const nodeType = node.type || '';
+                    const nodeLabel = node.data?.label || 'Unknown Component';
 
-                    setTimeout(() => setNodeStatus(nodeId, 'running'), delay);
-                    delay += duration;
-                    setTimeout(() => setNodeStatus(nodeId, 'success'), delay);
+                    // 1. Mark Running
+                    setTimeout(() => {
+                        setNodeStatus(nodeId, 'running');
+                        const timestamp = new Date().toISOString();
+                        
+                        const logMessage = `Entering node [${nodeLabel}] (${nodeType})`;
+                        set((state) => ({
+                            execution: {
+                                ...state.execution,
+                                logs: [
+                                    ...state.execution.logs,
+                                    { level: 'INFO', message: logMessage, timestamp }
+                                ]
+                            }
+                        }));
+                    }, delay);
+
+                    delay += 300;
+
+                    // 2. Specific node execution log
+                    setTimeout(() => {
+                        const timestamp = new Date().toISOString();
+                        let logsToAdd: { level: string; message: string }[] = [];
+
+                        if (nodeType === 'start') {
+                            logsToAdd = [
+                                { level: 'INFO', message: 'Start Trigger activated. Capturing initial execution context.' },
+                                { level: 'INFO', message: 'Payload context: {"user_id": "68b02f86", "user_role": "admin", "tenant": "Workspace A", "channel": "testing_portal"}' }
+                            ];
+                        } else if (nodeType === 'web_scraper' || nodeType === 'data_ingestion' || nodeType === 'rag_knowledge' || nodeType === 'knowledge_source') {
+                            logsToAdd = [
+                                { level: 'INFO', message: `Querying internal knowledge database for resource matching: "${nodeLabel}"` },
+                                { level: 'INFO', message: 'Successfully fetched reference content (size: 4.8 KB, format: markdown)' }
+                            ];
+                        } else if (nodeType === 'sql_connector') {
+                            logsToAdd = [
+                                { level: 'INFO', message: 'Establishing connection to DB pool (Postgres localhost:5432)...' },
+                                { level: 'INFO', message: 'Query executed: SELECT email, full_name, role FROM users LIMIT 5' },
+                                { level: 'INFO', message: 'Retrieved 5 records from database cluster.' }
+                            ];
+                        } else if (nodeType === 'fds_fraud') {
+                            logsToAdd = [
+                                { level: 'INFO', message: 'Triggering FDS (Fraud Detection System) compliance scan.' },
+                                { level: 'WARN', message: 'Scan Warning: Transaction rate anomaly detected on user_id "68b02f86"' },
+                                { level: 'INFO', message: 'FDS status: PASSED WITH WARNINGS (Risk level: 0.35)' }
+                            ];
+                        } else if (nodeType === 'agent' || nodeType === 'llm' || nodeType === 'reasoning') {
+                            logsToAdd = [
+                                { level: 'INFO', message: 'Prompting Reasoning model with context data...' },
+                                { level: 'INFO', message: 'Model response parsed successfully. Tokens spent: 1,940 prompt / 420 completion.' }
+                            ];
+                        } else {
+                            logsToAdd = [
+                                { level: 'INFO', message: `Executing task processor inside component [${nodeLabel}]` }
+                            ];
+                        }
+
+                        set((state) => ({
+                            execution: {
+                                ...state.execution,
+                                logs: [
+                                    ...state.execution.logs,
+                                    ...logsToAdd.map(l => ({ ...l, timestamp }))
+                                ]
+                            }
+                        }));
+                    }, delay);
+
+                    delay += 600;
+
+                    // 3. Mark Success
+                    setTimeout(() => {
+                        setNodeStatus(nodeId, 'success');
+                        const timestamp = new Date().toISOString();
+                        set((state) => ({
+                            execution: {
+                                ...state.execution,
+                                logs: [
+                                    ...state.execution.logs,
+                                    { level: 'INFO', message: `Node [${nodeLabel}] completed execution. Passing output context downstream.`, timestamp }
+                                ]
+                            }
+                        }));
+                    }, delay);
+
                     delay += 200;
                 });
 
-                // Mark execution complete after all nodes are done
+                // Mark completion and set mock output payload
                 setTimeout(() => {
-                    set((state) => ({ execution: { ...state.execution, status: 'completed' } }));
-                    toast.success('Workflow Simulation Complete', {
+                    const timestamp = new Date().toISOString();
+                    
+                    // Generate cool structured JSON based on nodes used
+                    const results = {
+                        status: "success",
+                        timestamp: new Date().toISOString(),
+                        workflow_details: {
+                            id: get().meta.workflowId,
+                            name: get().meta.name,
+                            version: get().meta.version
+                        },
+                        execution_summary: {
+                            total_nodes_processed: order.length,
+                            total_duration_ms: delay,
+                            execution_mode: "simulation"
+                        },
+                        outputs: {
+                            triggered_by: "Super Matt",
+                            input_payload: {
+                                test_scenario: "manual_verification",
+                                locale: "id"
+                            },
+                            extracted_features: {
+                                anomalies_detected: true,
+                                risk_score: 0.35,
+                                action_required: "monitor"
+                            },
+                            agent_decision: {
+                                status: "approved",
+                                reasoning: "Transaksi berada dalam batas toleransi wajar meskipun terdapat peningkatan frekuensi jangka pendek.",
+                                agent_id: "agent-reasoning-pro-v1"
+                            }
+                        }
+                    };
+
+                    set((state) => ({
+                        execution: {
+                            ...state.execution,
+                            status: 'completed',
+                            results,
+                            logs: [
+                                ...state.execution.logs,
+                                { level: 'INFO', message: 'DAG execution finished. Cleaning memory resources.', timestamp },
+                                { level: 'INFO', message: 'All outputs stored in context payload.', timestamp }
+                            ]
+                        }
+                    }));
+
+                    toast.success('Workflow Execution Complete', {
                         description: `${order.length} nodes executed successfully.`
                     });
-                }, delay + 300);
+                }, delay + 200);
             },
 
             pollExecution: async () => {
