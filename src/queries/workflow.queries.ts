@@ -18,12 +18,13 @@ import { useWorkflowStore } from '@/store/workflowStore';
 import { activityKeys } from '@/queries/activity.queries';
 import { toast } from 'sonner';
 import type { Node, Edge } from 'reactflow';
+import { useTenant } from '@/contexts/TenantContext';
 
 // Enterprise Query Key Factory
 export const workflowKeys = {
     all: ['workflows'] as const,
-    lists: () => [...workflowKeys.all, 'list'] as const,
-    detail: (id: string) => [...workflowKeys.all, 'detail', id] as const,
+    lists: (tenantId: string) => [...workflowKeys.all, tenantId, 'list'] as const,
+    detail: (tenantId: string, id: string) => [...workflowKeys.all, tenantId, 'detail', id] as const,
 };
 
 /**
@@ -33,11 +34,15 @@ export const workflowKeys = {
  * When status is provided and not 'all', filters client-side (until backend supports ?status=).
  */
 export function useWorkflows(filters?: { status?: string }) {
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
     return useQuery({
-        queryKey: [...workflowKeys.lists(), filters?.status ?? 'all'],
+        queryKey: [...workflowKeys.lists(tenantId), filters?.status ?? 'all'],
         queryFn: fetchWorkflows,
         staleTime: 30 * 1000,
         retry: 1,
+        enabled: !!tenantId,
         select: (data) => {
             if (!filters?.status || filters.status === 'all') return data;
             return data.filter(w => w.status === filters.status);
@@ -54,11 +59,13 @@ export function useWorkflows(filters?: { status?: string }) {
  */
 export function useWorkflowLoader(workflowId: string | null) {
     const setFromServer = useWorkflowStore(state => state.setFromServer);
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
 
     const query = useQuery({
-        queryKey: workflowKeys.detail(workflowId!),
+        queryKey: workflowKeys.detail(tenantId, workflowId!),
         queryFn: () => fetchWorkflowById(workflowId!),
-        enabled: !!workflowId,
+        enabled: !!workflowId && !!tenantId,
         staleTime: 30_000,
     });
 
@@ -89,6 +96,8 @@ export function useWorkflowLoader(workflowId: string | null) {
  */
 export function useSaveWorkflow() {
     const queryClient = useQueryClient();
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
 
     return useMutation({
         mutationFn: (data: { id: string; nodes: unknown[]; edges: unknown[]; expectedVersion: string }) =>
@@ -106,8 +115,8 @@ export function useSaveWorkflow() {
                 );
             }
             // Invalidate caches
-            queryClient.invalidateQueries({ queryKey: workflowKeys.detail(variables.id) });
-            queryClient.invalidateQueries({ queryKey: workflowKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: workflowKeys.detail(tenantId, variables.id) });
+            queryClient.invalidateQueries({ queryKey: workflowKeys.lists(tenantId) });
             queryClient.invalidateQueries({ queryKey: activityKeys.all });
             toast.success('Workflow saved successfully');
         },
@@ -129,12 +138,14 @@ export function useSaveWorkflow() {
  */
 export function useCreateWorkflow() {
     const queryClient = useQueryClient();
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
 
     return useMutation({
         mutationFn: (data: { name: string; status?: 'active' | 'draft' | 'archived' | 'processing' | 'completed' | 'queued' | 'failed' }) =>
             createWorkflow(data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: workflowKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: workflowKeys.lists(tenantId) });
             toast.success('Pipeline created successfully');
         },
         onError: () => {

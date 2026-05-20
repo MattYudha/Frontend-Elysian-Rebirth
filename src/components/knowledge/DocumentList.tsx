@@ -13,6 +13,7 @@ import {
     CheckCircle2,
     Loader2
 } from "lucide-react";
+import { toast } from "sonner";
 
 
 // --- Types ---
@@ -32,6 +33,14 @@ export function DocumentList({
     onSelectDocument?: (doc: RagSource) => void
 }) {
     const data = documents; // Use props
+
+    const handleSelect = (doc: RagSource) => {
+        if (doc.status !== "ready") {
+            toast.warning(`Document "${doc.name}" is still ${doc.status}. Please wait until indexing completes.`);
+            return;
+        }
+        onSelectDocument?.(doc);
+    };
 
     // --- Polling Simulation ---
     // Polling removed (handled by React Query)
@@ -139,7 +148,7 @@ export function DocumentList({
                         columns={columns}
                         data={data}
                         searchKey="name"
-                        onRowClick={(row) => onSelectDocument?.(row.original)}
+                        onRowClick={(row) => handleSelect(row.original)}
                     />
                 )}
             </div>
@@ -149,7 +158,7 @@ export function DocumentList({
                 {data.map((doc) => (
                     <div
                         key={doc.id}
-                        onClick={() => onSelectDocument?.(doc)}
+                        onClick={() => handleSelect(doc)}
                         className="bg-white dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700 rounded-lg p-4 shadow-sm active:scale-[0.98] transition-transform"
                     >
                         <div className="flex justify-between items-start mb-3">

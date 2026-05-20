@@ -4,7 +4,7 @@ import React, { useState, useCallback } from "react";
 import { UploadCloud, FileText, X, CheckCircle2, AlertCircle, Loader2, Database, Cog } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
-import { rag } from "@/lib/sdk/modules/rag";
+import { uploadDocument as realUploadDocument, listDocuments } from "@/services/rag.service";
 
 export interface FileUploadZoneProps {
     tenantId?: string;
@@ -43,43 +43,69 @@ export function FileUploadZone({ tenantId, authToken, onUpload, onUploadComplete
         // 2. Process each file
         for (const item of newItems) {
             try {
-                // Step A: Upload and get Document ID (HTTP 202)
-                const res = await rag.uploadDocument(item.file, selectedCategory, tenantId || "tenant-1");
-                if (!res.success || !res.documentId) throw new Error("Upload refused");
-
-                const docId = res.documentId;
-                const startTime = Date.now();
-
-                // Step B: Poll until COMPLETED or FAILED
-                const pollInterval = setInterval(async () => {
-                    const elapsed = Date.now() - startTime;
-                    const pollRes = await rag.pollDocumentStatus(docId, elapsed);
-
-                    setUploadQueue(prev => prev.map(q => {
-                        if (q.file === item.file) {
-                            let uiStatus = q.status;
-                            if (pollRes.status === 'COMPLETED') uiStatus = 'completed';
-                            else if (pollRes.status === 'FAILED') uiStatus = 'error';
-
-                            return { ...q, progress: pollRes.progress, status: uiStatus, backendState: pollRes.status };
-                        }
-                        return q;
-                    }));
-
-                    if (pollRes.status === 'COMPLETED') {
-                        clearInterval(pollInterval);
-                        if (onUpload) onUpload([item.file], selectedCategory);
-                        if (onUploadComplete) onUploadComplete(docId, item.file.name);
-                    } else if (pollRes.status === 'FAILED') {
-                        clearInterval(pollInterval);
+                // Step A: Real upload to S3/MinIO & confirm to backend
+                const docId = await realUploadDocument(
+                    item.file,
+                    selectedCategory,
+                    authToken || "",
+                    tenantId || "",
+                    (p) => {
+                        updateItem(item.file, { progress: p.percent });
                     }
-                }, 1500); // Poll every 1.5s
+                );
+
+                // Step B: Poll until READY or FAILED in database
+                const pollInterval = setInterval(async () => {
+                    try {
+                        const listRes = await listDocuments(authToken || "", tenantId || "");
+                        const doc = listRes.data.find(d => d.id === docId);
+                        
+                        if (!doc) return;
+
+                        const status = doc.status;
+
+                        setUploadQueue(prev => prev.map(q => {
+                            if (q.file === item.file) {
+                                let uiStatus = q.status;
+                                let progress = q.progress;
+
+                                if (status === 'ready') {
+                                    uiStatus = 'completed';
+                                    progress = 100;
+                                } else if (status === 'failed' || status === 'queued_failed') {
+                                    uiStatus = 'error';
+                                } else {
+                                    // Increment parsing/indexing phase progress
+                                    progress = Math.min(99, progress + 5);
+                                }
+
+                                return {
+                                    ...q,
+                                    progress,
+                                    status: uiStatus,
+                                    backendState: status === 'ready' ? 'COMPLETED' : status === 'failed' ? 'FAILED' : 'PROCESSING'
+                                };
+                            }
+                            return q;
+                        }));
+
+                        if (status === 'ready') {
+                            clearInterval(pollInterval);
+                            if (onUpload) onUpload([item.file], selectedCategory);
+                            if (onUploadComplete) onUploadComplete(docId, item.file.name);
+                        } else if (status === 'failed' || status === 'queued_failed') {
+                            clearInterval(pollInterval);
+                        }
+                    } catch (pollErr) {
+                        console.error("Polling error:", pollErr);
+                    }
+                }, 2000);
             } catch (err: unknown) {
                 const message = err instanceof Error ? err.message : 'Upload failed';
                 updateItem(item.file, { status: 'error', error: message });
             }
         }
-    }, [onUpload, onUploadComplete, selectedCategory, tenantId]);
+    }, [onUpload, onUploadComplete, selectedCategory, tenantId, authToken]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,

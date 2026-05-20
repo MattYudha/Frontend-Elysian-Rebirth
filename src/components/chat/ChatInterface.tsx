@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import NextImage from 'next/image'; // Import Next.js Image
+import NextImage from 'next/image';
 import { Sender } from './Sender';
 import { ChatBubble } from './ChatBubble';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ChatSidebarContent } from './ChatSidebarContent';
 import { useAuthStore } from '@/store/authStore';
 import { useChatStore } from '@/store/chatStore';
+import { useMessages, useSendMessage, useCreateConversation } from '@/queries/chat.queries';
 
 interface Message {
     id: string;
@@ -22,19 +23,32 @@ interface Message {
 
 export function ChatInterface() {
     const { user } = useAuthStore();
-    // Fallback name for the mock if user is not logged in, or use "User"
     const displayName = user?.name?.split(' ')[0] || 'User';
 
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
     const [selectedMode, setSelectedMode] = useState('agent');
-    const [isTyping, setIsTyping] = useState(false);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const scrollRef = useRef<HTMLDivElement>(null);
     const initialPromptHandled = useRef(false);
 
     // Chat Store for draft messages from Dashboard
     const draftMessage = useChatStore(state => state.draftMessage);
     const setDraftMessage = useChatStore(state => state.setDraftMessage);
+
+    // Queries & Mutations
+    const { data: serverMessages = [], isLoading: isLoadingMessages } = useMessages(selectedSessionId);
+    const sendMessageMutation = useSendMessage();
+    const createConversationMutation = useCreateConversation();
+
+    const isTyping = sendMessageMutation.isPending;
+
+    // Map server messages to local format
+    const messages: Message[] = serverMessages.map((m) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        timestamp: new Date(m.timestamp),
+    }));
 
     // Auto-scroll to bottom only if there are messages
     useEffect(() => {
@@ -53,70 +67,37 @@ export function ChatInterface() {
     const handleSend = async (content: string) => {
         if (!content.trim()) return;
 
-        const newMessage: Message = {
-            id: Date.now().toString(),
-            role: 'user',
-            content: content,
-            timestamp: new Date()
-        };
-
-        const newMessages = [...messages, newMessage];
-        setMessages(newMessages);
-        setIsTyping(true);
-
-        try {
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    messages: newMessages,
-                    mode: selectedMode
-                })
+        if (!selectedSessionId) {
+            // First message in a session: create session then send message
+            createConversationMutation.mutate(content.slice(0, 30), {
+                onSuccess: (newSession) => {
+                    setSelectedSessionId(newSession.id);
+                    sendMessageMutation.mutate({
+                        conversationId: newSession.id,
+                        content: content,
+                    });
+                },
             });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error(data.error || 'Failed to fetch response');
-            }
-
-            const responseMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                role: 'assistant',
-                content: data.reply,
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, responseMessage]);
-        } catch (error: any) {
-            console.error(error);
-            const errorMessage: Message = {
-                id: (Date.now() + 1).toString(),
-                role: 'assistant',
-                content: `Error: ${error.message}`,
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, errorMessage]);
-        } finally {
-            setIsTyping(false);
+        } else {
+            sendMessageMutation.mutate({
+                conversationId: selectedSessionId,
+                content: content,
+            });
         }
     };
 
-    // ── Auto-send from Store (dashboard AiChatWidget) ──
+    // Auto-send draft from Store (e.g. from Dashboard AiChatWidget)
     useEffect(() => {
         if (draftMessage && !initialPromptHandled.current) {
             initialPromptHandled.current = true;
-
-            // Send the draft message
             handleSend(draftMessage);
-
-            // Clear it immediately to prevent double-firing on refresh
             setDraftMessage(null);
         }
-    }, [draftMessage, setDraftMessage]);
+    }, [draftMessage, setDraftMessage, selectedSessionId]);
 
     return (
         <div className="flex h-full w-full relative overflow-hidden text-slate-800 dark:text-slate-300 bg-transparent">
-            {/* Light 'Elysian Ether' Background Layer - Subtle */}
+            {/* Light 'Elysian Ether' Background Layer */}
             <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-50 dark:opacity-20 hidden md:block">
                 <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-400/20 dark:bg-blue-600/20 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-sky-400/20 dark:bg-cyan-600/20 rounded-full blur-[100px] animate-pulse delay-1000" />
@@ -125,7 +106,6 @@ export function ChatInterface() {
 
             {/* Main Content Container */}
             <div className="relative z-10 flex h-full w-full bg-transparent overflow-hidden">
-
                 {/* Left Sidebar (Desktop) */}
                 <AnimatePresence mode="wait">
                     {sidebarOpen && (
@@ -136,7 +116,10 @@ export function ChatInterface() {
                             transition={{ duration: 0.3, ease: 'easeInOut' }}
                             className="hidden md:flex flex-col border-r border-white/20 dark:border-blue-900/30 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md"
                         >
-                            <ChatSidebarContent />
+                            <ChatSidebarContent 
+                                selectedSessionId={selectedSessionId}
+                                onSelectChat={setSelectedSessionId}
+                            />
                         </motion.aside>
                     )}
                 </AnimatePresence>
@@ -146,7 +129,6 @@ export function ChatInterface() {
                     {/* Header */}
                     <div className="h-16 border-b border-white/20 dark:border-blue-900/30 flex items-center justify-between px-4 md:px-6 bg-white/30 dark:bg-[#0B1120]/60 backdrop-blur-md z-20">
                         <div className="flex items-center gap-3">
-
                             {/* Mobile Sidebar Trigger */}
                             <Sheet>
                                 <SheetTrigger asChild>
@@ -163,7 +145,12 @@ export function ChatInterface() {
                                         <h2 className="font-bold text-lg text-slate-800 dark:text-slate-50">Riwayat</h2>
                                     </div>
                                     <div className="h-[calc(100%-64px)]">
-                                        <ChatSidebarContent />
+                                        <ChatSidebarContent 
+                                            selectedSessionId={selectedSessionId}
+                                            onSelectChat={(id) => {
+                                                setSelectedSessionId(id);
+                                            }}
+                                        />
                                     </div>
                                 </SheetContent>
                             </Sheet>
@@ -177,8 +164,6 @@ export function ChatInterface() {
                                 {sidebarOpen ? <PanelRightClose className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />}
                             </Button>
                             <div className="flex items-center gap-3">
-                                {/* Desktop Logo */}
-                                {/* Mobile Logo (Smaller) */}
                                 <div className="md:hidden h-9 w-9 rounded-lg bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg border border-white/50 dark:border-blue-900/30 flex items-center justify-center shadow-md">
                                     <NextImage src="/assets/logo.svg" alt="Elysian" width={20} height={20} className="drop-shadow-sm" />
                                 </div>
@@ -187,9 +172,14 @@ export function ChatInterface() {
                                 </div>
                             </div>
                         </div>
-                        {/* Hide Settings on Mobile to reduce clutter */}
-                        <Button variant="ghost" size="icon" className="hidden md:flex text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40">
-                            <Settings2 className="h-5 w-5" />
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setSelectedSessionId(null)}
+                            className="text-slate-600 dark:text-slate-300 hover:bg-white/40 dark:hover:bg-slate-800/40"
+                            title="New Conversation"
+                        >
+                            <MessageSquarePlus className="h-5 w-5" />
                         </Button>
                     </div>
 
@@ -198,9 +188,12 @@ export function ChatInterface() {
                         ref={scrollRef}
                         className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scroll-smooth"
                     >
-                        {messages.length === 0 ? (
+                        {isLoadingMessages ? (
+                            <div className="h-full flex items-center justify-center text-sm text-slate-400">
+                                Loading conversation...
+                            </div>
+                        ) : messages.length === 0 ? (
                             <div className="min-h-full flex flex-col items-center justify-start md:justify-center text-center space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-5 duration-700 fill-mode-forwards pb-32 md:pb-20 pt-10 md:pt-0">
-
                                 {/* Hero Greeting */}
                                 <div className="space-y-4 md:space-y-6 max-w-3xl px-4 mt-4 md:mt-0 text-center">
                                     <div className="h-16 w-16 md:h-24 md:w-24 bg-white/60 dark:bg-slate-800/60 backdrop-blur-2xl border border-white/50 dark:border-slate-700/50 rounded-2xl md:rounded-[2rem] shadow-xl flex items-center justify-center mx-auto mb-6 md:mb-8 transform hover:scale-105 transition-transform duration-500">
@@ -215,13 +208,9 @@ export function ChatInterface() {
                                             Ada yang bisa saya bantu hari ini?
                                         </p>
                                     </div>
-
-                                    <p className="text-sm md:text-base text-slate-500 dark:text-slate-500 max-w-lg mx-auto leading-relaxed pt-2 hidden md:block">
-                                        Saya siap membantu Anda dengan analisis data, penulisan kode, atau perencanaan strategis tingkat enterprise.
-                                    </p>
                                 </div>
 
-                                {/* Prompt Suggestion Cards (Clickable) */}
+                                {/* Suggestions */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl w-full px-4">
                                     {[
                                         {
@@ -261,9 +250,6 @@ export function ChatInterface() {
                                                     {card.desc}
                                                 </p>
                                             </div>
-                                            <div className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300">
-                                                <div className="text-blue-400 dark:text-blue-500">→</div>
-                                            </div>
                                         </button>
                                     ))}
                                 </div>
@@ -292,7 +278,6 @@ export function ChatInterface() {
                     {/* Input Area with Toolbar */}
                     <div className="p-2 pb-4 md:p-6 bg-gradient-to-t from-white/90 via-white/80 to-transparent dark:from-[#0B1120]/90 dark:via-[#0B1120]/80 dark:to-transparent">
                         <div className="max-w-4xl mx-auto space-y-3">
-                            {/* Professional Mode Selector Toolbar */}
                             <div className="flex justify-center mb-1 overflow-x-auto no-scrollbar py-1 mask-linear-fade">
                                 <div className="inline-flex p-1 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-full border border-white/50 dark:border-slate-800 shadow-sm gap-1 min-w-max">
                                     {modes.map((mode) => {

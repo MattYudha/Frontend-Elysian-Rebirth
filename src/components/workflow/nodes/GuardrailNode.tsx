@@ -29,3 +29,5 @@ export const GuardrailNode = memo(({ data, selected, isConnectable }: any) => {
         </div>
     );
 });
+
+GuardrailNode.displayName = 'GuardrailNode';

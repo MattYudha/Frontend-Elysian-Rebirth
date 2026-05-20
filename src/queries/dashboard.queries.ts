@@ -6,6 +6,9 @@
  * Presentation components never call these directly.
  */
 import { useQuery } from '@tanstack/react-query';
+import { http } from '@/lib/http';
+import { fetchWorkflows } from '@/services/workflow.service';
+import { useTenant } from '@/contexts/TenantContext';
 
 // ── Stats (Zone A — KPI Metric Cards) ──
 
@@ -15,7 +18,6 @@ export interface DashboardStats {
     errorRate: number;
     successRate: number;
     growth: number;
-    // Delta fields for comparison
     previousDocs?: number;
     previousApiCalls?: number;
     activePipelines?: number;
@@ -23,18 +25,17 @@ export interface DashboardStats {
 }
 
 export function useDashboardStats() {
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
     return useQuery({
-        queryKey: ['dashboard', 'stats'],
+        queryKey: ['dashboard', tenantId, 'stats'],
         queryFn: async () => {
-            return {
-                docs: 1284,
-                apiCalls: 48200,
-                errorRate: 0.08,
-                successRate: 99.92,
-                growth: 24,
-            } as DashboardStats;
+            const res = await http.get<{ status: string; data: DashboardStats }>('/api/v1/dashboard/stats');
+            return res.data;
         },
         staleTime: 30_000,
+        enabled: !!tenantId,
     });
 }
 
@@ -47,20 +48,17 @@ export interface ChartDataPoint {
 }
 
 export function useChartData() {
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
     return useQuery({
-        queryKey: ['dashboard', 'chart'],
+        queryKey: ['dashboard', tenantId, 'chart'],
         queryFn: async () => {
-            return [
-                { day: "Mon", tokens: 1200 },
-                { day: "Tue", tokens: 3500 },
-                { day: "Wed", tokens: 2100 },
-                { day: "Thu", tokens: 4800 },
-                { day: "Fri", tokens: 3800 },
-                { day: "Sat", tokens: 1500 },
-                { day: "Sun", tokens: 900 },
-            ] as ChartDataPoint[];
+            const res = await http.get<{ status: string; data: ChartDataPoint[] }>('/api/v1/dashboard/charts');
+            return res.data || [];
         },
         staleTime: 30_000,
+        enabled: !!tenantId,
     });
 }
 
@@ -76,15 +74,25 @@ export interface ActivityItem {
 }
 
 export function useActivityFeed() {
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
     return useQuery({
-        queryKey: ['dashboard', 'activity'],
+        queryKey: ['dashboard', tenantId, 'activity'],
         queryFn: async () => {
-            return [
-                { id: '1', type: 'pipeline', title: 'Knowledge Sync', description: 'Indexed 15 new documents from Google Drive.', timestamp: '10 mins ago', status: 'completed' },
-                { id: '2', type: 'system', title: 'System Upgrade', description: 'Core LLM models updated to v2.4.', timestamp: '1 hour ago', status: 'completed' },
-            ] as ActivityItem[];
+            const res = await http.get<{ status: string; data: any[] }>('/api/v1/activity?limit=20');
+            const items = res.data || [];
+            return items.map((item) => ({
+                id: item.id || item.ID || String(Math.random()),
+                type: item.type || 'system',
+                title: item.title || item.Title || 'System Activity',
+                description: item.description || item.Description || '',
+                timestamp: item.timestamp || item.CreatedAt || new Date().toISOString(),
+                status: item.status || 'completed',
+            }));
         },
         staleTime: 30_000,
+        enabled: !!tenantId,
     });
 }
 
@@ -99,15 +107,22 @@ export interface Pipeline {
 }
 
 export function useActivePipelines() {
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
     return useQuery({
-        queryKey: ['dashboard', 'pipelines'],
+        queryKey: ['dashboard', tenantId, 'pipelines'],
         queryFn: async () => {
-            return [
-                { id: '1', name: 'Invoice Processing', status: 'active', lastRun: '2 mins ago', accuracy: '99.8%' },
-                { id: '2', name: 'Contract Summary', status: 'active', lastRun: '15 mins ago', accuracy: '98.5%' },
-                { id: '3', name: 'Customer Support Bot', status: 'paused', lastRun: '1 hour ago', accuracy: '94.2%' },
-            ] as Pipeline[];
+            const workflows = await fetchWorkflows();
+            return workflows.map(wf => ({
+                id: wf.id,
+                name: wf.name,
+                status: wf.status === 'active' || wf.status === 'processing' ? 'active' as const : 'paused' as const,
+                lastRun: wf.lastRun || 'Never',
+                accuracy: '99.5%',
+            }));
         },
         staleTime: 30_000,
+        enabled: !!tenantId,
     });
 }

@@ -9,11 +9,13 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, Key, Smartphone, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useUpdatePassword } from '@/queries/user.queries';
 
 export default function SecurityPage() {
     const router = useRouter();
     const { logout } = useUserStore();
     const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
+    const updatePasswordMutation = useUpdatePassword();
 
     const handleChange = (field: string, value: string) => {
         setPasswords(prev => ({ ...prev, [field]: value }));
@@ -32,17 +34,19 @@ export default function SecurityPage() {
             return;
         }
 
-        // Simulate API Call
-        toast.success("Password Berhasil Diubah", {
-            description: "Silakan login kembali dengan password baru.",
+        updatePasswordMutation.mutate({
+            old_password: passwords.current,
+            new_password: passwords.new,
+        }, {
+            onSuccess: () => {
+                // Clear session logic
+                setTimeout(() => {
+                    logout();
+                    toast.info("Logging out...");
+                    router.push('/login');
+                }, 2000);
+            }
         });
-
-        // Clear session logic
-        setTimeout(() => {
-            logout();
-            toast.info("Logging out...");
-            router.push('/login');
-        }, 2000);
     };
 
     return (
@@ -104,8 +108,12 @@ export default function SecurityPage() {
                             </div>
 
                             <div className="pt-2">
-                                <Button type="submit" className="h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-500/20">
-                                    Update Password
+                                <Button 
+                                    type="submit" 
+                                    disabled={updatePasswordMutation.isPending}
+                                    className="h-10 px-6 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-500/20"
+                                >
+                                    {updatePasswordMutation.isPending ? "Updating..." : "Update Password"}
                                 </Button>
                             </div>
                         </form>

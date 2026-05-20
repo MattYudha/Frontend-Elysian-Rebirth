@@ -5,12 +5,13 @@ export interface User {
     name: string;
     email: string;
     avatar?: string;
-    roles: string[];
+    role: string;
     tenantId?: string;
 }
 
 export interface AuthState {
     user: User | null;
+    activeTenantId: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
     provider?: AuthProvider;

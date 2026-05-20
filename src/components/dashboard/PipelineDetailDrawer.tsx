@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { useQuery } from "@tanstack/react-query"
 import { fetchWorkflowById, workflowKeys } from "@/queries/workflow.queries"
 import { cn } from "@/lib/utils"
+import { useTenant } from "@/contexts/TenantContext"
 
 interface PipelineDetailDrawerProps {
     pipelineId: string | null
@@ -35,12 +36,14 @@ const statusColors = {
 }
 
 export function PipelineDetailDrawer({ pipelineId, isOpen, onClose }: PipelineDetailDrawerProps) {
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
 
     // Internal Fetching - Drawer owns its data requests
     const { data: pipeline, isLoading, isError } = useQuery({
-        queryKey: workflowKeys.detail(pipelineId!),
+        queryKey: workflowKeys.detail(tenantId, pipelineId!),
         queryFn: () => fetchWorkflowById(pipelineId!),
-        enabled: !!pipelineId && isOpen,
+        enabled: !!pipelineId && isOpen && !!tenantId,
     })
 
     // Prevent background scrolling when open

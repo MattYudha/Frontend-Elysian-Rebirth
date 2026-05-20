@@ -7,12 +7,19 @@ import { User, Lock, Bell, Palette, ChevronLeft, Settings, Users, ShieldCheck, A
 import { cn } from '@/lib/utils';
 import { buttonVariants, Button } from '@/components/ui/button';
 import { useSettingsUiStore } from '@/store/ui/settingsStore';
+import { useAuthStore } from '@/store/authStore';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 import { Sidebar } from '@/components/Sidebar';
 import { DashboardNavbar } from '@/components/DashboardNavbar';
 import { ElysianGrid } from '@/components/backgrounds/ElysianGrid';
 import { SafeLink } from '@/components/navigation/SafeLink';
+
+const ADMIN_ONLY_ROUTES = [
+    '/settings/workspace/identity',
+    '/settings/workspace/billing',
+    '/settings/workspace/import',
+];
 
 const sidebarGroups = [
     {
@@ -47,6 +54,22 @@ const sidebarGroups = [
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
+    const user = useAuthStore((s) => s.user);
+    const userRole = user?.role || 'member';
+
+    // Filter sidebar groups based on role
+    const filteredSidebarGroups = sidebarGroups.map(group => ({
+        ...group,
+        items: group.items.filter(item => {
+            if (ADMIN_ONLY_ROUTES.includes(item.href)) {
+                return userRole === 'admin';
+            }
+            return true;
+        })
+    }));
+
+    const isRestricted = ADMIN_ONLY_ROUTES.some(r => pathname.includes(r));
+    const isForbidden = isRestricted && userRole !== 'admin';
 
     // Check if ANY form is dirty across the entire settings schema
     const isAnyDirty = useSettingsUiStore((s) => s.isAnyDirty());
@@ -124,7 +147,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                         <div className="hidden md:block h-14 lg:h-20" />
 
                         <nav className="flex flex-col md:flex-1 md:overflow-y-auto px-4 md:px-0 md:pb-8 gap-4 md:gap-6 scrollbar-hide shrink-0 w-full mt-4 md:mt-0">
-                            {sidebarGroups.map((group) => (
+                            {filteredSidebarGroups.map((group) => (
                                 <div key={group.label} className="flex flex-col gap-2 md:gap-1 shrink-0 pb-4 md:pb-0 w-full">
                                     <h4 className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 px-3">
                                         {group.label}
@@ -209,7 +232,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                                         <SheetTitle className="text-lg font-semibold text-slate-900 dark:text-white">Settings</SheetTitle>
                                     </SheetHeader>
                                     <nav className="flex-1 overflow-y-auto p-4 gap-6 flex flex-col scrollbar-hide">
-                                        {sidebarGroups.map((group) => (
+                                        {filteredSidebarGroups.map((group) => (
                                             <div key={group.label} className="flex flex-col gap-1 shrink-0">
                                                 <h4 className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 px-3">
                                                     {group.label}
@@ -255,7 +278,17 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
 
                         <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 lg:p-12 scrollbar-hide pb-safe mt-safe md:mt-0">
                             <div className="max-w-[800px] w-full mx-auto md:mx-0 min-h-full">
-                                {children}
+                                {isForbidden ? (
+                                    <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200/50 dark:border-slate-800/50">
+                                        <ShieldCheck className="h-16 w-16 text-red-500 mb-4 animate-pulse" />
+                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">403 Forbidden</h3>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
+                                            Halaman ini memerlukan hak akses Administrator. Hubungi admin workspace Anda untuk informasi lebih lanjut.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    children
+                                )}
                             </div>
                         </div>
                     </main>

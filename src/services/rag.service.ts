@@ -101,6 +101,7 @@ function uploadToS3(
 async function confirmUpload(
     title: string,
     objectKey: string,
+    category: string,
     authToken: string,
     tenantId: string,
 ): Promise<string> {
@@ -111,7 +112,7 @@ async function confirmUpload(
             Authorization: `Bearer ${authToken}`,
             'X-Tenant-ID': tenantId,
         },
-        body: JSON.stringify({ title, object_key: objectKey }),
+        body: JSON.stringify({ title, object_key: objectKey, category }),
     });
     if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -126,12 +127,13 @@ async function confirmUpload(
  * Progress is reported via the onProgress callback.
  *
  * @example
- * await ragService.uploadDocument(file, token, tenantId, (p) => {
+ * await ragService.uploadDocument(file, 'general', token, tenantId, (p) => {
  *   console.log(p.phase, p.percent);
  * });
  */
 export async function uploadDocument(
     file: File,
+    category: string,
     authToken: string,
     tenantId: string,
     onProgress?: ProgressCallback,
@@ -151,7 +153,7 @@ export async function uploadDocument(
 
         // Phase 3: Confirm to backend (triggers Asynq vectorization)
         report({ phase: 'confirming', percent: 90 });
-        const documentId = await confirmUpload(file.name, object_key, authToken, tenantId);
+        const documentId = await confirmUpload(file.name, object_key, category, authToken, tenantId);
 
         report({ phase: 'done', percent: 100, documentId });
         return documentId;

@@ -1,12 +1,7 @@
 /**
  * src/services/chat.service.ts
  *
- * Chat Service Layer
- * Responsibilities:
- * - Direct API calls for chat/conversations
- * - Type definitions for API responses
- * - Error throwing (no swallowing)
- * - No React hooks or state
+ * Chat Service Layer - Integrated with backend database
  */
 
 import { http } from '@/lib/http';
@@ -29,51 +24,81 @@ export interface ChatMessage {
 }
 
 export interface SendMessagePayload {
-    conversationId?: string;
+    conversationId: string;
     content: string;
-    mode?: 'agent' | 'planning' | 'images' | 'workflow';
+}
+
+function mapBackendSession(session: any): Conversation {
+    return {
+        id: session.id,
+        title: session.title,
+        createdAt: session.created_at,
+        updatedAt: session.created_at,
+        messageCount: 0,
+    };
+}
+
+function mapBackendMessage(msg: any): ChatMessage {
+    return {
+        id: msg.id,
+        role: msg.sender_role === 'model' ? 'assistant' : 'user',
+        content: msg.message_content,
+        timestamp: msg.created_at,
+        conversationId: msg.session_id,
+    };
 }
 
 /**
- * Fetch all conversations
- * Endpoint: GET /api/v1/conversations
+ * Fetch all conversations (chat sessions)
+ * Endpoint: GET /api/v1/chat/sessions
  */
 export async function fetchConversations(): Promise<Conversation[]> {
-    const response = await http.get<{ status: string; data: Conversation[] }>('/api/v1/conversations');
-    return response.data;
+    const response = await http.get<{ status: string; data: any[] }>('/api/v1/chat/sessions');
+    const sessions = response.data || [];
+    return sessions.map(mapBackendSession);
 }
 
 /**
- * Fetch messages for a conversation
- * Endpoint: GET /api/v1/conversations/:id/messages
+ * Fetch messages for a conversation session
+ * Endpoint: GET /api/v1/chat/sessions/:id/messages
  */
 export async function fetchMessages(conversationId: string): Promise<ChatMessage[]> {
-    const response = await http.get<{ status: string; data: ChatMessage[] }>(
-        `/api/v1/conversations/${conversationId}/messages`
+    const response = await http.get<{ status: string; data: any[] }>(
+        `/api/v1/chat/sessions/${conversationId}/messages`
     );
-    return response.data;
+    const messages = response.data || [];
+    return messages.map(mapBackendMessage);
 }
 
 /**
- * Send a message
- * Endpoint: POST /api/v1/chat/send
+ * Send a message to a session and trigger LLM generation
+ * Endpoint: POST /api/v1/chat/sessions/:id/messages
  */
 export async function sendMessage(payload: SendMessagePayload): Promise<ChatMessage> {
-    const response = await http.post<{ status: string; data: ChatMessage }>(
-        '/api/v1/chat/send',
-        payload
+    const response = await http.post<{ status: string; data: any }>(
+        `/api/v1/chat/sessions/${payload.conversationId}/messages`,
+        { message: payload.content }
     );
-    return response.data;
+    return mapBackendMessage(response.data);
 }
 
 /**
- * Create a new conversation
- * Endpoint: POST /api/v1/conversations
+ * Create a new conversation session
+ * Endpoint: POST /api/v1/chat/sessions
  */
 export async function createConversation(title?: string): Promise<Conversation> {
-    const response = await http.post<{ status: string; data: Conversation }>(
-        '/api/v1/conversations',
-        { title: title || 'New Conversation' }
+    const response = await http.post<{ status: string; data: any }>(
+        '/api/v1/chat/sessions',
+        { title: title || 'New Chat Session' }
     );
-    return response.data;
+    return mapBackendSession(response.data);
 }
+
+/**
+ * Delete a conversation session
+ * Endpoint: DELETE /api/v1/chat/sessions/:id
+ */
+export async function deleteConversation(conversationId: string): Promise<void> {
+    await http.delete(`/api/v1/chat/sessions/${conversationId}`);
+}
+export { deleteConversation as deleteSession };

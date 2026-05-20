@@ -40,6 +40,12 @@ class HttpClient {
                     config.headers['Authorization'] = `Bearer ${token}`;
                 }
 
+                // Inject X-Tenant-ID header from cookie
+                const tenantId = getCookie('tenant_id');
+                if (tenantId) {
+                    config.headers['X-Tenant-ID'] = tenantId;
+                }
+
                 // Inject CSRF mitigation for destructive/mutation endpoints
                 if (method && ['post', 'put', 'patch', 'delete'].includes(method)) {
                     const csrfToken = getCookie('XSRF-TOKEN') || getCookie('csrf_token');
@@ -62,16 +68,20 @@ class HttpClient {
             (error) => {
                 const status = error.response?.status;
 
-                // The Global 401 Interceptor: Kills Zombie Sessions
-                if (status === 401) {
+                // The Global 401/403 Interceptor: Kills Zombie Sessions / Invalid Tenants
+                if (status === 401 || status === 403) {
                     if (typeof window !== 'undefined') {
                         // 1. Force state synchronization (delete from memory)
                         useAuthStore.getState().logout();
 
                         // 2. Prevent infinite loops by checking route
                         const path = window.location.pathname;
-                        if (!path.includes('/login') && !path.includes('/register') && !path.includes('/callback')) {
-                            window.location.href = '/login?session_expired=true';
+                        if (!path.includes('/login') && !path.includes('/register') && !path.includes('/callback') && !path.includes('/403')) {
+                            if (status === 403) {
+                                window.location.href = '/403';
+                            } else {
+                                window.location.href = '/login?session_expired=true';
+                            }
                         }
                     }
                 }

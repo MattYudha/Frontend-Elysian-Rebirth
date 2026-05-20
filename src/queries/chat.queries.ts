@@ -15,16 +15,18 @@ import {
     fetchMessages,
     sendMessage,
     createConversation,
+    deleteConversation,
     type SendMessagePayload,
     type ChatMessage,
 } from '@/services/chat.service';
 import { toast } from 'sonner';
+import { useTenant } from '@/contexts/TenantContext';
 
 // Enterprise Query Key Factory
 export const chatKeys = {
     all: ['chat'] as const,
-    conversations: () => [...chatKeys.all, 'conversations'] as const,
-    messages: (conversationId: string) => [...chatKeys.all, 'messages', conversationId] as const,
+    conversations: (tenantId: string) => [...chatKeys.all, tenantId, 'conversations'] as const,
+    messages: (tenantId: string, conversationId: string) => [...chatKeys.all, tenantId, 'messages', conversationId] as const,
 };
 
 /**
@@ -32,11 +34,15 @@ export const chatKeys = {
  * Policy: staleTime 30s, refetchOnWindowFocus
  */
 export function useConversations() {
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
     return useQuery({
-        queryKey: chatKeys.conversations(),
+        queryKey: chatKeys.conversations(tenantId),
         queryFn: fetchConversations,
         staleTime: 30_000,
         refetchOnWindowFocus: true,
+        enabled: !!tenantId,
     });
 }
 
@@ -45,10 +51,13 @@ export function useConversations() {
  * Policy: staleTime 10s (messages change frequently during active chat)
  */
 export function useMessages(conversationId: string | null) {
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
     return useQuery({
-        queryKey: chatKeys.messages(conversationId!),
+        queryKey: chatKeys.messages(tenantId, conversationId!),
         queryFn: () => fetchMessages(conversationId!),
-        enabled: !!conversationId,
+        enabled: !!conversationId && !!tenantId,
         staleTime: 10_000,
     });
 }
@@ -58,6 +67,8 @@ export function useMessages(conversationId: string | null) {
  */
 export function useSendMessage() {
     const queryClient = useQueryClient();
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
 
     return useMutation({
         mutationFn: (payload: SendMessagePayload) => sendMessage(payload),
@@ -65,7 +76,7 @@ export function useSendMessage() {
             // Cancel outgoing refetches
             if (payload.conversationId) {
                 await queryClient.cancelQueries({
-                    queryKey: chatKeys.messages(payload.conversationId),
+                    queryKey: chatKeys.messages(tenantId, payload.conversationId),
                 });
             }
 
@@ -80,10 +91,10 @@ export function useSendMessage() {
 
             if (payload.conversationId) {
                 const previousMessages = queryClient.getQueryData<ChatMessage[]>(
-                    chatKeys.messages(payload.conversationId)
+                    chatKeys.messages(tenantId, payload.conversationId)
                 );
                 queryClient.setQueryData<ChatMessage[]>(
-                    chatKeys.messages(payload.conversationId),
+                    chatKeys.messages(tenantId, payload.conversationId),
                     (old = []) => [...old, optimisticMessage]
                 );
                 return { previousMessages, conversationId: payload.conversationId };
@@ -95,7 +106,7 @@ export function useSendMessage() {
             // Rollback optimistic update
             if (context?.previousMessages && context.conversationId) {
                 queryClient.setQueryData(
-                    chatKeys.messages(context.conversationId),
+                    chatKeys.messages(tenantId, context.conversationId),
                     context.previousMessages
                 );
             }
@@ -105,11 +116,11 @@ export function useSendMessage() {
             // Invalidate to get server-confirmed data
             if (payload.conversationId) {
                 queryClient.invalidateQueries({
-                    queryKey: chatKeys.messages(payload.conversationId),
+                    queryKey: chatKeys.messages(tenantId, payload.conversationId),
                 });
             }
             // Refresh conversations list (new message updates lastMessage)
-            queryClient.invalidateQueries({ queryKey: chatKeys.conversations() });
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations(tenantId) });
         },
     });
 }
@@ -119,11 +130,26 @@ export function useSendMessage() {
  */
 export function useCreateConversation() {
     const queryClient = useQueryClient();
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
 
     return useMutation({
         mutationFn: (title?: string) => createConversation(title),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: chatKeys.conversations() });
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations(tenantId) });
+        },
+    });
+}
+
+export function useDeleteConversation() {
+    const queryClient = useQueryClient();
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
+    return useMutation({
+        mutationFn: (conversationId: string) => deleteConversation(conversationId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: chatKeys.conversations(tenantId) });
         },
     });
 }

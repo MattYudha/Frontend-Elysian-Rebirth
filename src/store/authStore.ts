@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { User } from '@/lib/sdk/schemas/auth.schema';
+import { clearQueryCache } from '@/components/providers/QueryProvider';
 
 interface AuthState {
     user: Pick<User, 'id' | 'name' | 'email' | 'avatar' | 'role'> | null;
@@ -20,7 +21,10 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             isLoadingSession: true, // Default true while checking HttpOnly cookie via /me
             login: (user, accessToken) => set({ user, accessToken: accessToken || null, isAuthenticated: true, isLoadingSession: false }),
-            logout: () => set({ user: null, accessToken: null, isAuthenticated: false, isLoadingSession: false }),
+            logout: () => {
+                set({ user: null, accessToken: null, isAuthenticated: false, isLoadingSession: false });
+                clearQueryCache();
+            },
             setLoadingSession: (isLoadingSession) => set({ isLoadingSession }),
         }),
         {

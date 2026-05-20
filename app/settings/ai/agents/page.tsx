@@ -3,25 +3,18 @@
 import { Button } from '@/components/ui/button';
 import {
     Bot, CheckCircle2, FileEdit, ShieldCheck, Zap,
-    Plus, MessageSquare, Briefcase, UserCog
+    Plus, MessageSquare, Briefcase, UserCog, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQueryState } from 'nuqs';
 import { AgentConfigSlideOver } from '@/components/settings/ai/AgentConfigSlideOver';
 import { Suspense } from 'react';
+import { useAgents, useCreateAgent } from '@/queries/agent.queries';
 
 function AgentsContent() {
     const [, setAgentId] = useQueryState('agent');
-
-    const activeAgents = [
-        {
-            id: "dart-ai",
-            name: "Dart AI",
-            status: "Active",
-            description: "Plan, manage, and build any task or project with the full context of your workspace.",
-            icon: Bot,
-        }
-    ];
+    const { data: dbAgents = [], isLoading } = useAgents();
+    const createMutation = useCreateAgent();
 
     const capabilityHighlights = [
         { id: "planning", label: "Plan work and break it into tasks with clear owners.", icon: CheckCircle2 },
@@ -30,6 +23,19 @@ function AgentsContent() {
         { id: "automation", label: "Run checks and workflows with approval guardrails.", icon: Zap },
     ];
 
+    const handleCreateCustomAgent = () => {
+        createMutation.mutate({
+            name: "Custom Agent " + (dbAgents.length + 1),
+            description: "A custom specialist to automate tasks and run checks inside the workspace.",
+            model_used: "gemini-1.5-flash",
+            status: "active",
+        }, {
+            onSuccess: (newAgent) => {
+                setAgentId(newAgent.id);
+            }
+        });
+    };
+
     const moreAgents = [
         {
             id: "create",
@@ -37,6 +43,7 @@ function AgentsContent() {
             description: "Design a specialist with your tools, rules, and API connections.",
             icon: Plus,
             variant: "create",
+            onClick: handleCreateCustomAgent,
         },
         {
             id: "spec-writer",
@@ -78,7 +85,7 @@ function AgentsContent() {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white">AI Agents</h3>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white">AI Agents Teammates</h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     Create specialized AI teammates to plan, write, review, and ship work alongside you.
                 </p>
@@ -93,56 +100,73 @@ function AgentsContent() {
                     <Button variant="outline" size="sm" className="hidden sm:flex">Manage agents</Button>
                 </div>
 
-                {activeAgents.map(agent => {
-                    const Icon = agent.icon;
-                    return (
-                        <div key={agent.id} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-5">
-                            <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-4">
-                                <div className="flex items-start gap-4">
-                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100/50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                                        <Icon className="h-6 w-6" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <div className="flex flex-wrap items-center gap-2">
-                                            <span className="text-base font-semibold text-slate-900 dark:text-white">{agent.name}</span>
-                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-                                                {agent.status}
-                                            </span>
+                {isLoading ? (
+                    <div className="text-sm text-slate-500 py-4 flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                        <span>Loading team agents...</span>
+                    </div>
+                ) : dbAgents.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/20 p-8 text-center space-y-4">
+                        <p className="text-sm text-slate-500">No active agents in this workspace yet.</p>
+                        <Button 
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={handleCreateCustomAgent}
+                            disabled={createMutation.isPending}
+                        >
+                            <Plus className="h-4 w-4 mr-1" /> Seed Default Agent
+                        </Button>
+                    </div>
+                ) : (
+                    dbAgents.map(agent => {
+                        return (
+                            <div key={agent.id} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-5">
+                                <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-4">
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100/50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                                            <Bot className="h-6 w-6" />
                                         </div>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">
-                                            {agent.description}
-                                        </p>
+                                        <div className="space-y-2">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className="text-base font-semibold text-slate-900 dark:text-white">{agent.name}</span>
+                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+                                                    {agent.status || "active"}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">
+                                                {agent.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                                        <Button variant="outline" size="sm" className="flex-1 sm:flex-none">View activity</Button>
+                                        <Button
+                                            size="sm"
+                                            className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
+                                            onClick={() => setAgentId(agent.id)}
+                                        >
+                                            Open agent
+                                        </Button>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 w-full sm:w-auto">
-                                    <Button variant="outline" size="sm" className="flex-1 sm:flex-none">View activity</Button>
-                                    <Button
-                                        size="sm"
-                                        className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
-                                        onClick={() => setAgentId(agent.id)}
-                                    >
-                                        Open agent
-                                    </Button>
-                                </div>
-                            </div>
 
-                            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                                {capabilityHighlights.map((cap) => {
-                                    const CapIcon = cap.icon;
-                                    return (
-                                        <div key={cap.id} className="flex items-start gap-3 rounded-xl border border-slate-200/60 dark:border-slate-800/60 bg-white dark:bg-[#0B1120] px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
-                                            <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-                                                <CapIcon className="h-3.5 w-3.5" />
-                                            </span>
-                                            <span className="leading-snug">{cap.label}</span>
-                                        </div>
-                                    );
-                                })}
+                                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                                    {capabilityHighlights.map((cap) => {
+                                        const CapIcon = cap.icon;
+                                        return (
+                                            <div key={cap.id} className="flex items-start gap-3 rounded-xl border border-slate-200/60 dark:border-slate-800/60 bg-white dark:bg-[#0B1120] px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
+                                                <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                                                    <CapIcon className="h-3.5 w-3.5" />
+                                                </span>
+                                                <span className="leading-snug">{cap.label}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })
+                )}
             </div>
 
             {/* More Agents */}
@@ -160,6 +184,8 @@ function AgentsContent() {
                         return (
                             <button
                                 key={agent.id}
+                                onClick={agent.onClick}
+                                disabled={isCreate && createMutation.isPending}
                                 className={cn(
                                     "flex flex-col gap-3 rounded-2xl border px-5 py-5 text-left transition-all duration-200 group h-full",
                                     isCreate
@@ -173,7 +199,11 @@ function AgentsContent() {
                                         ? "bg-blue-600 text-white"
                                         : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400"
                                 )}>
-                                    <AgentIcon className="h-5 w-5" />
+                                    {isCreate && createMutation.isPending ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    ) : (
+                                        <AgentIcon className="h-5 w-5" />
+                                    )}
                                 </span>
                                 <div className="space-y-1.5 mt-2">
                                     <h5 className="text-sm font-semibold text-slate-900 dark:text-white">{agent.title}</h5>

@@ -82,7 +82,7 @@ export function AgentNode({ id, data, selected }: NodeProps<AgentNodeData>) {
                     {data.objective && (
                         <div className="bg-slate-50 dark:bg-slate-800/40 rounded-md p-2.5 border border-slate-100 dark:border-slate-700/50">
                             <p className="text-[10px] text-slate-600 dark:text-slate-300 line-clamp-2 font-mono leading-relaxed">
-                                "{data.objective}"
+                                &ldquo;{data.objective}&rdquo;
                             </p>
                         </div>
                     )}

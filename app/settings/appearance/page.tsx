@@ -7,15 +7,30 @@ import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useUserPreferences, useUpdateUserPreferences } from '@/queries/user.queries';
 
 export default function AppearancePage() {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const router = useRouter();
+    
+    const { data: serverPrefs } = useUserPreferences();
+    const updatePrefsMutation = useUpdateUserPreferences();
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    useEffect(() => {
+        if (mounted && serverPrefs?.theme && serverPrefs.theme !== theme) {
+            setTheme(serverPrefs.theme);
+        }
+    }, [mounted, serverPrefs, theme, setTheme]);
+
+    const handleSetTheme = (newTheme: string) => {
+        setTheme(newTheme);
+        updatePrefsMutation.mutate({ theme: newTheme });
+    };
 
     if (!mounted) return null;
 
@@ -47,7 +62,7 @@ export default function AppearancePage() {
 
                         {/* Light Mode Card */}
                         <div
-                            onClick={() => setTheme('light')}
+                            onClick={() => handleSetTheme('light')}
                             className="group relative cursor-pointer"
                         >
                             <div className={cn(
@@ -85,7 +100,7 @@ export default function AppearancePage() {
 
                         {/* Dark Mode Card */}
                         <div
-                            onClick={() => setTheme('dark')}
+                            onClick={() => handleSetTheme('dark')}
                             className="group relative cursor-pointer"
                         >
                             <div className={cn(
@@ -123,7 +138,7 @@ export default function AppearancePage() {
 
                         {/* System Mode Card */}
                         <div
-                            onClick={() => setTheme('system')}
+                            onClick={() => handleSetTheme('system')}
                             className="group relative cursor-pointer"
                         >
                             <div className={cn(
@@ -179,7 +194,7 @@ export default function AppearancePage() {
                         <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
                             <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
                             <p className="text-xs text-blue-900 dark:text-blue-100 font-medium leading-relaxed">
-                                Changes will apply to this device only. Your other sessions will remain unchanged.
+                                Changes will apply to this device only and sync to your user account profile preferences.
                             </p>
                         </div>
                     </div>
