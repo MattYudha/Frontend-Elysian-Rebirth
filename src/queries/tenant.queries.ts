@@ -7,6 +7,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchTenants, fetchTenantById } from '@/services/tenant.service';
+import { useAuthStore } from '@/store/authStore';
 
 export const tenantKeys = {
     all: ['tenants'] as const,
@@ -19,11 +20,15 @@ export const tenantKeys = {
  * Policy: Infinity staleTime — tenant data is effectively static within a session
  */
 export function useTenants() {
+    const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+    const isLoadingSession = useAuthStore(state => state.isLoadingSession);
+
     return useQuery({
         queryKey: tenantKeys.list(),
         queryFn: fetchTenants,
         staleTime: Infinity,   // Never refetch during session
         gcTime: Infinity,      // Keep in cache for entire session lifetime
+        enabled: isAuthenticated && !isLoadingSession,
         retry: (failureCount, error: unknown) => {
             // Never retry on auth errors — prevents the 401 loop
             const axiosError = error as { response?: { status?: number } };

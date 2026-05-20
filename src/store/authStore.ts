@@ -20,7 +20,10 @@ export const useAuthStore = create<AuthState>()(
             accessToken: null,
             isAuthenticated: false,
             isLoadingSession: true, // Default true while checking HttpOnly cookie via /me
-            login: (user, accessToken) => set({ user, accessToken: accessToken || null, isAuthenticated: true, isLoadingSession: false }),
+            login: (user, accessToken) => {
+                set({ user, accessToken: accessToken || null, isAuthenticated: true, isLoadingSession: false });
+                clearQueryCache();
+            },
             logout: () => {
                 set({ user: null, accessToken: null, isAuthenticated: false, isLoadingSession: false });
                 clearQueryCache();
