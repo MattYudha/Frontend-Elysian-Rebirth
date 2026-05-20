@@ -13,6 +13,9 @@ import {
 import { WorkflowState, WorkflowMeta, ExecutionState, UIState, WorkflowNodeData, NodeStatus } from './types';
 import { executeWorkflow, getExecution } from '@/services/workflow.service';
 import { toast } from 'sonner';
+import { createEncryptedIdbStorage } from '@/lib/storage-engine';
+
+const STORAGE_SECRET = process.env.NEXT_PUBLIC_STORAGE_KEY ?? 'DEV_ONLY_STATIC_KEY';
 
 
 // Initial State
@@ -63,37 +66,50 @@ export const useWorkflowStore = create<WorkflowState>()(
             // Layer 3: Execution
             execution: initialExecution,
 
+            // OCC and Auto-save flags
+            isDirty: false,
+            serverVersion: '',
+
             // --- Actions ---
 
-            setNodes: (nodes) => set({ nodes }),
-            setEdges: (edges) => set({ edges }),
+            setNodes: (nodes) => set({ nodes, isDirty: true }),
+            setEdges: (edges) => set({ edges, isDirty: true }),
 
             onNodesChange: (changes: NodeChange[]) => {
-                // When nodes change (dragged, selected), we update state.
+                const hasStructuralChange = changes.some(
+                    (c) => c.type === 'position' || c.type === 'remove' || c.type === 'add'
+                );
                 set({
                     nodes: applyNodeChanges(changes, get().nodes),
-                    meta: { ...get().meta, status: 'draft' } // Mark as draft on change
+                    meta: hasStructuralChange ? { ...get().meta, status: 'draft' } : get().meta,
+                    isDirty: get().isDirty || hasStructuralChange
                 });
             },
 
             onEdgesChange: (changes: EdgeChange[]) => {
+                const hasStructuralChange = changes.some(
+                    (c) => c.type === 'remove' || c.type === 'add' || c.type === 'reset'
+                );
                 set({
                     edges: applyEdgeChanges(changes, get().edges),
-                    meta: { ...get().meta, status: 'draft' }
+                    meta: hasStructuralChange ? { ...get().meta, status: 'draft' } : get().meta,
+                    isDirty: get().isDirty || hasStructuralChange
                 });
             },
 
             onConnect: (connection: Connection) => {
                 set({
                     edges: addEdge(connection, get().edges),
-                    meta: { ...get().meta, status: 'draft' }
+                    meta: { ...get().meta, status: 'draft' },
+                    isDirty: true
                 });
             },
 
             addNode: (node: Node<WorkflowNodeData>) => {
                 set({
                     nodes: [...get().nodes, node],
-                    meta: { ...get().meta, status: 'draft' }
+                    meta: { ...get().meta, status: 'draft' },
+                    isDirty: true
                 });
             },
 
@@ -154,7 +170,8 @@ export const useWorkflowStore = create<WorkflowState>()(
                         }
                         return node;
                     }),
-                    meta: { ...get().meta, status: 'draft' }
+                    meta: { ...get().meta, status: 'draft' },
+                    isDirty: true
                 });
             },
 
@@ -467,6 +484,45 @@ export const useWorkflowStore = create<WorkflowState>()(
                 });
             },
 
+            setDirty: (dirty) => set({ isDirty: dirty }),
+
+            setFromServer: (nodes, edges, version) => {
+                set({
+                    nodes,
+                    edges,
+                    isDirty: false,
+                    serverVersion: version,
+                    meta: {
+                        ...get().meta,
+                        version: version || '1.0.0',
+                        status: get().meta.status === 'published' ? 'published' : 'draft',
+                    }
+                });
+            },
+
+            resetWorkflow: () => {
+                set({
+                    nodes: initialNodes,
+                    edges: [],
+                    isDirty: false,
+                    serverVersion: '',
+                    meta: initialMeta,
+                    execution: initialExecution,
+                    ui: initialUI
+                });
+            },
+
+            setWorkflowId: (id) => {
+                if (id) {
+                    set({
+                        meta: {
+                            ...get().meta,
+                            workflowId: id
+                        }
+                    });
+                }
+            },
+
             // Computed Getters (Mocking them as properties for now, ideally strictly typed getters)
             get selectedNode() {
                 const state = get();
@@ -475,12 +531,16 @@ export const useWorkflowStore = create<WorkflowState>()(
         }),
         {
             name: 'elysian-workflow-storage',
-            storage: createJSONStorage(() => localStorage),
+            storage: createEncryptedIdbStorage<WorkflowState>({
+                key: 'elysian-workflow',
+                secret: STORAGE_SECRET,
+            }),
             partialize: (state) => ({
                 nodes: state.nodes,
                 edges: state.edges,
-                meta: state.meta
-            }),
+                meta: state.meta,
+                serverVersion: state.serverVersion,
+            }) as unknown as WorkflowState,
         }
     )
 );

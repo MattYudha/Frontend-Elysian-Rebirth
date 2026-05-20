@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Canvas } from './Canvas';
 import { Sidebar } from './Sidebar';
 import { Toolbar } from './Toolbar';
-import { useWorkflowStore } from '@/store/workflowStore';
+import { useWorkflowStore } from './store';
 import { ConfigPanel } from './ConfigPanel';
 import { ResultsPanel } from './ResultsPanel';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -141,21 +141,28 @@ function WorkflowBuilderContent() {
     const onDrop = useCallback(
         (event: React.DragEvent) => {
             event.preventDefault();
+            console.log("onDrop triggered inside WorkflowBuilder!");
 
             const type = event.dataTransfer.getData('application/reactflow/type');
             const label = event.dataTransfer.getData('application/reactflow/label');
+            console.log(`onDrop - type: ${type}, label: ${label}`);
 
             if (typeof type === 'undefined' || !type) {
+                console.warn("onDrop aborted: type is undefined or empty");
                 return;
             }
 
             const position = reactFlowWrapper.current?.getBoundingClientRect();
-            if (!position) return;
+            if (!position) {
+                console.warn("onDrop aborted: reactFlowWrapper bounds not found");
+                return;
+            }
 
             const droppedPosition = project({
                 x: event.clientX - position.left,
                 y: event.clientY - position.top,
             });
+            console.log(`onDrop - droppedPosition calculated:`, droppedPosition);
 
             const newNode = {
                 id: `${type}-${Date.now()}`,
@@ -163,6 +170,7 @@ function WorkflowBuilderContent() {
                 position: droppedPosition,
                 data: { label },
             };
+            console.log("onDrop - adding node:", newNode);
 
             addNode(newNode);
             setIsSidebarOpen(false);

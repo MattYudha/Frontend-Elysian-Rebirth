@@ -51,8 +51,16 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const currentTenant = useMemo(() => {
     const tenantId = getTenantIdFromCookie();
     const tenants = availableTenants || [];
-    if (!tenantId || tenants.length === 0) return null;
-    return (tenants.find((t) => t.id === tenantId) as Tenant) ?? (tenants[0] as Tenant) ?? null;
+    if (tenants.length === 0) return null;
+    
+    const found = tenants.find((t) => t.id === tenantId);
+    if (found) return found;
+
+    // Fallback: write cookie for the first one client-side
+    if (typeof window !== 'undefined') {
+      setTenantCookie(tenants[0].id);
+    }
+    return tenants[0];
   }, [availableTenants]);
 
   const switchTenant = useCallback((tenantId: string) => {

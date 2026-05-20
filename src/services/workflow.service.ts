@@ -20,6 +20,10 @@ export interface Workflow {
     progress?: number;
     eta?: string;
     lastUpdated?: string;
+    graph?: {
+        nodes: unknown[];
+        edges: unknown[];
+    };
     nodes?: unknown[];
     edges?: unknown[];
     version?: string;

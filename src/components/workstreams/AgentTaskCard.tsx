@@ -78,10 +78,10 @@ export function AgentTaskCard({ task, isDragging }: AgentTaskCardProps) {
                 </div>
 
                 {/* Date chip */}
-                {task.startDate && (
+                {task.startDate && !isNaN(new Date(task.startDate).getTime()) && (
                     <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 ml-auto">
                         <Calendar className="h-3 w-3" />
-                        <span>{format(task.startDate, "MMM d")}</span>
+                        <span>{format(new Date(task.startDate), "MMM d")}</span>
                     </div>
                 )}
             </div>

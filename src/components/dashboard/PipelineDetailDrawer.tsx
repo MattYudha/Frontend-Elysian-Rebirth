@@ -169,12 +169,12 @@ export function PipelineDetailDrawer({ pipelineId, isOpen, onClose }: PipelineDe
                                         <div className="rounded-xl border border-blue-100/50 bg-gradient-to-r from-blue-500/80 to-cyan-400/80 p-4 shadow-sm">
                                             <div className="flex justify-around text-center">
                                                 <div className="space-y-1">
-                                                    <p className="text-2xl font-bold text-white drop-shadow-sm">{pipeline.nodes?.length || 0}</p>
+                                                    <p className="text-2xl font-bold text-white drop-shadow-sm">{pipeline.graph?.nodes?.length ?? pipeline.nodes?.length ?? 0}</p>
                                                     <p className="text-xs font-medium text-blue-50">Total Nodes</p>
                                                 </div>
                                                 <div className="w-px bg-white/20" />
                                                 <div className="space-y-1">
-                                                    <p className="text-2xl font-bold text-white drop-shadow-sm">{pipeline.edges?.length || 0}</p>
+                                                    <p className="text-2xl font-bold text-white drop-shadow-sm">{pipeline.graph?.edges?.length ?? pipeline.edges?.length ?? 0}</p>
                                                     <p className="text-xs font-medium text-blue-50">Connections</p>
                                                 </div>
                                             </div>

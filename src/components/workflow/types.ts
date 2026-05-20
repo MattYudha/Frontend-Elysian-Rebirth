@@ -90,6 +90,10 @@ export interface WorkflowState {
     // Layer 3: Execution State (Runtime)
     execution: ExecutionState;
 
+    // OCC and Auto-save flags
+    isDirty: boolean;
+    serverVersion: string;
+
     // --- Actions ---
     // Graph Actions
     setNodes: (nodes: Node<WorkflowNodeData>[]) => void;
@@ -117,6 +121,10 @@ export interface WorkflowState {
 
     // Persistence Actions
     publishVersion: () => void;
+    setDirty: (dirty: boolean) => void;
+    setFromServer: (nodes: Node[], edges: Edge[], version: string) => void;
+    resetWorkflow: () => void;
+    setWorkflowId: (id: string | null) => void;
 
     // Computed Properties
     selectedNode: Node<WorkflowNodeData> | null;
