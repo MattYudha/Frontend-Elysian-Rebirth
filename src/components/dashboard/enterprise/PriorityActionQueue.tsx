@@ -1,8 +1,8 @@
 'use client';
 
-
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CheckCircle2, Inbox } from 'lucide-react';
 
 export interface ActionItem {
     id: string;
@@ -23,48 +23,78 @@ export function PriorityActionQueue({ actions = [], isLoading }: PriorityActionQ
         return <Skeleton className="h-64 w-full rounded-2xl" />;
     }
 
-    // Mock data if empty
-    const items = actions.length > 0 ? actions : [
-        { id: '1', title: 'Pipeline #42 Failed', description: 'Data ingestion timeout', priority: 'high', timestamp: '2m ago', type: 'pipeline' },
-        { id: '2', title: 'Token Limit Reached', description: 'Upgraded to Tier 2 automatically', priority: 'medium', timestamp: '1h ago', type: 'billing' },
-        { id: '3', title: 'System Update', description: 'Scheduled maintenance in 24h', priority: 'low', timestamp: '4h ago', type: 'system' },
-    ] as ActionItem[];
+    const isEmpty = !actions || actions.length === 0;
 
     return (
         <div className="rounded-2xl p-5 glass-obsidian">
             <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-semibold text-slate-900 dark:text-slate-50">Priority Queue</h3>
-                <span className="flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400">
-                    {items.length} Active
-                </span>
+                {!isEmpty && (
+                    <span className="flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:text-blue-400">
+                        {actions.length} Active
+                    </span>
+                )}
+                {isEmpty && (
+                    <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                        <CheckCircle2 className="h-3 w-3" /> All clear
+                    </span>
+                )}
             </div>
 
-            <div className="space-y-4">
-                {items.map((item) => (
-                    <div key={item.id} className="group flex gap-3">
-                        <div className={cn(
-                            "mt-1 flex h-2 w-2 shrink-0 rounded-full ring-2 ring-offset-2",
-                            item.priority === 'high' ? "bg-rose-500 ring-rose-100" :
-                                item.priority === 'medium' ? "bg-amber-500 ring-amber-100" :
-                                    "bg-blue-500 ring-blue-100"
-                        )} />
-
-                        <div className="min-w-0 flex-1 border-b border-slate-100 dark:border-slate-800/50 pb-4 last:border-0 last:pb-0">
-                            <div className="flex items-center justify-between">
-                                <h4 className="truncate text-sm font-medium text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    {item.title}
-                                </h4>
-                                <span className="text-[10px] text-slate-400 dark:text-slate-500">{item.timestamp}</span>
-                            </div>
-                            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 truncate">
-                                {item.description}
-                            </p>
+            {isEmpty ? (
+                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                    <div className="relative flex items-center justify-center">
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500/20 to-blue-500/10 flex items-center justify-center border border-emerald-500/20">
+                            <Inbox className="h-5 w-5 text-emerald-400" />
                         </div>
                     </div>
-                ))}
-            </div>
+                    <div className="text-center">
+                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No Active Alerts</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[170px] leading-relaxed">
+                            Your workspace is healthy. Critical events will show up here.
+                        </p>
+                    </div>
+                    {/* Ghost rows */}
+                    <div className="w-full space-y-2 mt-1">
+                        {[70, 55, 80].map((w, i) => (
+                            <div key={i} className="flex items-center gap-2.5 opacity-30">
+                                <div className="h-2 w-2 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
+                                <div className="flex-1 space-y-1">
+                                    <div className="h-2 rounded bg-slate-200 dark:bg-slate-700" style={{ width: `${w}%` }} />
+                                    <div className="h-1.5 w-2/5 rounded bg-slate-100 dark:bg-slate-800" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {actions.map((item) => (
+                        <div key={item.id} className="group flex gap-3">
+                            <div className={cn(
+                                "mt-1 flex h-2 w-2 shrink-0 rounded-full ring-2 ring-offset-2",
+                                item.priority === 'high' ? "bg-rose-500 ring-rose-100" :
+                                    item.priority === 'medium' ? "bg-amber-500 ring-amber-100" :
+                                        "bg-blue-500 ring-blue-100"
+                            )} />
 
-            <button className="mt-2 w-full text-center text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
+                            <div className="min-w-0 flex-1 border-b border-slate-100 dark:border-slate-800/50 pb-4 last:border-0 last:pb-0">
+                                <div className="flex items-center justify-between">
+                                    <h4 className="truncate text-sm font-medium text-slate-900 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                        {item.title}
+                                    </h4>
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-500">{item.timestamp}</span>
+                                </div>
+                                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 truncate">
+                                    {item.description}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <button className="mt-4 w-full text-center text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
                 View all activity
             </button>
         </div>

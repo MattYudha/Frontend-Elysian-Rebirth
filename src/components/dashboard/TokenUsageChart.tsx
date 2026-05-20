@@ -17,6 +17,11 @@ const chartConfig = {
 export function TokenUsageChart() {
     const { data: chartData, isLoading } = useChartData();
 
+    const formattedData = (chartData && 'usage_costs' in chartData && Array.isArray(chartData.usage_costs) ? chartData.usage_costs : []).map(d => ({
+        day: d.date,
+        tokens: d.tokens,
+    }));
+
     return (
         <Card className="col-span-2 shadow-sm border-none card-professional">
             <CardHeader>
@@ -29,13 +34,13 @@ export function TokenUsageChart() {
                 <ChartContainer config={chartConfig} className="h-[250px] w-full">
                     {isLoading ? (
                         <Skeleton className="w-full h-full" />
-                    ) : !chartData || chartData.length === 0 ? (
+                    ) : formattedData.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full text-muted-foreground bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
                             <p className="text-sm font-medium">Data consumption belum tersedia</p>
                             <p className="text-xs">Statistik akan muncul setelah pipeline berjalan.</p>
                         </div>
                     ) : (
-                        <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                        <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="fillTokens" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="var(--color-tokens)" stopOpacity={0.8} />

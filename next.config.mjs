@@ -89,7 +89,7 @@ const nextConfig = {
                     {
                         key: 'Content-Security-Policy',
                         value: `
-                            default-src 'self' https://backend-elysian-production.up.railway.app ws://localhost:3000 wss://localhost:3000;
+                            default-src 'self' http://localhost:7777 http://127.0.0.1:7777 ws://localhost:7777 ws://127.0.0.1:7777 https://backend-elysian-production.up.railway.app ws://localhost:3000 wss://localhost:3000 ws://127.0.0.1:3000;
                             script-src 'self' 'unsafe-eval' 'unsafe-inline';
                             style-src 'self' 'unsafe-inline' https://api.fontshare.com;
                             img-src 'self' blob: data: https:;
@@ -99,7 +99,7 @@ const nextConfig = {
                             base-uri 'self';
                             form-action 'self';
                             frame-ancestors 'none';
-                            connect-src 'self' https://backend-elysian-production.up.railway.app https://i.pravatar.cc https://api.fontshare.com https://cdn.fontshare.com https://vitals.vercel-insights.com ws://localhost:3000 wss://localhost:3000 https://*.ingest.sentry.io https://unpkg.com https://cdn.jsdelivr.net;
+                            connect-src 'self' http://localhost:7777 http://127.0.0.1:7777 ws://localhost:7777 ws://127.0.0.1:7777 https://backend-elysian-production.up.railway.app https://i.pravatar.cc https://api.fontshare.com https://cdn.fontshare.com https://vitals.vercel-insights.com ws://localhost:3000 wss://localhost:3000 ws://127.0.0.1:3000 https://*.ingest.sentry.io https://unpkg.com https://cdn.jsdelivr.net;
                         `.replace(/\s{2,}/g, ' ').trim(),
                     }
                 ],

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Role, Permission, RolePermissionMatrix } from "@/types/admin";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -111,7 +111,7 @@ export function PermissionMatrix({ initialData }: PermissionMatrixProps) {
                     </TableHeader>
                     <TableBody>
                         {Object.entries(groupedPermissions).map(([scope, perms]) => (
-                            <>
+                            <React.Fragment key={scope}>
                                 {/* Scope Header Row */}
                                 <TableRow key={`scope-${scope}`} className="bg-slate-100 dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-900/70 border-slate-200 dark:border-white/5">
                                     <TableCell colSpan={initialData.roles.length + 1} className="font-bold text-xs uppercase tracking-wider text-rose-600 dark:text-rose-400 py-2 pl-4">
@@ -148,7 +148,7 @@ export function PermissionMatrix({ initialData }: PermissionMatrixProps) {
                                         })}
                                     </TableRow>
                                 ))}
-                            </>
+                            </React.Fragment>
                         ))}
                     </TableBody>
                 </Table>

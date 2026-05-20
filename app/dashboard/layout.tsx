@@ -76,15 +76,28 @@ export default async function DashboardLayout({
             }
             accessToken = responseData.data?.access_token || responseData.access_token;
         } else if (response.status === 401 || response.status === 403) {
-            // Token is truly invalid/expired, redirect to login
+            // Token is truly invalid/expired, delete cookie and redirect to login
+            try {
+                cookieStore.delete('refresh_token');
+            } catch {
+                // Ignore cookie deletion errors in some Next.js edge cases
+            }
             redirect('/login?session_expired=true');
         }
-        // For other errors (500, 502, network issues), continue with fallback user
-        // This prevents the dashboard from being completely inaccessible during backend outages
     } catch (error) {
+        // CRITICAL: Re-throw Next.js redirect errors — they must NOT be swallowed by catch
+        // redirect() in Next.js App Router throws a special NEXT_REDIRECT error
+        if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+            throw error;
+        }
+        const errorObj = error as { digest?: string };
+        if (errorObj?.digest?.startsWith('NEXT_REDIRECT')) {
+            throw error;
+        }
+
         // Network error reaching backend — continue with fallback user data
         // The dashboard will render with limited functionality
-        console.warn("SSR refresh failed (backend may be starting up):", error instanceof Error ? error.message : error);
+        console.warn("SSR refresh failed (backend may be starting up):", error instanceof Error ? error.message : String(error));
     }
 
     return (

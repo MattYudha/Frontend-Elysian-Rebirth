@@ -230,7 +230,7 @@ export const ActivePipelinesList: React.FC<ActivePipelinesListProps> = ({
             <div className="w-full">
                 {viewOptions.viewType === 'timeline' && (
                     <div className="pipeline-gantt-container animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <TimelineGantt tasks={ganttTasks} onTaskClick={(taskId: string) => onPipelineClick?.(taskId)} />
+                        <TimelineGantt tasks={ganttTasks} onTaskClick={(taskId: string) => onPipelineClick?.(taskId)} isLoading={isLoading} />
                     </div>
                 )}
                 {viewOptions.viewType === 'list' && (

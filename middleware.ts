@@ -43,6 +43,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Handle session expiration loop: if arriving at login with session_expired,
+  // we MUST clear the cookie in the middleware response so we don't infinitely redirect back.
+  if (pathname === '/login' && request.nextUrl.searchParams.get('session_expired') === 'true') {
+    const response = NextResponse.next();
+    response.cookies.delete('refresh_token');
+    response.cookies.delete('tenant_id');
+    return response;
+  }
+
   // Redirect authenticated users from auth pages to dashboard
   if (isAuthPath && isAuthenticated) {
     return NextResponse.redirect(new URL('/dashboard', request.url));

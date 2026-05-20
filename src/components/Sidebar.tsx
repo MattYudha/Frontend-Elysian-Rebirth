@@ -9,6 +9,7 @@ import { User, ChevronsLeft, HelpCircle, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { useAuthStore } from '@/store/authStore';
+import { TenantSelector } from '@/components/TenantSelector';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
@@ -68,6 +69,11 @@ export function Sidebar() {
                     </button>
                 </div>
             )}
+
+            {/* Workspace / Tenant Selector */}
+            <div className="relative z-20 px-3 py-3 border-b border-blue-100/50 dark:border-blue-900/30">
+                <TenantSelector />
+            </div>
 
             {/* Navigation - Dense Mode */}
             <div className="relative z-10 flex-1 px-3 py-4 overflow-y-auto overflow-x-hidden pb-6 scrollbar-width-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none]">

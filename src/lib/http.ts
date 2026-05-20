@@ -3,6 +3,9 @@ import { config } from './config';
 import { globalDegradation } from './globalDegradation';
 import { useAuthStore } from '@/store/authStore';
 
+// Global flag to prevent multiple simultaneous redirects on 401
+let isRedirecting = false;
+
 // Safe cookie reader
 const getCookie = (name: string) => {
     if (typeof document === 'undefined') return null;
@@ -70,17 +73,26 @@ class HttpClient {
 
                 // The Global 401/403 Interceptor: Kills Zombie Sessions / Invalid Tenants
                 if (status === 401 || status === 403) {
-                    if (typeof window !== 'undefined') {
-                        // 1. Force state synchronization (delete from memory)
-                        useAuthStore.getState().logout();
-
-                        // 2. Prevent infinite loops by checking route
+                    if (typeof window !== 'undefined' && !isRedirecting) {
                         const path = window.location.pathname;
+                        // Only redirect if not already on auth pages
                         if (!path.includes('/login') && !path.includes('/register') && !path.includes('/callback') && !path.includes('/403')) {
-                            if (status === 403) {
-                                window.location.href = '/403';
-                            } else {
-                                window.location.href = '/login?session_expired=true';
+                            isRedirecting = true;
+                            
+                            // 1. Schedule redirect immediately so it doesn't get blocked
+                            setTimeout(() => {
+                                if (status === 403) {
+                                    window.location.href = '/403';
+                                } else {
+                                    window.location.href = '/login?session_expired=true';
+                                }
+                            }, 100);
+
+                            // 2. Force state synchronization (delete from memory) safely
+                            try {
+                                useAuthStore.getState().logout();
+                            } catch (e) {
+                                console.warn("Logout cleanup failed:", e);
                             }
                         }
                     }

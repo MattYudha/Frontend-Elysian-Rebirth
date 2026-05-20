@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export function AdminThemeWrapper({ children }: { children: React.ReactNode }) {
-    const { theme } = useTheme();
+    const { resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ export function AdminThemeWrapper({ children }: { children: React.ReactNode }) {
         return <div className="min-h-screen bg-slate-50">{children}</div>;
     }
 
-    const isDark = theme === 'dark';
+    const isDark = resolvedTheme === 'dark';
 
     return (
         <div

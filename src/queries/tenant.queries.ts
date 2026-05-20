@@ -24,6 +24,14 @@ export function useTenants() {
         queryFn: fetchTenants,
         staleTime: Infinity,   // Never refetch during session
         gcTime: Infinity,      // Keep in cache for entire session lifetime
+        retry: (failureCount, error: unknown) => {
+            // Never retry on auth errors — prevents the 401 loop
+            const axiosError = error as { response?: { status?: number } };
+            if (axiosError?.response?.status === 401 || axiosError?.response?.status === 403) {
+                return false;
+            }
+            return failureCount < 2;
+        },
     });
 }
 
