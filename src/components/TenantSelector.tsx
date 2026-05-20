@@ -9,11 +9,13 @@ export function TenantSelector() {
   const { currentTenant, availableTenants, switchTenant, isLoading } = useTenant();
   const { isOpen } = useSidebar();
 
+  const tenants = availableTenants || [];
+
   // Don't render while loading
   if (isLoading) return null;
 
   // Nothing to show if no tenants
-  if (availableTenants.length === 0) return null;
+  if (tenants.length === 0) return null;
 
   // Collapsed sidebar: just show icon
   if (!isOpen) {
@@ -25,12 +27,12 @@ export function TenantSelector() {
   }
 
   // Single tenant: show as static label (no dropdown needed)
-  if (availableTenants.length === 1) {
+  if (tenants.length === 1) {
     return (
       <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30">
         <Building2 className="h-3.5 w-3.5 text-blue-500 dark:text-blue-400 shrink-0" />
         <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 truncate">
-          {currentTenant?.name || availableTenants[0].name}
+          {currentTenant?.name || tenants[0].name}
         </span>
       </div>
     );
@@ -44,7 +46,7 @@ export function TenantSelector() {
         <SelectValue placeholder="Select workspace" />
       </SelectTrigger>
       <SelectContent>
-        {availableTenants.map((t) => (
+        {tenants.map((t) => (
           <SelectItem key={t.id} value={t.id}>
             {t.name}
           </SelectItem>

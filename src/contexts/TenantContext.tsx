@@ -50,8 +50,9 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   // Derive current tenant from cookie + React Query data
   const currentTenant = useMemo(() => {
     const tenantId = getTenantIdFromCookie();
-    if (!tenantId || availableTenants.length === 0) return null;
-    return (availableTenants.find((t) => t.id === tenantId) as Tenant) ?? (availableTenants[0] as Tenant) ?? null;
+    const tenants = availableTenants || [];
+    if (!tenantId || tenants.length === 0) return null;
+    return (tenants.find((t) => t.id === tenantId) as Tenant) ?? (tenants[0] as Tenant) ?? null;
   }, [availableTenants]);
 
   const switchTenant = useCallback((tenantId: string) => {
@@ -63,7 +64,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   return (
     <TenantContext.Provider value={{
       currentTenant,
-      availableTenants: availableTenants as Tenant[],
+      availableTenants: (availableTenants || []) as Tenant[],
       switchTenant,
       isLoading,
     }}>

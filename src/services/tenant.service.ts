@@ -27,7 +27,7 @@ export interface Tenant {
  */
 export async function fetchTenants(): Promise<Tenant[]> {
     const response = await http.get<{ status: string; data: Tenant[] }>('/api/v1/tenants');
-    return response.data;
+    return response.data || [];
 }
 
 /**
