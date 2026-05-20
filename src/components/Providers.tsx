@@ -20,6 +20,7 @@ import { GlobalCommandDialog } from '@/components/command/GlobalCommandDialog';
 
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { MockProvider } from '@/components/providers/MockProvider';
+import { TenantProvider } from '@/contexts/TenantContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -32,7 +33,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <MockProvider>
             <QueryProvider>
-                <ThemeProvider
+                <TenantProvider>
+                    <ThemeProvider
                     attribute="class"
                     defaultTheme="system"
                     enableSystem
@@ -71,7 +73,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
                             </PermissionsProvider>
                         </I18nProvider>
                     </TelemetryProvider>
-                </ThemeProvider>
+                    </ThemeProvider>
+                </TenantProvider>
             </QueryProvider>
         </MockProvider >
     );
