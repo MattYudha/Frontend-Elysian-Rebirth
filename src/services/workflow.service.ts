@@ -113,3 +113,11 @@ export async function getExecution(id: string): Promise<Execution> {
     const res = await http.get<{ status: string; data: Execution }>(`/api/v1/executions/${id}`);
     return res.data;
 }
+
+/**
+ * Publish a workflow — validates DAG and locks draft to published
+ * Endpoint: POST /api/v1/workflows/:id/publish
+ */
+export async function publishWorkflow(id: string): Promise<void> {
+    await http.post(`/api/v1/workflows/${id}/publish`);
+}

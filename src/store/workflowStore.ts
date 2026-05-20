@@ -17,12 +17,14 @@ import type { Node, Edge } from 'reactflow';
 import { createEncryptedIdbStorage } from '@/lib/storage-engine';
 
 interface WorkflowState {
+  workflowId: string | null;
   nodes: Node[];
   edges: Edge[];
   selectedNode: Node | null;
   isDirty: boolean;
   serverVersion: string;
 
+  setWorkflowId: (id: string | null) => void;
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
   addNode: (node: Node) => void;
@@ -39,6 +41,13 @@ interface WorkflowState {
   setFromServer: (nodes: Node[], edges: Edge[], version: string) => void;
 
   clearWorkflow: () => void;
+
+  /**
+   * resetWorkflow — Called on WorkflowBuilder unmount.
+   * Clears all canvas state + workflowId to prevent state
+   * contamination when navigating between different pipelines.
+   */
+  resetWorkflow: () => void;
 }
 
 const STORAGE_SECRET = process.env.NEXT_PUBLIC_STORAGE_KEY ?? 'DEV_ONLY_STATIC_KEY';
@@ -46,6 +55,7 @@ const STORAGE_SECRET = process.env.NEXT_PUBLIC_STORAGE_KEY ?? 'DEV_ONLY_STATIC_K
 export const useWorkflowStore = create<WorkflowState>()(
   persist(
     (set) => ({
+      workflowId: null,
       nodes: [],
       edges: [],
       selectedNode: null,
@@ -77,6 +87,8 @@ export const useWorkflowStore = create<WorkflowState>()(
           isDirty: true,
         })),
 
+      setWorkflowId: (id) => set({ workflowId: id }),
+
       setSelectedNode: (node) => set({ selectedNode: node }),
 
       setDirty: (dirty) => set({ isDirty: dirty }),
@@ -97,6 +109,16 @@ export const useWorkflowStore = create<WorkflowState>()(
           isDirty: false,
           serverVersion: '',
         }),
+
+      resetWorkflow: () =>
+        set({
+          workflowId: null,
+          nodes: [],
+          edges: [],
+          selectedNode: null,
+          isDirty: false,
+          serverVersion: '',
+        }),
     }),
     {
       name: 'workflow-storage',
@@ -106,6 +128,7 @@ export const useWorkflowStore = create<WorkflowState>()(
         secret: STORAGE_SECRET,
       }),
       partialize: (state) => ({
+        workflowId: state.workflowId,
         nodes: state.nodes,
         edges: state.edges,
         serverVersion: state.serverVersion,

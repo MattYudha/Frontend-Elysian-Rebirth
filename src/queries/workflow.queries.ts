@@ -11,7 +11,7 @@
 
 import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchWorkflows, fetchWorkflowById, saveWorkflow as saveWorkflowApi, createWorkflow } from '@/services/workflow.service';
+import { fetchWorkflows, fetchWorkflowById, saveWorkflow as saveWorkflowApi, createWorkflow, publishWorkflow as publishWorkflowApi } from '@/services/workflow.service';
 export { fetchWorkflowById };
 
 import { useWorkflowStore } from '@/store/workflowStore';
@@ -88,11 +88,14 @@ export function useWorkflowLoader(workflowId: string | null) {
 }
 
 /**
- * useSaveWorkflow — Persist canvas state with OCC (Optimistic Concurrency Control)
- * 
- * Sends expectedVersion (last-known server version hash/ETag).
- * If backend returns 409 Conflict, another user/tab has modified the workflow.
- * User is notified and must refresh to get latest state.
+ * useSaveWorkflow — Persist canvas state (SILENT: used for auto-save)
+ *
+ * ⚠️ NO TOASTS. Auto-save must never interrupt the user with notifications.
+ * Errors are silently swallowed. The isDirty indicator in the toolbar
+ * shows the save state instead.
+ *
+ * Sends expectedVersion for OCC (Optimistic Concurrency Control).
+ * 409 Conflict is handled silently — a manual Publish will surface the conflict.
  */
 export function useSaveWorkflow() {
     const queryClient = useQueryClient();
@@ -103,10 +106,8 @@ export function useSaveWorkflow() {
         mutationFn: (data: { id: string; nodes: unknown[]; edges: unknown[]; expectedVersion: string }) =>
             saveWorkflowApi(data),
         onSuccess: (result, variables) => {
-            // Update local version to the new server version
             const store = useWorkflowStore.getState();
             store.setDirty(false);
-            // If server returns a new version, record it
             if (result?.version) {
                 store.setFromServer(
                     store.nodes,
@@ -114,21 +115,48 @@ export function useSaveWorkflow() {
                     result.version
                 );
             }
-            // Invalidate caches
+            // Silently invalidate caches — no toast
             queryClient.invalidateQueries({ queryKey: workflowKeys.detail(tenantId, variables.id) });
             queryClient.invalidateQueries({ queryKey: workflowKeys.lists(tenantId) });
-            queryClient.invalidateQueries({ queryKey: activityKeys.all });
-            toast.success('Workflow saved successfully');
         },
-        onError: (error: Error & { response?: { status?: number } }) => {
-            if (error.response?.status === 409) {
-                // OCC conflict — another user/tab modified this workflow
-                toast.error(
-                    'Conflict: This workflow was modified by another session. Please refresh to get the latest version.',
-                    { duration: 8000 }
-                );
+        onError: () => {
+            // Silent — auto-save errors must not spam the user.
+            // isDirty stays true so the user knows there are unsaved changes.
+        },
+    });
+}
+
+/**
+ * usePublishWorkflow — Validate DAG and publish explicitly (LOUD)
+ *
+ * This is the only mutation that shows toasts.
+ * Called when the user clicks the Publish button.
+ * Will show a clear error if the workflow has cycles.
+ */
+export function usePublishWorkflow() {
+    const queryClient = useQueryClient();
+    const { currentTenant } = useTenant();
+    const tenantId = currentTenant?.id || '';
+
+    return useMutation({
+        mutationFn: (workflowId: string) => publishWorkflowApi(workflowId),
+        onSuccess: (_, workflowId) => {
+            queryClient.invalidateQueries({ queryKey: workflowKeys.detail(tenantId, workflowId) });
+            queryClient.invalidateQueries({ queryKey: workflowKeys.lists(tenantId) });
+            toast.success('Workflow dipublish!', {
+                description: 'Pipeline Anda siap dieksekusi.',
+            });
+        },
+        onError: (error: Error & { response?: { status?: number; data?: { error?: string } } }) => {
+            const errMsg = error?.response?.data?.error || error.message || 'Publish gagal';
+            if (error?.response?.status === 422) {
+                // Cycle detected
+                toast.error('Publish Gagal: Workflow Mengandung Cycle', {
+                    description: 'Pastikan semua koneksi antar-node tidak membentuk loop sebelum publish.',
+                    duration: 8000,
+                });
             } else {
-                toast.error('Failed to save. Your changes are preserved locally.');
+                toast.error('Gagal mempublish workflow', { description: errMsg });
             }
         },
     });

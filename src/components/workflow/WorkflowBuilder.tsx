@@ -1,25 +1,120 @@
 'use client';
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
 import { ReactFlowProvider, useReactFlow } from 'reactflow';
+import { useSearchParams } from 'next/navigation';
 import { Canvas } from './Canvas';
 import { Sidebar } from './Sidebar';
 import { Toolbar } from './Toolbar';
-import { useWorkflowStore } from './store';
-
-// We will import ConfigPanel later in Phase 3
+import { useWorkflowStore } from '@/store/workflowStore';
 import { ConfigPanel } from './ConfigPanel';
 import { ResultsPanel } from './ResultsPanel';
-
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Plus, Settings2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { useWorkflowLoader, useSaveWorkflow } from '@/queries/workflow.queries';
 
+// ─── Client-side cycle detection ────────────────────────────────────────────
+// Returns true if the given edges create a cycle (DAG violation).
+// We detect cycles BEFORE auto-save to prevent hitting the backend needlessly.
+function hasCycle(nodes: { id: string }[], edges: { source: string; target: string }[]): boolean {
+    const adjacency: Record<string, string[]> = {};
+    nodes.forEach((n) => { adjacency[n.id] = []; });
+    edges.forEach((e) => {
+        if (adjacency[e.source]) adjacency[e.source].push(e.target);
+    });
+
+    const visited = new Set<string>();
+    const stack = new Set<string>();
+
+    function dfs(nodeId: string): boolean {
+        if (stack.has(nodeId)) return true;   // back-edge → cycle
+        if (visited.has(nodeId)) return false;
+        visited.add(nodeId);
+        stack.add(nodeId);
+        for (const neighbor of adjacency[nodeId] || []) {
+            if (dfs(neighbor)) return true;
+        }
+        stack.delete(nodeId);
+        return false;
+    }
+
+    return nodes.some((n) => !visited.has(n.id) && dfs(n.id));
+}
+
+// ─── Auto-save hook ──────────────────────────────────────────────────────────
+// Debounced 1000ms. Silently aborts if:
+//   1. No workflow ID (can't save without a target)
+//   2. Not dirty (nothing changed)
+//   3. Cycle detected client-side (avoid backend round-trips + 400 spam)
+function useAutoSave(workflowId: string | null) {
+    const nodes = useWorkflowStore((s) => s.nodes);
+    const edges = useWorkflowStore((s) => s.edges);
+    const isDirty = useWorkflowStore((s) => s.isDirty);
+    const serverVersion = useWorkflowStore((s) => s.serverVersion);
+    const saveMutation = useSaveWorkflow();
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        // Guard 1: no target
+        if (!workflowId || !isDirty) return;
+
+        // Guard 2: client-side cycle abort — prevents backend 422 spam
+        if (hasCycle(nodes, edges)) return;
+
+        // Debounce
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => {
+            saveMutation.mutate({
+                id: workflowId,
+                nodes,
+                edges,
+                expectedVersion: serverVersion,
+            });
+        }, 1000);
+
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [nodes, edges, isDirty, workflowId]);
+
+    return saveMutation.isPending;
+}
+
+// ─── WorkflowBuilderContent ──────────────────────────────────────────────────
 function WorkflowBuilderContent() {
+    const searchParams = useSearchParams();
+    const workflowId = searchParams.get('id');
+
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const { project } = useReactFlow();
-    const { addNode, selectedNode, setSelectedNode } = useWorkflowStore();
+    const {
+        addNode,
+        selectedNode,
+        setSelectedNode,
+        setWorkflowId,
+        resetWorkflow,
+    } = useWorkflowStore();
+
+    // Load workflow from server whenever ID changes
+    const { isLoading: isLoadingWorkflow } = useWorkflowLoader(workflowId);
+
+    // Auto-save (debounced, silent, cycle-safe)
+    const isSaving = useAutoSave(workflowId);
+
+    // Sync workflowId into store so Toolbar and other components can read it
+    useEffect(() => {
+        setWorkflowId(workflowId);
+    }, [workflowId, setWorkflowId]);
+
+    // Cleanup on unmount — prevent state contamination between pipelines
+    useEffect(() => {
+        return () => {
+            resetWorkflow();
+        };
+    }, [resetWorkflow]);
 
     // Mobile State
     const [mobileMode, setMobileMode] = useState<'view' | 'edit'>('edit');
@@ -55,7 +150,6 @@ function WorkflowBuilderContent() {
             }
 
             const position = reactFlowWrapper.current?.getBoundingClientRect();
-
             if (!position) return;
 
             const droppedPosition = project({
@@ -71,17 +165,15 @@ function WorkflowBuilderContent() {
             };
 
             addNode(newNode);
-            setIsSidebarOpen(false); // Close mobile sidebar after drop/click (if we support click-to-add later)
+            setIsSidebarOpen(false);
         },
         [project, addNode]
     );
 
     const onNodeSelect = (type: string, label: string) => {
-        // Simple positioning strategy: Center or slight offset
-        // In a real app, we might use project({x: center, y: center}) relative to view
         const position = {
             x: Math.random() * 100 + 100,
-            y: Math.random() * 100 + 100
+            y: Math.random() * 100 + 100,
         };
 
         const newNode = {
@@ -105,7 +197,24 @@ function WorkflowBuilderContent() {
 
             {/* Main Canvas Area */}
             <div className="flex-1 relative h-full" ref={reactFlowWrapper}>
-                <Toolbar mobileMode={mobileMode} setMobileMode={setMobileMode} setIsSidebarOpen={setIsSidebarOpen} />
+                <Toolbar
+                    workflowId={workflowId}
+                    isSaving={isSaving}
+                    mobileMode={mobileMode}
+                    setMobileMode={setMobileMode}
+                    setIsSidebarOpen={setIsSidebarOpen}
+                />
+
+                {/* Loading overlay when fetching from DB */}
+                {isLoadingWorkflow && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-[#0B1120]/60 backdrop-blur-sm">
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Loading workflow...</p>
+                        </div>
+                    </div>
+                )}
+
                 <div
                     className="absolute inset-0 cursor-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEgMUwyMyAxNkwxNCAxOEw5IDMwTDEgMVoiIGZpbGw9IiMxMTE4MjciIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4='),_default]"
                     onDrop={onDrop}
@@ -120,7 +229,7 @@ function WorkflowBuilderContent() {
                 </div>
                 {/* Mobile Empty State Overlay */}
                 <div className="md:hidden absolute top-20 left-1/2 -translate-x-1/2 pointer-events-none opacity-50 text-xs text-slate-400 font-medium text-center">
-                    {mobileMode === 'view' ? "View Mode: Pan & Zoom" : "Edit Mode: Drag Nodes"}
+                    {mobileMode === 'view' ? 'View Mode: Pan & Zoom' : 'Edit Mode: Drag Nodes'}
                 </div>
                 <ResultsPanel />
             </div>

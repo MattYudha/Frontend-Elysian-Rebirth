@@ -1,37 +1,69 @@
 import React from 'react';
-import { Play, Save, Eye, MousePointer2, Plus, Maximize } from 'lucide-react';
+import { Play, Cloud, CloudCheck, Eye, MousePointer2, Plus, Maximize, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/';
-import { useWorkflowStore } from './store';
-import { toast } from 'sonner';
+import { useWorkflowStore } from '@/store/workflowStore';
 import { useReactFlow } from 'reactflow';
+import { usePublishWorkflow } from '@/queries/workflow.queries';
+import { useWorkflowStore as useCanvasStore } from '@/components/workflow/store';
 
 interface ToolbarProps {
+    workflowId?: string | null;
+    isSaving?: boolean;
     mobileMode?: 'view' | 'edit';
     setMobileMode?: (mode: 'view' | 'edit') => void;
     setIsSidebarOpen?: (open: boolean) => void;
 }
 
-export function Toolbar({ mobileMode, setMobileMode, setIsSidebarOpen }: ToolbarProps) {
-    const { meta, executeWorkflow, publishVersion } = useWorkflowStore();
+export function Toolbar({ workflowId, isSaving, mobileMode, setMobileMode, setIsSidebarOpen }: ToolbarProps) {
+    const { meta, executeWorkflow } = useCanvasStore();
     const { fitView } = useReactFlow();
+    const isDirty = useWorkflowStore((s) => s.isDirty);
+
+    const publishMutation = usePublishWorkflow();
 
     const handleRun = async () => {
-        // Trigger Async Backend Execution
         await executeWorkflow();
     };
 
     const handlePublish = () => {
-        const oldVersion = meta.version;
-        publishVersion();
-        toast.success("Workflow Published", {
-            description: `Promoted v${oldVersion} → Production Snapshot`,
-        });
+        if (!workflowId) return;
+        publishMutation.mutate(workflowId);
+    };
+
+    // Save status indicator
+    const SaveIndicator = () => {
+        if (isSaving) {
+            return (
+                <span className="flex items-center gap-1.5 text-[10px] text-blue-500 dark:text-blue-400">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Saving...
+                </span>
+            );
+        }
+        if (isDirty) {
+            return (
+                <span className="flex items-center gap-1.5 text-[10px] text-amber-500 dark:text-amber-400">
+                    <Cloud className="h-3 w-3" />
+                    Unsaved
+                </span>
+            );
+        }
+        if (!isDirty && workflowId) {
+            return (
+                <span className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400">
+                    <CloudCheck className="h-3 w-3" />
+                    Saved
+                </span>
+            );
+        }
+        return null;
     };
 
     return (
         <>
             {/* DESKTOP TOOLBAR (Top Right) */}
             <div className="hidden md:flex absolute top-4 right-4 bg-white/90 dark:bg-slate-900/40 backdrop-blur-md p-2 rounded-lg border border-slate-200 dark:border-blue-900/30 shadow-sm z-10 items-center gap-2 glass-obsidian">
+                {/* Version + Status */}
                 <div className="px-3 py-1 flex flex-col items-end mr-2 border-r border-slate-100 dark:border-blue-900/30 pr-4">
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${meta.status === 'published' ? 'text-green-600 dark:text-green-500' : 'text-amber-500 dark:text-amber-400'}`}>
                         {meta.status}
@@ -39,11 +71,27 @@ export function Toolbar({ mobileMode, setMobileMode, setIsSidebarOpen }: Toolbar
                     <span className="text-xs font-mono text-slate-600 dark:text-slate-400">v{meta.version}</span>
                 </div>
 
-                <Button variant="outline" size="sm" onClick={handlePublish} className="h-8 gap-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 border-slate-200 dark:border-slate-800/80 hover:border-blue-200 dark:hover:border-blue-500/50 bg-white/80 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300">
-                    <Save className="h-3.5 w-3.5" />
-                    Publish
+                {/* Auto-save status */}
+                <div className="mr-2 border-r border-slate-100 dark:border-blue-900/30 pr-4">
+                    <SaveIndicator />
+                </div>
+
+                {/* Publish Button */}
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePublish}
+                    disabled={!workflowId || publishMutation.isPending}
+                    className="h-8 gap-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 border-slate-200 dark:border-slate-800/80 hover:border-blue-200 dark:hover:border-blue-500/50 bg-white/80 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 disabled:opacity-50"
+                >
+                    {publishMutation.isPending ? (
+                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Publishing...</>
+                    ) : (
+                        <><CloudCheck className="h-3.5 w-3.5" /> Publish</>
+                    )}
                 </Button>
 
+                {/* Run Button */}
                 <Button size="sm" onClick={handleRun} className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200">
                     <Play className="h-3.5 w-3.5 fill-current" />
                     Run
@@ -69,7 +117,6 @@ export function Toolbar({ mobileMode, setMobileMode, setIsSidebarOpen }: Toolbar
                     </button>
                 </div>
 
-                {/* Actions (Only enabled in Edit mode or universal) */}
                 <div className="h-6 w-px bg-slate-700 mx-1" />
 
                 <button

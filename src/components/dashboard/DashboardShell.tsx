@@ -113,7 +113,8 @@ export function DashboardShell({ }: DashboardShellProps) {
                         setPipelineName('');
                         setPipelineTemplate('blank');
                         setCreateSuccess(false);
-                        router.push(`/workflow`);
+                        // Pass the pipeline ID so WorkflowBuilder loads the correct graph
+                        router.push(`/workflow?id=${created.id}`);
                     }, 1200);
                 }
             }
