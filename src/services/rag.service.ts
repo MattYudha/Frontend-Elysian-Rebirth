@@ -207,3 +207,50 @@ export async function approveDocument(
     }
     return res.json();
 }
+
+/**
+ * Rejects (deletes) a document that is in 'pending_qa' status.
+ */
+export async function rejectDocument(
+    authToken: string,
+    tenantId: string,
+    documentId: string,
+): Promise<{ status: string; message: string }> {
+    const res = await fetch(`${API_BASE}/api/v1/documents/${documentId}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: `Bearer ${authToken}`,
+            'X-Tenant-ID': tenantId,
+        },
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Rejection failed: HTTP ${res.status}`);
+    }
+    return res.json();
+}
+
+/**
+ * Updates the parsed text metadata for a document before approval.
+ */
+export async function updateDocumentText(
+    authToken: string,
+    tenantId: string,
+    documentId: string,
+    extractedText: string,
+): Promise<{ status: string; message: string }> {
+    const res = await fetch(`${API_BASE}/api/v1/documents/${documentId}/text`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+            'X-Tenant-ID': tenantId,
+        },
+        body: JSON.stringify({ extracted_text: extractedText }),
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Failed to update document text: HTTP ${res.status}`);
+    }
+    return res.json();
+}

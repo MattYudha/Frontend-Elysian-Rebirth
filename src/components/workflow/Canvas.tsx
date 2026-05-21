@@ -34,6 +34,13 @@ const nodeTypes: NodeTypes = {
     agent: AgentNode,
     data_ingestion: DataIngestionNode,
     guardrail: GuardrailNode,
+
+    // Database / Backend custom node type mappings & fallback aliases
+    startTrigger: StartNode,
+    sqlConnector: DataIngestionNode,
+    fraudVerify: GuardrailNode,
+    llm_agent: LLMNode,
+    rag_retriever: DataIngestionNode,
 };
 
 

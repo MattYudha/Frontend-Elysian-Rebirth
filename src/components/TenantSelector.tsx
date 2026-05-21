@@ -5,7 +5,7 @@ import { useTenant } from '@/contexts/TenantContext';
 import { Building2 } from 'lucide-react';
 import { useSidebar } from '@/contexts/SidebarContext';
 
-export function TenantSelector() {
+export function TenantSelector({ forceOpen = false }: { forceOpen?: boolean } = {}) {
   const { currentTenant, availableTenants, switchTenant, isLoading } = useTenant();
   const { isOpen } = useSidebar();
 
@@ -18,7 +18,7 @@ export function TenantSelector() {
   if (tenants.length === 0) return null;
 
   // Collapsed sidebar: just show icon
-  if (!isOpen) {
+  if (!isOpen && !forceOpen) {
     return (
       <div className="flex justify-center py-1" title={currentTenant?.name || 'Workspace'}>
         <Building2 className="h-4 w-4 text-blue-400" />

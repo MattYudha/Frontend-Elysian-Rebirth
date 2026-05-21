@@ -39,10 +39,26 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
     const triggerSwarm = async () => {
         setStatus('PROCESSING');
         try {
+            // Get tenant_id from cookies (fallback)
+            const getCookie = (name: string) => {
+                if (typeof document === 'undefined') return null;
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop()?.split(';').shift();
+                return null;
+            };
+            const tenantId = getCookie('tenant_id');
+            const headers: Record<string, string> = {
+                'Content-Type': 'application/json'
+            };
+            if (tenantId) {
+                headers['X-Tenant-ID'] = tenantId;
+            }
+
             // Use BFF Proxy route (reads token from HTTP-Only cookie server-side)
             const res = await fetch('/api/proxy/swarm/upload', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify({ document_id: documentId, items })
             });
             const data = await res.json();

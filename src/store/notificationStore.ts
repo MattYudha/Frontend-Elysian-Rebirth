@@ -69,8 +69,8 @@ interface NotificationState {
     unreadCount: () => number;
 
     // Action Center Ops
-    approveAction: (id: string) => void;
-    rejectAction: (id: string) => void;
+    approveAction: (id: string, justification?: string) => void;
+    rejectAction: (id: string, justification?: string) => void;
     undoAction: (id: string) => void;
     refreshSLAStatuses: () => void; // Called periodically to lock expired tasks
 }
@@ -216,11 +216,23 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
     unreadCount: () => get().actions.filter((a) => !a.isRead && ['pending', 'approving', 'rejecting', 'failed'].includes(a.status)).length,
 
-    approveAction: (id) => {
+    approveAction: (id, justification) => {
         set((state) => ({
-            actions: state.actions.map((a) =>
-                a.id === id ? { ...a, status: 'approving' } : a
-            )
+            actions: state.actions.map((a) => {
+                if (a.id === id) {
+                    const newEvents = [...a.timelineEvents];
+                    if (justification) {
+                        newEvents.push({
+                            at: new Date().toISOString(),
+                            actor: 'Security Compliance Office',
+                            type: 'OVERRIDE',
+                            note: `SecOps human override authorized. Reason: ${justification}`
+                        });
+                    }
+                    return { ...a, status: 'approving', timelineEvents: newEvents };
+                }
+                return a;
+            })
         }));
 
         // Store-managed timer for "Undo" window
@@ -229,24 +241,60 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
             // Only resolve if it hasn't been undone
             if (currentAction && currentAction.status === 'approving') {
                 set((state) => ({
-                    actions: state.actions.map(a => a.id === id ? { ...a, status: 'approved' } : a)
+                    actions: state.actions.map(a => {
+                        if (a.id === id) {
+                            return {
+                                ...a,
+                                status: 'approved',
+                                timelineEvents: [
+                                    ...a.timelineEvents,
+                                    { at: new Date().toISOString(), actor: 'Orchestrator', type: 'APPROVED', note: 'Action approved and queued for worker execution' }
+                                ]
+                            };
+                        }
+                        return a;
+                    })
                 }));
             }
         }, 3000);
     },
 
-    rejectAction: (id) => {
+    rejectAction: (id, justification) => {
         set((state) => ({
-            actions: state.actions.map((a) =>
-                a.id === id ? { ...a, status: 'rejecting' } : a
-            )
+            actions: state.actions.map((a) => {
+                if (a.id === id) {
+                    const newEvents = [...a.timelineEvents];
+                    if (justification) {
+                        newEvents.push({
+                            at: new Date().toISOString(),
+                            actor: 'Security Compliance Office',
+                            type: 'REJECTION_NOTE',
+                            note: `Reason: ${justification}`
+                        });
+                    }
+                    return { ...a, status: 'rejecting', timelineEvents: newEvents };
+                }
+                return a;
+            })
         }));
 
         setTimeout(() => {
             const currentAction = get().actions.find(a => a.id === id);
             if (currentAction && currentAction.status === 'rejecting') {
                 set((state) => ({
-                    actions: state.actions.map(a => a.id === id ? { ...a, status: 'rejected' } : a)
+                    actions: state.actions.map(a => {
+                        if (a.id === id) {
+                            return {
+                                ...a,
+                                status: 'rejected',
+                                timelineEvents: [
+                                    ...a.timelineEvents,
+                                    { at: new Date().toISOString(), actor: 'Orchestrator', type: 'REJECTED', note: 'Action rejected by human operator' }
+                                ]
+                            };
+                        }
+                        return a;
+                    })
                 }));
             }
         }, 3000);

@@ -34,6 +34,11 @@ export function ActionCenterClient() {
     // Bulk Selection State
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
+    // Executive Pipeline Log Simulation & Override States
+    const [executingLogs, setExecutingLogs] = useState<string[]>([]);
+    const [justificationNote, setJustificationNote] = useState('');
+    const [isOverrideChecked, setIsOverrideChecked] = useState(false);
+
     const activeTab = searchParams.get('tab') || 'pending';
     const payloadTab = searchParams.get('payload') || 'explanation';
 
@@ -49,6 +54,8 @@ export function ActionCenterClient() {
         router.replace(`${pathname}?${params.toString()}`);
     };
 
+    const selectedAction = useMemo(() => actions.find(a => a.id === selectedId), [actions, selectedId]);
+
     // Periodic SLA refresh
     useEffect(() => {
         const interval = setInterval(() => {
@@ -56,6 +63,53 @@ export function ActionCenterClient() {
         }, 60000); // every minute
         return () => clearInterval(interval);
     }, [refreshSLAStatuses]);
+
+    // Simulated Execution Logs Effect
+    useEffect(() => {
+        if (!selectedAction) {
+            setExecutingLogs([]);
+            return;
+        }
+
+        const isProcessing = selectedAction.status === 'approving' || selectedAction.status === 'rejecting';
+        if (!isProcessing) {
+            setExecutingLogs([]);
+            return;
+        }
+
+        const isApprove = selectedAction.status === 'approving';
+        const rawSteps = isApprove ? [
+            `[${new Date().toLocaleTimeString()}] INITIATING AUDIT APPROVAL PROOF FOR ACTION ID: ${selectedAction.id}`,
+            `[${new Date().toLocaleTimeString()}] PARSING REQUEST CONFIGURATION... OK`,
+            `[${new Date().toLocaleTimeString()}] VERIFYING BLAST RADIUS SCOPE CONTEXT: ${selectedAction.blastRadius.scope.toUpperCase()}`,
+            `[${new Date().toLocaleTimeString()}] EVALUATING POLICY RUNTIME GUARDRAILS...`,
+            ...selectedAction.policyChecks.map(p => `  -> POLICY CHECK: ${p.label} [${p.status.toUpperCase()}]`),
+            `[${new Date().toLocaleTimeString()}] COMPILING STATE PROOF HASH...`,
+            `[${new Date().toLocaleTimeString()}] PREPARING TO EMIT CRYPTOGRAPHIC STATE TO PUBLIC BLOCKCHAIN LEDGER...`,
+            `[${new Date().toLocaleTimeString()}] BROADCASTING STATE EMISSION...`,
+            `[${new Date().toLocaleTimeString()}] EXECUTING STACK WORKFLOW TRIGGER FOR TARGET: ${selectedAction.target.system.toUpperCase()}`,
+            `[${new Date().toLocaleTimeString()}] STATE SUCCESSFUL. COMPLETED PROCESS FLOW.`
+        ] : [
+            `[${new Date().toLocaleTimeString()}] INITIATING REJECTION DISPATCH FOR ACTION ID: ${selectedAction.id}`,
+            `[${new Date().toLocaleTimeString()}] CANCELLING WORKFLOW EXECUTION STACK...`,
+            `[${new Date().toLocaleTimeString()}] REVERTING TRANSACTION METADATA ENTRIES...`,
+            `[${new Date().toLocaleTimeString()}] WRITING COMPLIANCE EXCEPTION LOGS...`,
+            `[${new Date().toLocaleTimeString()}] DISPATCH COMPLETE. REJECTION FINALIZED.`
+        ];
+
+        setExecutingLogs([rawSteps[0]]);
+        let currentStep = 1;
+        const interval = setInterval(() => {
+            if (currentStep < rawSteps.length) {
+                setExecutingLogs(prev => [...prev, rawSteps[currentStep]]);
+                currentStep++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 300);
+
+        return () => clearInterval(interval);
+    }, [selectedAction?.status, selectedAction?.id]);
 
     // Derived Filter & Grouping Logic
     const groupedActions = useMemo(() => {
@@ -95,8 +149,6 @@ export function ActionCenterClient() {
             everythingElse: filtered.filter(a => a.severity !== 'critical' && a.severity !== 'high' && (new Date(a.slaDueAt).getTime() - now >= 1000 * 60 * 60 * 2))
         };
     }, [actions, searchQuery, filterSeverity]);
-
-    const selectedAction = useMemo(() => actions.find(a => a.id === selectedId), [actions, selectedId]);
 
     const toggleSelection = (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
@@ -139,25 +191,27 @@ export function ActionCenterClient() {
     };
 
     const handleApprove = (action: AgentActionRequest) => {
-        approveAction(action.id);
+        approveAction(action.id, isOverrideChecked ? justificationNote : undefined);
         toast('Action Approving', {
             description: `Approval for "${action.title}" pending execution.`,
             action: { label: 'Undo', onClick: () => undoAction(action.id) },
             icon: <CheckCircle2 className="h-4 w-4 text-emerald-500" />,
             duration: 3500
         });
-        setSelectedId(null);
+        setJustificationNote('');
+        setIsOverrideChecked(false);
     };
 
     const handleReject = (action: AgentActionRequest) => {
-        rejectAction(action.id);
+        rejectAction(action.id, justificationNote || undefined);
         toast('Action Rejecting', {
             description: `Rejection for "${action.title}" sent.`,
             action: { label: 'Undo', onClick: () => undoAction(action.id) },
             icon: <XCircle className="h-4 w-4 text-rose-500" />,
             duration: 3500
         });
-        setSelectedId(null);
+        setJustificationNote('');
+        setIsOverrideChecked(false);
     };
 
     const getRiskColor = (score: number) => {
@@ -395,146 +449,217 @@ export function ActionCenterClient() {
                                 </div>
                             </div>
                         </div>
-
                         {/* Scrollable Content Pane - Crucially we pad-bottom to prevent sticky footer clash */}
                         <div className="flex-1 overflow-y-auto w-full pb-28">
                             <div className="max-w-[980px] w-full mx-auto p-4 md:p-6 space-y-6">
-
-                                {/* Risk & Policy Summary Panel */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Risk Block */}
-                                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-sm p-5 space-y-4">
-                                        <div className="flex items-center justify-between">
-                                            <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                                                <AlertTriangle className="h-4 w-4" /> Risk Analysis
-                                            </h3>
-                                            <Badge className={getRiskColor(selectedAction.riskScore)} variant="outline">Score: {selectedAction.riskScore}/100</Badge>
+                                { (selectedAction.status === 'approving' || selectedAction.status === 'rejecting') ? (
+                                    <div className="bg-slate-950 text-slate-200 font-mono text-xs p-6 rounded-2xl border border-slate-800 shadow-2xl space-y-3 min-h-[400px] flex flex-col justify-between">
+                                        <div className="flex items-center gap-2 pb-3 border-b border-slate-905/30 text-slate-400">
+                                            <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+                                            <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                                            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                            <span className="ml-2 font-sans font-bold text-[10px] uppercase tracking-wider text-slate-400">Orchestrator Execution Pipeline</span>
                                         </div>
-                                        <div className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed border-l-2 border-slate-200 dark:border-slate-700 pl-3">
-                                            {selectedAction.summary}
+                                        <div className="flex-1 space-y-2 overflow-y-auto max-h-[300px] scrollbar-thin pt-2">
+                                            {executingLogs.map((log, index) => (
+                                                <div key={index} className="leading-relaxed whitespace-pre-wrap">
+                                                    <span className="text-blue-500 font-bold">&gt;&gt;</span> {log}
+                                                </div>
+                                            ))}
                                         </div>
-                                        <div className="grid grid-cols-2 gap-2 text-xs">
-                                            <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                                <span className="text-slate-400 block mb-1">Blast Radius</span>
-                                                <span className="font-semibold dark:text-slate-200 uppercase">{selectedAction.blastRadius.scope}</span>
-                                                {selectedAction.blastRadius.rowsAffected && <span className="text-slate-500 ml-1">({selectedAction.blastRadius.rowsAffected} rows)</span>}
-                                            </div>
-                                            <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                                <span className="text-slate-400 block mb-1">Target System</span>
-                                                <span className="font-semibold dark:text-slate-200 uppercase">{selectedAction.target.system}</span>
-                                            </div>
+                                        <div className="pt-3 border-t border-slate-900 text-[10px] text-slate-500 flex items-center justify-between">
+                                            <span className="uppercase tracking-wider">Status: {selectedAction.status.toUpperCase()}</span>
+                                            <span>{Math.min(executingLogs.length * 10, 100)}% committed</span>
                                         </div>
                                     </div>
-
-                                    {/* Policy Guardrails Block */}
-                                    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-sm p-5 space-y-3">
-                                        <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-4">
-                                            <ShieldAlert className="h-4 w-4" /> Policy Guidelines
+                                ) : (selectedAction.status === 'approved' || selectedAction.status === 'rejected') ? (
+                                    <div className="flex flex-col items-center justify-center p-8 text-center min-h-[400px] bg-white dark:bg-[#060D18] rounded-2xl border border-slate-200/60 dark:border-slate-850 shadow-sm animate-in zoom-in-95 duration-300">
+                                        <div className={cn(
+                                            "w-16 h-16 rounded-full flex items-center justify-center mb-4 text-white shadow-lg",
+                                            selectedAction.status === 'approved' ? "bg-emerald-500 shadow-emerald-500/20" : "bg-rose-500 shadow-rose-500/20"
+                                        )}>
+                                            {selectedAction.status === 'approved' ? <CheckCircle2 className="w-8 h-8 animate-bounce" /> : <XCircle className="w-8 h-8 animate-bounce" />}
+                                        </div>
+                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                                            Action {selectedAction.status === 'approved' ? 'Approved & Executed' : 'Rejected'}
                                         </h3>
-                                        {selectedAction.policyChecks.map(policy => (
-                                            <div key={policy.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                                {policy.status === 'pass' && <ShieldCheck className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />}
-                                                {policy.status === 'fail' && <ShieldX className="h-5 w-5 text-rose-500 mt-0.5 shrink-0" />}
-                                                {policy.status === 'warn' && <ShieldQuestion className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />}
-                                                <div>
-                                                    <p className={cn("text-sm font-medium", policy.status === 'fail' ? "text-rose-700 dark:text-rose-400" : "text-slate-700 dark:text-slate-300")}>
-                                                        {policy.label}
-                                                    </p>
-                                                    {policy.details && <p className="text-xs text-slate-500 mt-0.5">{policy.details}</p>}
-                                                </div>
-                                            </div>
-                                        ))}
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm">
+                                            The agent request has been successfully processed and logged in the immutable audit ledger.
+                                        </p>
+                                        <Button className="mt-6 text-xs bg-blue-600 hover:bg-blue-750 text-white font-medium" onClick={() => setSelectedId(null)}>
+                                            Dismiss & Back to Queue
+                                        </Button>
                                     </div>
-                                </div>
+                                ) : (
+                                    <>
+                                        {/* Risk & Policy Summary Panel */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* Risk Block */}
+                                            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-sm p-5 space-y-4">
+                                                <div className="flex items-center justify-between">
+                                                    <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                                        <AlertTriangle className="h-4 w-4" /> Risk Analysis
+                                                    </h3>
+                                                    <Badge className={getRiskColor(selectedAction.riskScore)} variant="outline">Score: {selectedAction.riskScore}/100</Badge>
+                                                </div>
+                                                <div className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed border-l-2 border-slate-200 dark:border-slate-700 pl-3">
+                                                    {selectedAction.summary}
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                                    <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                                        <span className="text-slate-400 block mb-1">Blast Radius</span>
+                                                        <span className="font-semibold dark:text-slate-200 uppercase">{selectedAction.blastRadius.scope}</span>
+                                                        {selectedAction.blastRadius.rowsAffected && <span className="text-slate-500 ml-1">({selectedAction.blastRadius.rowsAffected} rows)</span>}
+                                                    </div>
+                                                    <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                                        <span className="text-slate-400 block mb-1">Target System</span>
+                                                        <span className="font-semibold dark:text-slate-200 uppercase">{selectedAction.target.system}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                {/* Main Payload Tabs Viewer */}
-                                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#060D18] shadow-sm overflow-hidden">
-                                    <Tabs value={payloadTab} onValueChange={setPayloadTab} className="w-full">
-                                        <div className="bg-slate-100/50 dark:bg-slate-900/50 px-4 pt-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                                            <TabsList className="bg-transparent h-10 p-0">
-                                                {selectedAction.explanation && <TabsTrigger value="explanation" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0B1120] rounded-b-none border-t border-x border-transparent data-[state=active]:border-slate-200 dark:data-[state=active]:border-slate-800 pb-2">Explanation</TabsTrigger>}
-                                                {selectedAction.payloadType === 'diff' && <TabsTrigger value="diff" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0B1120] rounded-b-none border-t border-x border-transparent data-[state=active]:border-slate-200 dark:data-[state=active]:border-slate-800 pb-2">Diff Viewer</TabsTrigger>}
-                                                <TabsTrigger value="raw" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0B1120] rounded-b-none border-t border-x border-transparent data-[state=active]:border-slate-200 dark:data-[state=active]:border-slate-800 pb-2">Raw Payload</TabsTrigger>
-                                                <TabsTrigger value="trace" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0B1120] rounded-b-none border-t border-x border-transparent data-[state=active]:border-slate-200 dark:data-[state=active]:border-slate-800 pb-2">Audit Trace</TabsTrigger>
-                                            </TabsList>
+                                            {/* Policy Guardrails Block */}
+                                            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 shadow-sm p-5 space-y-3">
+                                                <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2 mb-4">
+                                                    <ShieldAlert className="h-4 w-4" /> Policy Guidelines
+                                                </h3>
+                                                {selectedAction.policyChecks.map(policy => (
+                                                    <div key={policy.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                                        {policy.status === 'pass' && <ShieldCheck className="h-5 w-5 text-emerald-500 mt-0.5 shrink-0" />}
+                                                        {policy.status === 'fail' && <ShieldX className="h-5 w-5 text-rose-500 mt-0.5 shrink-0" />}
+                                                        {policy.status === 'warn' && <ShieldQuestion className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />}
+                                                        <div>
+                                                            <p className={cn("text-sm font-medium", policy.status === 'fail' ? "text-rose-700 dark:text-rose-400" : "text-slate-700 dark:text-slate-300")}>
+                                                                {policy.label}
+                                                            </p>
+                                                            {policy.details && <p className="text-xs text-slate-500 mt-0.5">{policy.details}</p>}
+                                                        </div>
+                                                    </div>
+                                                ))}
 
-                                            <div className="flex gap-2 pb-1">
-                                                <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200" onClick={() => navigator.clipboard.writeText(JSON.stringify(selectedAction.payload, null, 2))}>
-                                                    <Copy className="h-3 w-3" />
-                                                </Button>
-                                                <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
-                                                    <Download className="h-3 w-3" />
-                                                </Button>
+                                                {/* Human Override Controls */}
+                                                {selectedAction.policyChecks.some(p => p.status === 'fail' || p.status === 'warn') && (
+                                                    <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-800/50 space-y-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                id="override-policies"
+                                                                checked={isOverrideChecked}
+                                                                onChange={(e) => setIsOverrideChecked(e.target.checked)}
+                                                                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 cursor-pointer"
+                                                            />
+                                                            <label htmlFor="override-policies" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer flex items-center gap-1">
+                                                                Request Human Override Justification
+                                                            </label>
+                                                        </div>
+
+                                                        {isOverrideChecked && (
+                                                            <div className="space-y-1.5 animate-in slide-in-from-top-1 duration-200">
+                                                                <span className="text-[10px] text-slate-400 font-semibold block uppercase">Override Justification Note *</span>
+                                                                <textarea
+                                                                    placeholder="Describe why this action is safe to bypass existing policy rules..."
+                                                                    value={justificationNote}
+                                                                    onChange={(e) => setJustificationNote(e.target.value)}
+                                                                    className="w-full text-xs p-2 rounded-lg bg-slate-50 dark:bg-[#060D18] border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-250 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none min-h-[60px]"
+                                                                    required
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
 
-                                        <div className="p-0 min-h-[300px] text-sm text-slate-700 dark:text-slate-300">
-                                            {selectedAction.explanation && (
-                                                <TabsContent value="explanation" className="p-6 m-0 border-none">
-                                                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                                                        <AiMarkdownRenderer content={selectedAction.explanation} />
+                                        {/* Main Payload Tabs Viewer */}
+                                        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#060D18] shadow-sm overflow-hidden">
+                                            <Tabs value={payloadTab} onValueChange={setPayloadTab} className="w-full">
+                                                <div className="bg-slate-100/50 dark:bg-slate-900/50 px-4 pt-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                                                    <TabsList className="bg-transparent h-10 p-0">
+                                                        {selectedAction.explanation && <TabsTrigger value="explanation" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0B1120] rounded-b-none border-t border-x border-transparent data-[state=active]:border-slate-200 dark:data-[state=active]:border-slate-800 pb-2">Explanation</TabsTrigger>}
+                                                        {selectedAction.payloadType === 'diff' && <TabsTrigger value="diff" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0B1120] rounded-b-none border-t border-x border-transparent data-[state=active]:border-slate-200 dark:data-[state=active]:border-slate-800 pb-2">Diff Viewer</TabsTrigger>}
+                                                        <TabsTrigger value="raw" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0B1120] rounded-b-none border-t border-x border-transparent data-[state=active]:border-slate-200 dark:data-[state=active]:border-slate-800 pb-2">Raw Payload</TabsTrigger>
+                                                        <TabsTrigger value="trace" className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0B1120] rounded-b-none border-t border-x border-transparent data-[state=active]:border-slate-200 dark:data-[state=active]:border-slate-800 pb-2">Audit Trace</TabsTrigger>
+                                                    </TabsList>
+
+                                                    <div className="flex gap-2 pb-1">
+                                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200" onClick={() => navigator.clipboard.writeText(JSON.stringify(selectedAction.payload, null, 2))}>
+                                                            <Copy className="h-3 w-3" />
+                                                        </Button>
+                                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+                                                            <Download className="h-3 w-3" />
+                                                        </Button>
                                                     </div>
-                                                </TabsContent>
-                                            )}
-
-                                            {selectedAction.payloadType === 'diff' && (
-                                                <TabsContent value="diff" className="p-0 m-0 border-none overflow-x-auto text-[13px]">
-                                                    <ReactDiffViewer
-                                                        oldValue={JSON.stringify(selectedAction.payload.before, null, 2)}
-                                                        newValue={JSON.stringify(selectedAction.payload.after, null, 2)}
-                                                        splitView={true}
-                                                        compareMethod={DiffMethod.WORDS}
-                                                        useDarkTheme={true}
-                                                        styles={{
-                                                            variables: {
-                                                                dark: {
-                                                                    diffViewerBackground: 'transparent',
-                                                                    diffViewerColor: '#cbd5e1',
-                                                                    addedBackground: '#064e3b',
-                                                                    addedColor: '#34d399',
-                                                                    removedBackground: '#881337',
-                                                                    removedColor: '#f43f5e',
-                                                                }
-                                                            }
-                                                        }}
-                                                    />
-                                                </TabsContent>
-                                            )}
-
-                                            <TabsContent value="raw" className="p-6 m-0 border-none">
-                                                <pre className="p-4 text-xs font-mono text-slate-800 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 rounded-lg overflow-x-auto border border-slate-200 dark:border-slate-800">
-                                                    {JSON.stringify(selectedAction.payload, null, 2)}
-                                                </pre>
-                                            </TabsContent>
-
-                                            <TabsContent value="trace" className="p-6 m-0 border-none">
-                                                <div className="space-y-4 relative before:absolute before:inset-0 before:ml-3.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
-                                                    {selectedAction.timelineEvents.map((event, idx) => (
-                                                        <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                                            <div className="flex items-center justify-center w-7 h-7 rounded-full border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                                                                <Clock className="w-3 h-3" />
-                                                            </div>
-                                                            <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] p-3 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 shadow-sm text-xs">
-                                                                <div className="flex items-center justify-between mb-1">
-                                                                    <div className="font-bold text-slate-800 dark:text-slate-200">{event.type}</div>
-                                                                    <div className="text-slate-500 font-mono text-[10px]">{formatDistanceToNow(new Date(event.at), { addSuffix: true })}</div>
-                                                                </div>
-                                                                <div className="text-slate-600 dark:text-slate-400 mb-2">{event.note}</div>
-                                                                <div className="font-semibold text-blue-600 dark:text-blue-400 text-[10px] uppercase">{event.actor}</div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
                                                 </div>
-                                            </TabsContent>
+
+                                                <div className="p-0 min-h-[300px] text-sm text-slate-700 dark:text-slate-350">
+                                                    {selectedAction.explanation && (
+                                                        <TabsContent value="explanation" className="p-6 m-0 border-none">
+                                                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                                                                <AiMarkdownRenderer content={selectedAction.explanation} />
+                                                            </div>
+                                                        </TabsContent>
+                                                    )}
+
+                                                    {selectedAction.payloadType === 'diff' && (
+                                                        <TabsContent value="diff" className="p-0 m-0 border-none overflow-x-auto text-[13px]">
+                                                            <ReactDiffViewer
+                                                                oldValue={JSON.stringify(selectedAction.payload.before, null, 2)}
+                                                                newValue={JSON.stringify(selectedAction.payload.after, null, 2)}
+                                                                splitView={true}
+                                                                compareMethod={DiffMethod.WORDS}
+                                                                useDarkTheme={true}
+                                                                styles={{
+                                                                    variables: {
+                                                                        dark: {
+                                                                            diffViewerBackground: 'transparent',
+                                                                            diffViewerColor: '#cbd5e1',
+                                                                            addedBackground: '#064e3b',
+                                                                            addedColor: '#34d399',
+                                                                            removedBackground: '#881337',
+                                                                            removedColor: '#f43f5e',
+                                                                        }
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </TabsContent>
+                                                    )}
+
+                                                    <TabsContent value="raw" className="p-6 m-0 border-none">
+                                                        <pre className="p-4 text-xs font-mono text-slate-800 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 rounded-lg overflow-x-auto border border-slate-200 dark:border-slate-800">
+                                                            {JSON.stringify(selectedAction.payload, null, 2)}
+                                                        </pre>
+                                                    </TabsContent>
+
+                                                    <TabsContent value="trace" className="p-6 m-0 border-none">
+                                                        <div className="space-y-4 relative before:absolute before:inset-0 before:ml-3.5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
+                                                            {selectedAction.timelineEvents.map((event, idx) => (
+                                                                <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                                                    <div className="flex items-center justify-center w-7 h-7 rounded-full border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                                                        <Clock className="w-3 h-3" />
+                                                                    </div>
+                                                                    <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] p-3 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 shadow-sm text-xs">
+                                                                        <div className="flex items-center justify-between mb-1">
+                                                                            <div className="font-bold text-slate-800 dark:text-slate-200">{event.type}</div>
+                                                                            <div className="text-slate-500 font-mono text-[10px]">{formatDistanceToNow(new Date(event.at), { addSuffix: true })}</div>
+                                                                        </div>
+                                                                        <div className="text-slate-600 dark:text-slate-400 mb-2">{event.note}</div>
+                                                                        <div className="font-semibold text-blue-600 dark:text-blue-400 text-[10px] uppercase">{event.actor}</div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </TabsContent>
+                                                </div>
+                                            </Tabs>
                                         </div>
-                                    </Tabs>
-                                </div>
+                                    </>
+                                )}
                             </div>
                         </div>
 
                         {/* Sticky Footer Actions */}
                         <div className="absolute bottom-0 w-full px-4 md:px-6 py-4 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-[#0B1120]/90 backdrop-blur-xl flex flex-wrap items-center justify-between gap-4 z-40">
-                            {activeTab !== 'review' ? (
+                            {activeTab !== 'review' && selectedAction.status !== 'approved' && selectedAction.status !== 'rejected' && selectedAction.status !== 'approving' && selectedAction.status !== 'rejecting' ? (
                                 <>
                                     <div className="flex items-center gap-2">
                                         <Button variant="outline" className="h-10 text-xs">Request Changes</Button>
@@ -552,20 +677,29 @@ export function ActionCenterClient() {
                                         <Button
                                             className="bg-blue-600 hover:bg-blue-700 text-white shadow-md h-10 w-full md:w-auto gap-2"
                                             onClick={() => handleApprove(selectedAction)}
-                                            // Guardrail check: Critical Policy fails
-                                            disabled={selectedAction.policyChecks.some(p => p.status === 'fail')}
+                                            // Guardrail check: Critical Policy fails, unless Override is checked with a valid justification
+                                            disabled={selectedAction.policyChecks.some(p => p.status === 'fail') && !(isOverrideChecked && justificationNote.trim().length > 0)}
                                         >
                                             <CheckCircle2 className="h-4 w-4" />
-                                            Approve & Execute
+                                            {isOverrideChecked ? 'Override & Execute' : 'Approve & Execute'}
                                         </Button>
                                     </div>
                                 </>
-                            ) : (
+                            ) : (activeTab === 'review' || selectedAction.status === 'approved' || selectedAction.status === 'rejected') && (selectedAction.status !== 'approving' && selectedAction.status !== 'rejecting') ? (
                                 <div className="flex items-center gap-3 w-full justify-end">
-                                    <Button variant="outline" className="h-10 text-xs gap-2">
-                                        <Undo2 className="h-4 w-4" />
-                                        Revert Changes
+                                    <Button variant="outline" className="h-10 text-xs gap-2" onClick={() => setSelectedId(null)}>
+                                        Back to List
                                     </Button>
+                                    {selectedAction.status === 'approved' && (
+                                        <Button variant="outline" className="h-10 text-xs gap-2">
+                                            <Undo2 className="h-4 w-4" />
+                                            Revert Changes
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="text-xs text-slate-500 font-mono animate-pulse w-full text-center py-2">
+                                    PROCESSING SECURE EMISSION PIPELINE... PLEASE DO NOT CLOSE THIS VIEW
                                 </div>
                             )}
                         </div>

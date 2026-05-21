@@ -32,3 +32,34 @@ const IntersectionObserverMock = vi.fn(() => ({
 }));
 
 vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
+
+// Mock indexedDB support in JSDOM
+if (typeof window !== 'undefined') {
+    Object.defineProperty(window, 'indexedDB', {
+        value: {},
+        writable: true,
+        configurable: true
+    });
+}
+
+// Mock next/navigation
+vi.mock('next/navigation', () => {
+    const mockSearchParams = {
+        get: vi.fn((key) => {
+            if (key === 'id') return 'test-id';
+            return null;
+        }),
+        has: vi.fn(() => false),
+        forEach: vi.fn(),
+    };
+    return {
+        useRouter: () => ({
+            push: vi.fn(),
+            replace: vi.fn(),
+            prefetch: vi.fn(),
+            back: vi.fn(),
+        }),
+        usePathname: () => '/test-path',
+        useSearchParams: () => mockSearchParams,
+    };
+});

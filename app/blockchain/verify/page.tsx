@@ -16,7 +16,13 @@ import {
     CheckCircle2, 
     XCircle,
     ArrowRight,
-    Lock
+    Lock,
+    History,
+    Activity,
+    ChevronRight,
+    Award,
+    CheckCircle,
+    AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { Protected } from '@/components/auth/Protected';
@@ -40,14 +46,34 @@ function BlockchainVerifyContent() {
     const [verifyResult, setVerifyResult] = useState<VerificationResult | null>(null);
     const [activeTab, setActiveTab] = useState<'all' | 'mismatch' | 'verified'>('all');
 
+    // Recent task history state
+    const [recentTasks, setRecentTasks] = useState<SwarmTaskDetail[]>([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
+
     const taskIdParam = searchParams.get('taskId');
 
     useEffect(() => {
         if (taskIdParam) {
             setTaskIdInput(taskIdParam);
             handleVerify(taskIdParam);
+        } else {
+            setTaskDetail(null);
+            setVerifyResult(null);
+            loadRecentTasks();
         }
     }, [taskIdParam]);
+
+    const loadRecentTasks = async () => {
+        setLoadingHistory(true);
+        try {
+            const res = await blockchainService.listSwarmTasks(10, 0);
+            setRecentTasks(res.data || []);
+        } catch (err) {
+            console.error("Failed to load recent swarm tasks for verification:", err);
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
 
     const handleVerify = async (idToVerify: string) => {
         const targetId = idToVerify.trim();
@@ -59,12 +85,10 @@ function BlockchainVerifyContent() {
         setVerifyResult(null);
 
         try {
-            // Update URL search params
             const params = new URLSearchParams(window.location.search);
             params.set('taskId', targetId);
             router.replace(`${window.location.pathname}?${params.toString()}`);
 
-            // Fetch details and verification status concurrently
             const [detail, result] = await Promise.all([
                 blockchainService.getSwarmTask(targetId),
                 blockchainService.verify(targetId)
@@ -85,6 +109,15 @@ function BlockchainVerifyContent() {
         handleVerify(taskIdInput);
     };
 
+    const handleRecentClick = (id: string) => {
+        setTaskIdInput(id);
+        handleVerify(id);
+    };
+
+    const clearActiveTask = () => {
+        router.push(window.location.pathname);
+    };
+
     const formatHash = (hash?: string) => {
         if (!hash) return 'N/A';
         if (hash === '0x0000000000000000000000000000000000000000000000000000000000000000') return 'Empty (0x000...)';
@@ -100,23 +133,35 @@ function BlockchainVerifyContent() {
     return (
         <div className="h-full flex flex-col overflow-y-auto p-6 md:p-8 space-y-8 scrollbar-thin">
             {/* Header */}
-            <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
-                    <Lock className="h-3 w-3" /> Trust Layer
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">
+                        <Lock className="h-3 w-3" /> Trust Layer
+                    </div>
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent font-heading">
+                        Blockchain Provenance Check
+                    </h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl font-sans">
+                        Verify the immutable audit trail of Swarm consensus decisions. Compare local system records directly against Sepolia smart contract logs.
+                    </p>
                 </div>
-                <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent font-heading">
-                    Blockchain Provenance Check
-                </h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
-                    Verify the immutable audit trail of Swarm consensus decisions. Compare local system records directly against Sepolia smart contract logs.
-                </p>
+                {taskDetail && (
+                    <Button 
+                        onClick={clearActiveTask}
+                        variant="outline"
+                        className="border-slate-200 dark:border-slate-800 text-xs shrink-0 self-start md:self-auto"
+                    >
+                        Back to Registry
+                    </Button>
+                )}
             </div>
 
             {/* Verification Form Card */}
             <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm backdrop-blur-md">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">Initiate Crypto Verification Proof</h3>
                 <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-3">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500" />
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-505" />
                         <input
                             type="text"
                             placeholder="Enter Swarm Task ID (UUID)..."
@@ -144,6 +189,83 @@ function BlockchainVerifyContent() {
                     </Button>
                 </form>
             </div>
+
+            {/* If NO task selected: Show Recent Registry Trail */}
+            {!loading && !taskDetail && !verifyResult && (
+                <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm backdrop-blur-md space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center gap-2 border-b border-slate-200/40 dark:border-slate-800/40 pb-3">
+                        <History className="h-4 w-4 text-blue-500" />
+                        <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider font-sans">
+                            Recent Audited Sessions Registry
+                        </h3>
+                    </div>
+
+                    {loadingHistory ? (
+                        <div className="py-12 flex flex-col items-center justify-center">
+                            <Loader2 className="h-8 w-8 animate-spin text-slate-500" />
+                        </div>
+                    ) : recentTasks.length === 0 ? (
+                        <div className="py-12 flex flex-col items-center justify-center text-slate-400 text-center">
+                            <Activity className="h-10 w-10 text-slate-550 opacity-20 mb-2" />
+                            <p className="text-xs">No audited sessions found in system records.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr className="border-b border-slate-200/50 dark:border-slate-800/60 text-slate-400 uppercase font-semibold">
+                                        <th className="py-3 px-4 font-sans">Task ID</th>
+                                        <th className="py-3 px-4 font-sans">Document ID</th>
+                                        <th className="py-3 px-4 font-sans">Registration Date</th>
+                                        <th className="py-3 px-4 font-sans">Ledger Hash Status</th>
+                                        <th className="py-3 px-4 text-right font-sans">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {recentTasks.map((task) => (
+                                        <tr 
+                                            key={task.id}
+                                            className="border-b border-slate-100 dark:border-slate-850/40 hover:bg-slate-50/40 dark:hover:bg-slate-900/40 transition-colors"
+                                        >
+                                            <td className="py-3.5 px-4 font-mono text-[11px] text-slate-800 dark:text-slate-200 font-medium">
+                                                {task.id}
+                                            </td>
+                                            <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">
+                                                {task.documentId}
+                                            </td>
+                                            <td className="py-3.5 px-4 text-slate-500">
+                                                {new Date(task.createdAt).toLocaleString()}
+                                            </td>
+                                            <td className="py-3.5 px-4">
+                                                {task.blockchainTx ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-500 border border-green-500/20">
+                                                        <CheckCircle className="h-3 w-3" /> COMMITTED
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse">
+                                                        <Clock className="h-3 w-3" /> QUEUED
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="py-3.5 px-4 text-right">
+                                                <Button 
+                                                    onClick={() => handleRecentClick(task.id)}
+                                                    variant="ghost" 
+                                                    size="sm"
+                                                    className="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 font-semibold flex items-center gap-1 ml-auto"
+                                                >
+                                                    Verify Prove
+                                                    <ChevronRight className="h-3.5 w-3.5" />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Error Message */}
             {error && (

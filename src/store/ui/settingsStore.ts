@@ -16,6 +16,13 @@ interface SettingsUiState {
 
     returnUrl: string;
     setReturnUrl: (url: string) => void;
+
+    // Modal state
+    isOpen: boolean;
+    activeTab: string;
+    openSettings: (tab?: string) => void;
+    closeSettings: () => void;
+    setActiveTab: (tab: string) => void;
 }
 
 export const useSettingsUiStore = create<SettingsUiState>((set, get) => ({
@@ -42,4 +49,10 @@ export const useSettingsUiStore = create<SettingsUiState>((set, get) => ({
 
     returnUrl: '/dashboard',
     setReturnUrl: (url) => set({ returnUrl: url }),
+
+    isOpen: false,
+    activeTab: 'profile',
+    openSettings: (tab) => set({ isOpen: true, activeTab: tab || 'profile' }),
+    closeSettings: () => set({ isOpen: false }),
+    setActiveTab: (tab) => set({ activeTab: tab }),
 }));

@@ -285,29 +285,29 @@ export const useWorkflowStore = create<WorkflowState>()(
                         const timestamp = new Date().toISOString();
                         let logsToAdd: { level: string; message: string }[] = [];
 
-                        if (nodeType === 'start') {
+                        if (nodeType === 'start' || nodeType === 'startTrigger') {
                             logsToAdd = [
                                 { level: 'INFO', message: 'Start Trigger activated. Capturing initial execution context.' },
                                 { level: 'INFO', message: 'Payload context: {"user_id": "68b02f86", "user_role": "admin", "tenant": "Workspace A", "channel": "testing_portal"}' }
                             ];
-                        } else if (nodeType === 'web_scraper' || nodeType === 'data_ingestion' || nodeType === 'rag_knowledge' || nodeType === 'knowledge_source') {
+                        } else if (nodeType === 'web_scraper' || nodeType === 'data_ingestion' || nodeType === 'rag_knowledge' || nodeType === 'knowledge_source' || nodeType === 'rag_retriever') {
                             logsToAdd = [
                                 { level: 'INFO', message: `Querying internal knowledge database for resource matching: "${nodeLabel}"` },
                                 { level: 'INFO', message: 'Successfully fetched reference content (size: 4.8 KB, format: markdown)' }
                             ];
-                        } else if (nodeType === 'sql_connector') {
+                        } else if (nodeType === 'sql_connector' || nodeType === 'sqlConnector') {
                             logsToAdd = [
                                 { level: 'INFO', message: 'Establishing connection to DB pool (Postgres localhost:5432)...' },
                                 { level: 'INFO', message: 'Query executed: SELECT email, full_name, role FROM users LIMIT 5' },
                                 { level: 'INFO', message: 'Retrieved 5 records from database cluster.' }
                             ];
-                        } else if (nodeType === 'fds_fraud') {
+                        } else if (nodeType === 'fds_fraud' || nodeType === 'fraudVerify' || nodeType === 'guardrail') {
                             logsToAdd = [
                                 { level: 'INFO', message: 'Triggering FDS (Fraud Detection System) compliance scan.' },
                                 { level: 'WARN', message: 'Scan Warning: Transaction rate anomaly detected on user_id "68b02f86"' },
                                 { level: 'INFO', message: 'FDS status: PASSED WITH WARNINGS (Risk level: 0.35)' }
                             ];
-                        } else if (nodeType === 'agent' || nodeType === 'llm' || nodeType === 'reasoning') {
+                        } else if (nodeType === 'agent' || nodeType === 'llm' || nodeType === 'reasoning' || nodeType === 'llm_agent') {
                             logsToAdd = [
                                 { level: 'INFO', message: 'Prompting Reasoning model with context data...' },
                                 { level: 'INFO', message: 'Model response parsed successfully. Tokens spent: 1,940 prompt / 420 completion.' }

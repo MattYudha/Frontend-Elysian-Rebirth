@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { useQueryState } from 'nuqs';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import * as SheetPrimitive from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { X, Plus, Trash2, Sparkles, MessageSquare, Terminal, FileText, ArrowRight, HelpCircle } from 'lucide-react';
 import { useAgent, useCreateSkill, useDeleteSkill, useUpdateAgent, useDeleteAgent } from '@/queries/agent.queries';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 export function AgentConfigSlideOver() {
     const [agentId, setAgentId] = useQueryState('agent');
@@ -58,20 +59,32 @@ export function AgentConfigSlideOver() {
     };
 
     return (
-        <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-            <SheetContent
-                side="right"
-                className="w-full sm:w-[450px] md:w-[600px] p-0 flex flex-col bg-slate-50 dark:bg-[#060D18] sm:max-w-none border-l border-slate-200/60 dark:border-slate-800/60"
-            >
+        <SheetPrimitive.Root open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+            <SheetPrimitive.Portal>
+                {/* Overlay: z-[150] so it covers SettingsModal (z-[100]) but is below the panel */}
+                <SheetPrimitive.Overlay
+                    className="fixed inset-0 z-[150] bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+                />
+                {/* Panel: z-[200] so it sits above the overlay and SettingsModal */}
+                <SheetPrimitive.Content
+                    className={cn(
+                        "fixed z-[200] inset-y-0 right-0 h-full w-full sm:w-[450px] md:w-[600px] sm:max-w-none",
+                        "bg-slate-50 dark:bg-[#060D18] border-l border-slate-200/60 dark:border-slate-800/60",
+                        "flex flex-col shadow-2xl p-0",
+                        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+                        "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+                        "data-[state=open]:duration-300 data-[state=closed]:duration-300 ease-in-out"
+                    )}
+                >
                 <div className="flex items-center justify-between p-4 border-b border-slate-200/60 dark:border-slate-800/60 bg-white dark:bg-[#0B1120]">
-                    <SheetHeader className="text-left space-y-0">
-                        <SheetTitle className="text-lg font-semibold text-slate-900 dark:text-white">
+                    <div className="text-left space-y-0">
+                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
                             Agent Configuration
-                        </SheetTitle>
-                        <SheetDescription className="text-xs">
+                        </h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                             ID: {agentId}
-                        </SheetDescription>
-                    </SheetHeader>
+                        </p>
+                    </div>
                     <Button variant="ghost" size="icon" onClick={handleClose} className="rounded-full">
                         <X className="h-5 w-5" />
                     </Button>
@@ -280,7 +293,8 @@ export function AgentConfigSlideOver() {
                         Save Changes
                     </Button>
                 </div>
-            </SheetContent>
-        </Sheet>
+            </SheetPrimitive.Content>
+            </SheetPrimitive.Portal>
+        </SheetPrimitive.Root>
     );
 }

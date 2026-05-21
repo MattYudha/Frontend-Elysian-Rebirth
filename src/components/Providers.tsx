@@ -17,6 +17,7 @@ import { Toaster as SonnerToaster } from '@/components/ui/sonner';
 import { CookieConsent } from '@/components/CookieConsent';
 
 import { GlobalCommandDialog } from '@/components/command/GlobalCommandDialog';
+import SettingsModal from '@/components/settings/SettingsModal';
 
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { MockProvider } from '@/components/providers/MockProvider';
@@ -49,6 +50,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                                         <OfflineBanner />
                                         <SessionTimeoutWarning />
                                         <GlobalCommandDialog />
+                                        <SettingsModal />
                                         <div className="pb-0">
                                             {isLandingPage ? (
                                                 <SmoothScroll>

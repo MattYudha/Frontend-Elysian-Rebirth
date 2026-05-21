@@ -50,6 +50,7 @@ export function DashboardNavbar({ staticMode = false }: { staticMode?: boolean }
     const [scrolled, setScrolled] = useState(false);
     const { isGridVisible, toggleGrid } = useUiStore();
     const setReturnUrl = useSettingsUiStore((s) => s.setReturnUrl);
+    const openSettings = useSettingsUiStore((s) => s.openSettings);
     const { user, logout } = useAuthStore();
     const router = useRouter();
 
@@ -230,12 +231,12 @@ export function DashboardNavbar({ staticMode = false }: { staticMode?: boolean }
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <Link href="/settings/profile" onClick={() => { if (!pathname.startsWith('/settings')) setReturnUrl(pathname); }}>
-                                    <DropdownMenuItem className="cursor-pointer"><User className="mr-2 h-4 w-4" />Profile</DropdownMenuItem>
-                                </Link>
-                                <Link href="/settings" onClick={() => { if (!pathname.startsWith('/settings')) setReturnUrl(pathname); }}>
-                                    <DropdownMenuItem className="cursor-pointer"><Settings className="mr-2 h-4 w-4" />Settings</DropdownMenuItem>
-                                </Link>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => openSettings('profile')}>
+                                    <User className="mr-2 h-4 w-4" />Profile
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => openSettings('profile')}>
+                                    <Settings className="mr-2 h-4 w-4" />Settings
+                                </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" />Log out</DropdownMenuItem>
                             </DropdownMenuContent>

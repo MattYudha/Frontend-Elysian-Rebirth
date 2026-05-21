@@ -2,7 +2,7 @@
 
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, LogOut, Settings, User as UserIcon, X, Shield, HelpCircle, Sun, Moon } from 'lucide-react';
+import { Menu, LogOut, X, Shield, HelpCircle, Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { NavigationMenu } from '@/components/NavigationMenu';
 import Image from 'next/image';
@@ -12,6 +12,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { GettingStartedWidget } from '@/components/GettingStartedWidget';
+import { TenantSelector } from '@/components/TenantSelector';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -78,6 +79,11 @@ export function MobileSidebar() {
 
                     {/* 3. NAVIGATION AREA - Scrollable including Widgets */}
                     <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+                        {/* Workspace / Tenant Selector */}
+                        <div className="pb-2 border-b border-blue-100/50 dark:border-blue-900/30">
+                            <TenantSelector forceOpen={true} />
+                        </div>
+
                         {/* Getting Started Widget */}
                         <GettingStartedWidget />
 
@@ -112,14 +118,20 @@ export function MobileSidebar() {
                         <div className="rounded-2xl bg-gradient-to-br from-white/60 to-white/30 dark:from-slate-800/60 dark:to-slate-900/30 border border-white/50 dark:border-slate-700 shadow-lg backdrop-blur-md p-4 group hover:border-blue-200 transition-all duration-300">
                             <div className="flex items-center gap-3 mb-3">
                                 <Avatar className="h-10 w-10 border-2 border-white dark:border-slate-700 shadow-sm">
-                                    <AvatarImage src="https://github.com/shadcn.png" />
-                                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-400 text-white">AD</AvatarFallback>
+                                    {user?.avatar ? (
+                                        <AvatarImage src={user.avatar} alt={user.name || 'User'} />
+                                    ) : null}
+                                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-cyan-400 text-white">
+                                        {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'US'}
+                                    </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0 pr-2">
                                     <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-blue-600 transition-colors">
-                                        Admin User
+                                        {user?.name || 'Guest User'}
                                     </p>
-                                    <p className="text-xs text-slate-500 truncate">admin@elysian.ai</p>
+                                    <p className="text-xs text-slate-500 truncate">
+                                        {user?.email || 'guest@elysian.ai'}
+                                    </p>
                                 </div>
                                 <Button
                                     variant="ghost"

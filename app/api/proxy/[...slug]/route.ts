@@ -9,11 +9,13 @@ async function proxyRequest(
   slug: string[]
 ): Promise<NextResponse> {
   const path = slug.join('/');
-  const url = `${API_BASE_URL}/api/v1/${path}`;
+  const searchParams = request.nextUrl.search || '';
+  const url = `${API_BASE_URL}/api/v1/${path}${searchParams}`;
 
-  // Read access_token from HTTP-Only Cookie (server-side only)
+  // Read access_token and tenant_id from HTTP-Only Cookies (server-side only)
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('access_token')?.value;
+  const tenantIdFromCookie = cookieStore.get('tenant_id')?.value;
 
   // Build headers
   const headers: Record<string, string> = {};
@@ -24,9 +26,20 @@ async function proxyRequest(
     headers['Content-Type'] = contentType;
   }
 
-  // Inject Authorization header from cookie
-  if (accessToken) {
+  // Inject Authorization header: try client's incoming header first, fallback to cookie
+  const incomingAuth = request.headers.get('authorization');
+  if (incomingAuth) {
+    headers['Authorization'] = incomingAuth;
+  } else if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  // Inject X-Tenant-ID header: try client's incoming header first, fallback to cookie
+  const incomingTenant = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
+  if (incomingTenant) {
+    headers['X-Tenant-ID'] = incomingTenant;
+  } else if (tenantIdFromCookie) {
+    headers['X-Tenant-ID'] = tenantIdFromCookie;
   }
 
   // Forward cookies from the incoming request to the backend
@@ -36,7 +49,7 @@ async function proxyRequest(
   }
 
   // Forward other relevant headers
-  const forwardedHeaders = ['x-request-id', 'x-tenant-id'];
+  const forwardedHeaders = ['x-request-id'];
   for (const h of forwardedHeaders) {
     const val = request.headers.get(h);
     if (val) headers[h] = val;
@@ -67,12 +80,27 @@ async function proxyRequest(
     });
 
     // Forward relevant response headers
-    const forwardResponseHeaders = ['content-type', 'x-request-id'];
+    const forwardResponseHeaders = ['content-type', 'x-request-id', 'x-tenant-id', 'X-Tenant-ID'];
     for (const h of forwardResponseHeaders) {
       const val = response.headers.get(h);
       if (val) {
         nextResponse.headers.set(h, val);
       }
+    }
+
+    // Synchronize the browser's tenant_id cookie if the backend resolved a fallback tenant ID
+    const resolvedTenantId = response.headers.get('x-tenant-id') || response.headers.get('X-Tenant-ID');
+    if (resolvedTenantId) {
+      console.log(`[BFF Proxy] Auto-healing stale tenant cookie. Setting tenant_id to resolved fallback:`, resolvedTenantId);
+      nextResponse.cookies.set({
+        name: 'tenant_id',
+        value: resolvedTenantId,
+        httpOnly: false, // Accessible by frontend stores/queries
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 365 * 24 * 60 * 60 // 1 year
+      });
     }
 
     return nextResponse;

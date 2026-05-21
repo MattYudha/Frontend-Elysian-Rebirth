@@ -60,5 +60,18 @@ export const blockchainService = {
     async getSwarmTask(taskId: string): Promise<SwarmTaskDetail> {
         const response = await http.get<{ status: string; data: SwarmTaskDetail }>(`/api/v1/swarm/tasks/${taskId}`);
         return response.data;
+    },
+
+    /**
+     * List all swarm tasks for the current tenant
+     */
+    async listSwarmTasks(limit = 10, offset = 0): Promise<{ data: SwarmTaskDetail[]; total: number }> {
+        const response = await http.get<{ status: string; data: SwarmTaskDetail[]; total: number }>(
+            `/api/v1/swarm/tasks?limit=${limit}&offset=${offset}`
+        );
+        return {
+            data: response.data,
+            total: response.total
+        };
     }
 };

@@ -40,12 +40,45 @@ vi.mock('reactflow', async () => {
 
 // Mock Local Workflow Store (src/components/workflow/store.ts)
 const mockAddNode = vi.fn();
+const mockState = {
+    addNode: mockAddNode,
+    selectedNode: null,
+    setSelectedNode: vi.fn(),
+    project: mockProject,
+    setWorkflowId: vi.fn(),
+    resetWorkflow: vi.fn(),
+    nodes: [],
+    edges: [],
+    isDirty: false,
+    serverVersion: 1,
+};
 vi.mock('./store', () => ({
-    useWorkflowStore: () => ({
-        addNode: mockAddNode,
-        selectedNode: null,
-        setSelectedNode: vi.fn(),
-        project: mockProject,
+    useWorkflowStore: (selector?: any) => {
+        return selector ? selector(mockState) : mockState;
+    },
+}));
+
+// Mock API queries/mutations to avoid context requirements (like TenantProvider or QueryClientProvider)
+vi.mock('@/queries/workflow.queries', () => ({
+    useWorkflowLoader: () => ({
+        isLoading: false,
+        data: null,
+    }),
+    useSaveWorkflow: () => ({
+        mutate: vi.fn(),
+        isPending: false,
+    }),
+    useWorkflows: () => ({
+        data: [],
+        isLoading: false,
+    }),
+    useCreateWorkflow: () => ({
+        mutate: vi.fn(),
+        isPending: false,
+    }),
+    useDeleteWorkflow: () => ({
+        mutate: vi.fn(),
+        isPending: false,
     }),
 }));
 

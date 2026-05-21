@@ -51,28 +51,28 @@ export function Toolbar({ workflowId, isSaving, mobileMode, setMobileMode, setIs
     };
 
     // Save status indicator
-    const SaveIndicator = () => {
+    const SaveIndicator = ({ compact = false }: { compact?: boolean }) => {
         if (isSaving) {
             return (
-                <span className="flex items-center gap-1.5 text-[10px] text-blue-500 dark:text-blue-400">
+                <span className="flex items-center gap-1.5 text-[10px] text-blue-500 dark:text-blue-400" title="Saving...">
                     <Loader2 className="h-3 w-3 animate-spin" />
-                    Saving...
+                    {!compact && "Saving..."}
                 </span>
             );
         }
         if (isDirty) {
             return (
-                <span className="flex items-center gap-1.5 text-[10px] text-amber-500 dark:text-amber-400">
+                <span className="flex items-center gap-1.5 text-[10px] text-amber-500 dark:text-amber-400" title="Unsaved changes">
                     <Cloud className="h-3 w-3" />
-                    Unsaved
+                    {!compact && "Unsaved"}
                 </span>
             );
         }
         if (!isDirty && workflowId) {
             return (
-                <span className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400">
+                <span className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400" title="All changes saved">
                     <CloudCheck className="h-3 w-3" />
-                    Saved
+                    {!compact && "Saved"}
                 </span>
             );
         }
@@ -132,6 +132,19 @@ export function Toolbar({ workflowId, isSaving, mobileMode, setMobileMode, setIs
                     <Play className="h-3.5 w-3.5 fill-current" />
                     Run
                 </Button>
+            </div>
+
+            {/* MOBILE STATUS BAR (Top Right) */}
+            <div className="md:hidden absolute top-4 right-4 bg-white/90 dark:bg-slate-900/40 backdrop-blur-md p-1.5 rounded-lg border border-slate-200 dark:border-blue-900/30 shadow-sm z-20 flex items-center gap-1.5 glass-obsidian">
+                <span className={`text-[9px] font-bold uppercase tracking-wider ${meta.status === 'published' ? 'text-green-600 dark:text-green-500' : 'text-amber-500 dark:text-amber-400'}`}>
+                    {meta.status}
+                </span>
+                <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-blue-900/30 pl-1.5">
+                    v{meta.version}
+                </span>
+                <div className="border-l border-slate-200 dark:border-blue-900/30 pl-1.5 flex items-center">
+                    <SaveIndicator compact />
+                </div>
             </div>
 
             {/* MOBILE FLOATING TOOLBAR (Bottom Center) */}

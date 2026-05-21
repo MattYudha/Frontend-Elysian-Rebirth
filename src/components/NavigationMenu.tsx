@@ -51,6 +51,7 @@ export function NavigationMenu() {
     const { isOpen } = useSidebar();
     const pathname = usePathname();
     const setReturnUrl = useSettingsUiStore((s) => s.setReturnUrl);
+    const openSettings = useSettingsUiStore((s) => s.openSettings);
 
     const hasAnyRole = (allowedRoles: string[]) => {
         if (!user || !user.role) return false;
@@ -119,14 +120,21 @@ export function NavigationMenu() {
                                 return idMap[href];
                             };
 
+                            const isSettings = item.href.startsWith('/settings');
+
                             return (
                                 <Link
                                     key={item.href}
-                                    href={item.href}
+                                    href={isSettings ? '#' : item.href}
                                     id={getOnboardingId(item.href)}
-                                    onClick={() => {
-                                        if (item.href.startsWith('/settings') && !pathname.startsWith('/settings')) {
-                                            setReturnUrl(pathname);
+                                    onClick={(e) => {
+                                        if (isSettings) {
+                                            e.preventDefault();
+                                            openSettings('profile');
+                                        } else {
+                                            if (item.href.startsWith('/settings') && !pathname.startsWith('/settings')) {
+                                                setReturnUrl(pathname);
+                                            }
                                         }
                                     }}
                                     className={cn(
