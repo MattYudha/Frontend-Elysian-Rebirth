@@ -135,7 +135,7 @@ export const rag = {
      * Enterprise RAG Evaluator (Phase 3)
      */
     evaluateGuardrails: async (text: string) => {
-        await delay(1200); // Simulate network and Gemini Semantic Analysis
+        await delay(1200); // Simulate network and MiniMax Semantic Analysis
 
         // FDS Hackathon strict rule matching
         if (text.includes("25.000.000") || text.toLowerCase().includes("25 juta")) {

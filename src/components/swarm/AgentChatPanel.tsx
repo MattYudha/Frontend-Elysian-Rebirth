@@ -79,21 +79,71 @@ export function AgentChatPanel({ result, onBack }: AgentChatPanelProps) {
         }
     }, [messages]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!input.trim()) return;
         
-        setMessages(prev => [...prev, { role: 'user', content: input }]);
+        const userPrompt = input;
+        setMessages(prev => [...prev, { role: 'user', content: userPrompt }]);
         setInput('');
         setIsTyping(true);
 
-        // Mocking LLM chat interaction
-        setTimeout(() => {
+        try {
+            const systemInstruction = `Anda adalah Agent Analis (Auditor Swarm) dari Elysian Rebirth.
+Kamu sedang berdiskusi dengan pengguna (auditor manusia) mengenai temuan audit untuk item anggaran berikut:
+- ID Item: ${result.item_id}
+- Status Akhir: ${result.status}
+- Kesimpulan Manajer Swarm: ${cleanThinkTags(result.manager_conclusion)}
+
+Berikut adalah temuan detail atau catatan perdebatan dari Swarm Agen (Auditor dan Compliance/Pengawas):
+${result.agent_logs.map(log => `- [${log.agent}] ${log.action}: ${cleanThinkTags(log.message)}`).join('\n')}
+
+Tugas utama Anda:
+1. Jawab pertanyaan pengguna mengenai alasan di-flag, perbandingan harga regional, batas maksimum resmi, regulasi POJK yang berlaku, atau kalkulasi lainnya.
+2. Gunakan Bahasa Indonesia yang sopan, ramah, dan profesional. Hindari penjelasan IT yang berbelit-belit. Gunakan sudut pandang "Agent Analis" atau "Auditor".
+3. Bantu pengguna menganalisis apakah temuan ini wajar untuk dilakukan 'override' (diabaikan karena justifikasi tertentu) atau jika harus ditolak.
+4. JANGAN pernah memberikan jawaban template statis yang berulang. Jawablah sesuai secara spesifik dengan pertanyaan dari pengguna dan gunakan data temuan di atas.`;
+
+            // Prepare messages for Next.js BFF API chat route
+            const apiMessages = [
+                ...messages.map(m => ({
+                    role: m.role === 'agent' ? 'assistant' : 'user',
+                    content: m.content
+                })),
+                { role: 'user', content: userPrompt }
+            ];
+
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    messages: apiMessages,
+                    systemInstruction: systemInstruction
+                })
+            });
+
+            if (!res.ok) {
+                throw new Error(`API returned status ${res.status}`);
+            }
+
+            const data = await res.json();
+            setIsTyping(false);
+
+            if (data.reply) {
+                setMessages(prev => [...prev, { role: 'agent', content: data.reply }]);
+            } else if (data.error) {
+                setMessages(prev => [...prev, { role: 'agent', content: `Error: ${data.error}` }]);
+            } else {
+                setMessages(prev => [...prev, { role: 'agent', content: 'Maaf, saya tidak menerima balasan yang valid dari server AI.' }]);
+            }
+        } catch (e: any) {
             setIsTyping(false);
             setMessages(prev => [...prev, { 
                 role: 'agent', 
-                content: 'Sebagai asisten review, saya hanya mengingatkan bahwa standar baku harga regional tidak mengizinkan pengadaan ini tanpa persetujuan khusus Kepala Daerah. Apakah Anda ingin mengabaikan temuan (override) atau menolak item ini?' 
+                content: `Koneksi gagal: ${e.message || 'Terjadi kesalahan sistem saat menghubungi AI.'}` 
             }]);
-        }, 1500);
+        }
     };
 
     return (

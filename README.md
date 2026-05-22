@@ -14,9 +14,10 @@
 
 **Elysian Rebirth** adalah platform audit finansial otonom yang mendeteksi **markup anggaran** pada tahap perencanaan (Pre-Audit) di Pemerintah Daerah Indonesia.
 
-**Tagline:** *"Transformasi dari Passive Checking menjadi Autonomous Financial Oversight."*
+**Tagline:** _"Transformasi dari Passive Checking menjadi Autonomous Financial Oversight."_
 
 ### Masalah yang Dipecahkan:
+
 - 📈 **Markup Anggaran:** Penggelembungan harga pada RAPBD
 - 🐌 **Verifikasi Manual:** Ribuan item dicek manual — rentan human error
 - 📊 **Ketiadaan Data Real-Time:** Sulit akses data historis pengadaan
@@ -47,6 +48,7 @@
 **JANGAN PERNAH** simpan JWT di browser (localStorage/Zustand persist).
 
 **How It Works:**
+
 1. Browser → `/api/proxy/[...slug]` (Next.js API Route)
 2. Server membaca `access_token` dari **HTTP-Only Cookie**
 3. Token disuntikkan ke header `Authorization: Bearer <token>`
@@ -65,31 +67,36 @@
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Framework** | Next.js 14 (App Router) |
-| **Language** | TypeScript |
-| **Styling** | Tailwind CSS + Radix UI + shadcn/ui |
-| **State** | Zustand (pure in-memory, NO localStorage) |
-| **Auth** | HTTP-Only Cookies (BFF Proxy) |
-| **Workflow Viz** | React Flow |
-| **Testing** | Playwright (E2E), Vitest (Unit) |
+| Layer            | Technology                                |
+| ---------------- | ----------------------------------------- |
+| **Framework**    | Next.js 14 (App Router)                   |
+| **Language**     | TypeScript                                |
+| **Styling**      | Tailwind CSS + Radix UI + shadcn/ui       |
+| **State**        | Zustand (pure in-memory, NO localStorage) |
+| **Auth**         | HTTP-Only Cookies (BFF Proxy)             |
+| **Workflow Viz** | React Flow                                |
+| **Testing**      | Playwright (E2E), Vitest (Unit)           |
 
 ---
 
 ## 📁 Key Components
 
 ### SwarmReviewPanel (`src/components/swarm/SwarmReviewPanel.tsx`)
+
 - **Style:** Terminal/CI-CD log (monospace, badges, skeleton loaders)
-- **States:** IDLE → PROCESSING → COMPLETED/FAILED
+- **States:** IDLE → CHECKING_EXISTING → PROCESSING → COMPLETED/FAILED
 - **SSE:** `EventSource('/api/proxy/swarm/events?task_id=${taskId}')`
 - **Blockchain Badge:** Menampilkan "Verified on Blockchain" jika tx_hash tersedia
+- **Task Resumption:** Mendukung pengecekan status tugas yang ada saat inisialisasi komponen (`CHECKING_EXISTING`) berdasarkan filter query document ID guna mencegah trigger duplikat.
+- **Re-run Audit:** Tombol override untuk memicu audit Swarm ulang secara manual pada draf aktif.
 
 ### AgentChatPanel (`src/components/swarm/AgentChatPanel.tsx`)
+
 - Chat langsung dengan agen spesifik (Auditor, Compliance, Manager)
 - Trigger: Klik item yang di-flag di SwarmReviewPanel
 
 ### Middleware (`middleware.ts`)
+
 - Redirect unauthenticated → `/login`
 - Redirect authenticated dari auth pages → `/dashboard`
 - Protected paths: `/dashboard`, `/editor`, `/admin`, `/action-center`, `/chat`
@@ -129,6 +136,7 @@ http://localhost:3000
 ## 📡 API Integration
 
 ### Swarm Review Flow:
+
 ```typescript
 // 1. Trigger Swarm Review
 const res = await fetch('/api/proxy/swarm/upload', {
@@ -158,12 +166,12 @@ const eventSource = new EventSource(
 
 ## 🏛️ Elysian Ecosystem
 
-| Repo | Role | Stack |
-|------|------|-------|
-| [Frontend](https://github.com/MattYudha/Frontend-Elysian-Rebirth) | Orchestrator & Interface | Next.js 14 + TypeScript |
-| [Backend](https://github.com/MattYudha/Backend-Elysian-) | API & Task Queue | Go + Gin + PostgreSQL |
-| [ML](https://github.com/MattYudha/ML-ELYSIAN) | Cognitive Swarm | Python + Flask |
-| [Trust Layer](https://github.com/MattYudha/Backend-Elysian-/tree/main/trust-layer) | Blockchain Audit Trail | Solidity + Hardhat |
+| Repo                                                                               | Role                     | Stack                   |
+| ---------------------------------------------------------------------------------- | ------------------------ | ----------------------- |
+| [Frontend](https://github.com/MattYudha/Frontend-Elysian-Rebirth)                  | Orchestrator & Interface | Next.js 14 + TypeScript |
+| [Backend](https://github.com/MattYudha/Backend-Elysian-)                           | API & Task Queue         | Go + Gin + PostgreSQL   |
+| [ML](https://github.com/MattYudha/ML-ELYSIAN)                                      | Cognitive Swarm          | Python + Flask          |
+| [Trust Layer](https://github.com/MattYudha/Backend-Elysian-/tree/main/trust-layer) | Blockchain Audit Trail   | Solidity + Hardhat      |
 
 ---
 

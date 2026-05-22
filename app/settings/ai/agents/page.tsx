@@ -28,7 +28,7 @@ function AgentsContent() {
         createMutation.mutate({
             name: "Custom Agent " + (dbAgents.length + 1),
             description: "A custom specialist to automate tasks and run checks inside the workspace.",
-            model_used: "gemini-1.5-flash",
+            model_used: "MiniMax-M2.5",
             status: "active",
         }, {
             onSuccess: (newAgent) => {

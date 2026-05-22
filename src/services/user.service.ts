@@ -4,6 +4,8 @@ import { User } from '@/lib/sdk/schemas/auth.schema';
 export interface UpdateUserDTO {
     name?: string;
     avatar_url?: string;
+    bio?: string;
+    links?: string[];
 }
 
 export interface UpdateUserResponse {
@@ -13,6 +15,8 @@ export interface UpdateUserResponse {
         email: string;
         name: string;
         avatar_url?: string;
+        bio: string;
+        links: string[];
         is_active: boolean;
         created_at: string;
     };
@@ -40,13 +44,15 @@ export const userService = {
     /**
      * Gets the current authenticated user's fresh data from the backend
      */
-    getMe: async (): Promise<{ status: string; data: User }> => {
+    getMe: async (): Promise<{ status: string; data: User & { bio: string; links: string[] } }> => {
         const response = await http.get<{ status: string; data: any }>('/api/v1/users/me');
         const rawUser = response.data;
-        const mappedUser: User = {
+        const mappedUser = {
             ...rawUser,
             name: rawUser.name || rawUser.full_name || '',
             avatar: rawUser.avatar || rawUser.avatar_url || '',
+            bio: rawUser.bio || '',
+            links: Array.isArray(rawUser.links) ? rawUser.links : [],
         };
         return {
             status: response.status,

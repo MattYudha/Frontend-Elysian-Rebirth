@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Terminal, ShieldAlert, CheckCircle2, Loader2, X, Link2 } from 'lucide-react';
+import { Terminal, ShieldAlert, CheckCircle2, Loader2, X, Link2, ExternalLink, RefreshCw } from 'lucide-react';
 import { AgentChatPanel } from './AgentChatPanel';
 
 interface LogLine {
@@ -75,7 +75,7 @@ const cleanThinkTags = (text: string | undefined): string => {
 };
 
 export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPanelProps) {
-    const [status, setStatus] = useState<'IDLE' | 'PROCESSING' | 'COMPLETED' | 'FAILED'>('IDLE');
+    const [status, setStatus] = useState<'IDLE' | 'CHECKING_EXISTING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'>('CHECKING_EXISTING');
     const [taskId, setTaskId] = useState<string | null>(null);
     const [results, setResults] = useState<SwarmResult[]>([]);
     const [blockchainInfo, setBlockchainInfo] = useState<BlockchainInfo | null>(null);
@@ -88,6 +88,120 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
     const [activeAgent, setActiveAgent] = useState<'System' | 'Auditor' | 'Pengawas' | 'Manager' | null>('System');
     const consoleEndRef = useRef<HTMLDivElement>(null);
     const hasTriggeredRef = useRef(false);
+
+    const checkExistingTask = async () => {
+        try {
+            const res = await fetch(`/api/proxy/swarm/tasks?document_id=${documentId}`);
+            if (!res.ok) {
+                setStatus('IDLE');
+                return;
+            }
+            const json = await res.json();
+            if (json.status === 'success' && json.data && json.data.length > 0) {
+                const task = json.data[0];
+                setTaskId(task.id);
+                hasTriggeredRef.current = true;
+
+                const blockchain = {
+                    tx_hash: task.blockchain_tx || '',
+                    network: task.blockchain_network || 'Sepolia',
+                    status: task.blockchain_status || 'PENDING_COMMIT'
+                };
+
+                if (task.status === 'COMPLETED') {
+                    const rawResults = task.results;
+                    let parsedResults: SwarmResult[] = [];
+                    if (rawResults) {
+                        parsedResults = typeof rawResults === 'string'
+                            ? JSON.parse(rawResults)
+                            : rawResults;
+                    }
+
+                    // Clean results
+                    const cleanedResults = parsedResults.map((r: any) => ({
+                        ...r,
+                        manager_conclusion: cleanThinkTags(r.manager_conclusion),
+                        agent_logs: (r.agent_logs || []).map((l: any) => ({
+                            ...l,
+                            message: cleanThinkTags(l.message)
+                        }))
+                    }));
+
+                    setResults(cleanedResults);
+                    setBlockchainInfo(blockchain);
+                    
+                    const bcStatus = blockchain.status;
+                    const isBlockchainFinal = bcStatus === 'VERIFIED' || bcStatus === 'FAILED' || bcStatus === 'UNCOMMITTED';
+                    
+                    if (isBlockchainFinal) {
+                        setConsoleLogs(prev => [
+                            ...prev,
+                            {
+                                timestamp: Date.now(),
+                                agent: 'System',
+                                step: bcStatus === 'VERIFIED'
+                                    ? 'Consensus verified. Blockchain audit trail locked. (loaded from history)'
+                                    : `Consensus verified. Blockchain audit trail status: ${bcStatus || 'N/A'}. (loaded from history)`,
+                                type: 'system'
+                            }
+                        ]);
+                        setProgress(100);
+                        setCurrentStep('Review Completed');
+                    } else {
+                        // Blockchain is still committing/confirming
+                        setConsoleLogs(prev => [
+                            ...prev,
+                            {
+                                timestamp: Date.now(),
+                                agent: 'System',
+                                step: bcStatus === 'PENDING_COMMIT'
+                                    ? 'Consensus finalized. Committing audit trail to blockchain... (loaded from history)'
+                                    : 'Blockchain transaction submitted. Waiting for confirmation... (loaded from history)',
+                                type: 'system'
+                            }
+                        ]);
+                        setProgress(bcStatus === 'PENDING_COMMIT' ? 90 : 95);
+                        setCurrentStep(bcStatus === 'PENDING_COMMIT' ? 'Committing to Blockchain...' : 'Confirming Blockchain Transaction...');
+                    }
+                    setStatus('COMPLETED');
+                } else if (task.status === 'PROCESSING' || task.status === 'PENDING') {
+                    setConsoleLogs([
+                        {
+                            timestamp: Date.now(),
+                            agent: 'System',
+                            step: `Resuming swarm review task. Task ID: ${task.id}...`,
+                            type: 'system'
+                        }
+                    ]);
+                    setProgress(task.status === 'PENDING' ? 10 : 50);
+                    setCurrentStep('Resuming consensus task...');
+                    setStatus('PROCESSING');
+                    listenToSSE(task.id);
+                } else if (task.status === 'FAILED') {
+                    setConsoleLogs([
+                        {
+                            timestamp: Date.now(),
+                            agent: 'System',
+                            step: `Task ${task.id} failed in previous run.`,
+                            type: 'system'
+                        }
+                    ]);
+                    setStatus('FAILED');
+                } else {
+                    setStatus('IDLE');
+                }
+            } else {
+                setStatus('IDLE');
+            }
+        } catch (err) {
+            console.error("Error checking existing task:", err);
+            setStatus('IDLE');
+        }
+    };
+
+    useEffect(() => {
+        checkExistingTask();
+    }, [documentId]);
 
     // Auto-scroll logic for terminal console
     useEffect(() => {
@@ -226,19 +340,6 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                         }];
                     });
                 } else if (data.status === 'COMPLETED') {
-                    setConsoleLogs(prev => [
-                        ...prev,
-                        {
-                            timestamp: Date.now(),
-                            agent: 'System',
-                            step: 'Consensus verified. Blockchain audit trail locked.',
-                            type: 'system'
-                        }
-                    ]);
-                    setProgress(100);
-                    setCurrentStep('Review Completed');
-                    setActiveAgent(null);
-
                     const cleanedResults = (data.results || []).map((r: any) => ({
                         ...r,
                         manager_conclusion: cleanThinkTags(r.manager_conclusion),
@@ -251,7 +352,50 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                     setResults(cleanedResults);
                     setBlockchainInfo(data.blockchain || null);
                     setStatus('COMPLETED');
-                    eventSource.close();
+
+                    const bcStatus = data.blockchain?.status;
+                    const isBlockchainFinal = !bcStatus || bcStatus === 'VERIFIED' || bcStatus === 'FAILED' || bcStatus === 'UNCOMMITTED';
+
+                    if (isBlockchainFinal) {
+                        setConsoleLogs(prev => {
+                            if (prev.some(log => log.step.includes('Consensus verified'))) return prev;
+                            return [
+                                ...prev,
+                                {
+                                    timestamp: Date.now(),
+                                    agent: 'System',
+                                    step: bcStatus === 'VERIFIED' 
+                                        ? 'Consensus verified. Blockchain audit trail locked.'
+                                        : `Consensus verified. Blockchain audit trail status: ${bcStatus || 'N/A'}.`,
+                                    type: 'system'
+                                }
+                            ];
+                        });
+                        setProgress(100);
+                        setCurrentStep('Review Completed');
+                        setActiveAgent(null);
+                        eventSource.close();
+                    } else {
+                        // Blockchain is still committing or confirming!
+                        setConsoleLogs(prev => {
+                            const stepMsg = bcStatus === 'PENDING_COMMIT' 
+                                ? 'Consensus finalized. Committing audit trail to blockchain...' 
+                                : 'Blockchain transaction submitted. Waiting for confirmation...';
+                            
+                            if (prev.some(log => log.step === stepMsg)) return prev;
+                            return [
+                                ...prev,
+                                {
+                                    timestamp: Date.now(),
+                                    agent: 'System',
+                                    step: stepMsg,
+                                    type: 'system'
+                                }
+                            ];
+                        });
+                        setProgress(bcStatus === 'PENDING_COMMIT' ? 90 : 95);
+                        setCurrentStep(bcStatus === 'PENDING_COMMIT' ? 'Committing to Blockchain...' : 'Confirming Blockchain Transaction...');
+                    }
                 }
             } catch (e) {
                 console.error("Failed to parse SSE", e);
@@ -296,7 +440,11 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
 
     // Polling fallback to check task status in case SSE stream is disconnected
     useEffect(() => {
-        if (status !== 'PROCESSING' || !taskId) return;
+        if (!taskId) return;
+
+        const isBcFinal = blockchainInfo && (blockchainInfo.status === 'VERIFIED' || blockchainInfo.status === 'FAILED' || blockchainInfo.status === 'UNCOMMITTED');
+        const shouldPoll = status === 'PROCESSING' || (status === 'COMPLETED' && !isBcFinal);
+        if (!shouldPoll) return;
 
         const intervalId = setInterval(async () => {
             try {
@@ -305,9 +453,16 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                 const json = await res.json();
                 if (json.status === 'success' && json.data) {
                     const task = json.data;
-                    if (task.status === 'COMPLETED') {
-                        clearInterval(intervalId);
+                    
+                    const blockchain = {
+                        tx_hash: task.blockchain_tx || '',
+                        network: task.blockchain_network || 'Sepolia',
+                        status: task.blockchain_status || 'PENDING_COMMIT'
+                    };
 
+                    const isBlockchainFinal = blockchain.status === 'VERIFIED' || blockchain.status === 'FAILED' || blockchain.status === 'UNCOMMITTED';
+
+                    if (task.status === 'COMPLETED') {
                         const rawResults = task.results;
                         let parsedResults: SwarmResult[] = [];
                         if (rawResults) {
@@ -326,34 +481,53 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                             }))
                         }));
 
-                        // Map blockchain details
-                        const blockchain = task.blockchain_tx ? {
-                            tx_hash: task.blockchain_tx,
-                            network: task.blockchain_network,
-                            status: task.blockchain_status
-                        } : null;
-
-                        setConsoleLogs(prev => {
-                            if (prev.some(l => l.step.includes('Consensus verified'))) {
-                                return prev;
-                            }
-                            return [
-                                ...prev,
-                                {
-                                    timestamp: Date.now(),
-                                    agent: 'System',
-                                    step: 'Consensus verified. Blockchain audit trail locked. (via status polling)',
-                                    type: 'system'
-                                }
-                            ];
-                        });
-
-                        setProgress(100);
-                        setCurrentStep('Review Completed');
-                        setActiveAgent(null);
                         setResults(cleanedResults);
                         setBlockchainInfo(blockchain);
-                        setStatus('COMPLETED');
+
+                        if (isBlockchainFinal) {
+                            clearInterval(intervalId);
+                            setConsoleLogs(prev => {
+                                if (prev.some(l => l.step.includes('Consensus verified'))) {
+                                    return prev;
+                                }
+                                return [
+                                    ...prev,
+                                    {
+                                        timestamp: Date.now(),
+                                        agent: 'System',
+                                        step: blockchain?.status === 'VERIFIED'
+                                            ? 'Consensus verified. Blockchain audit trail locked. (via status polling)'
+                                            : `Consensus verified. Blockchain audit trail status: ${blockchain?.status || 'N/A'} (via status polling)`,
+                                        type: 'system'
+                                    }
+                                ];
+                            });
+
+                            setProgress(100);
+                            setCurrentStep('Review Completed');
+                            setActiveAgent(null);
+                            setStatus('COMPLETED');
+                        } else {
+                            // Update console logs for blockchain progress in polling fallback
+                            setConsoleLogs(prev => {
+                                const stepMsg = blockchain.status === 'PENDING_COMMIT'
+                                    ? 'Committing audit trail to blockchain... (via status polling)'
+                                    : 'Confirming blockchain transaction... (via status polling)';
+                                if (prev.some(l => l.step === stepMsg)) return prev;
+                                return [
+                                    ...prev,
+                                    {
+                                        timestamp: Date.now(),
+                                        agent: 'System',
+                                        step: stepMsg,
+                                        type: 'system'
+                                    }
+                                ];
+                            });
+                            setProgress(blockchain.status === 'PENDING_COMMIT' ? 90 : 95);
+                            setCurrentStep(blockchain.status === 'PENDING_COMMIT' ? 'Committing to Blockchain...' : 'Confirming Blockchain Transaction...');
+                            setStatus('COMPLETED');
+                        }
                     } else if (task.status === 'FAILED') {
                         clearInterval(intervalId);
                         setStatus('FAILED');
@@ -374,7 +548,7 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
         }, 3000);
 
         return () => clearInterval(intervalId);
-    }, [status, taskId]);
+    }, [status, taskId, blockchainInfo]);
 
     if (selectedItemForChat) {
         return (
@@ -403,7 +577,13 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                     <X className="h-4 w-4" />
                 </Button>
             </div>
-            
+            {status === 'CHECKING_EXISTING' && (
+                <div className="flex-1 flex flex-col items-center justify-center space-y-3 shrink-0">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium animate-pulse">Checking task history...</span>
+                </div>
+            )}
+
             {status === 'PROCESSING' && (
                 <div className="flex-1 flex flex-col min-h-0 space-y-3 overflow-hidden">
                     {/* Professional Console/Terminal */}
@@ -518,18 +698,78 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
             )}
 
             {status === 'COMPLETED' && (
-                <div className="space-y-4 flex-1 overflow-y-auto pr-1">
-                    {/* Blockchain verification badge */}
-                    {blockchainInfo?.tx_hash && (
-                        <div className="p-2.5 rounded border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300 shadow-sm transition-all duration-300">
-                            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[10px]">
-                                <Link2 className="h-3 w-3" />
-                                <span className="font-bold">Verified on Blockchain</span>
-                            </div>
-                            <div className="text-[9px] text-emerald-600/70 dark:text-emerald-400/50 mt-1 truncate font-mono">
-                                {blockchainInfo.network} · {blockchainInfo.tx_hash.slice(0, 20)}...
-                            </div>
-                        </div>
+                <div className="space-y-4 flex-1 overflow-y-auto pr-1 flex flex-col">
+                    <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full text-xs border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 gap-1.5 font-bold uppercase tracking-wider mb-2 shrink-0 py-2.5 flex items-center justify-center text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:border-blue-300 dark:hover:border-blue-800" 
+                        onClick={triggerSwarm}
+                    >
+                        <RefreshCw className="h-3.5 w-3.5" /> Re-run Swarm Audit
+                    </Button>
+                    {/* Blockchain verification card */}
+                    {blockchainInfo && (
+                        (() => {
+                            const status = blockchainInfo.status || 'PENDING_COMMIT';
+                            let cardClass = '';
+                            let iconClass = '';
+                            const textClass = '';
+                            let badgeText = '';
+                            let icon = null;
+
+                            if (status === 'VERIFIED') {
+                                cardClass = 'border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-300';
+                                iconClass = 'text-emerald-600 dark:text-emerald-400';
+                                badgeText = 'Verified on Blockchain';
+                                icon = <CheckCircle2 className="h-3.5 w-3.5 animate-pulse" />;
+                            } else if (status === 'FAILED') {
+                                cardClass = 'border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 text-red-800 dark:text-red-300';
+                                iconClass = 'text-red-600 dark:text-red-400';
+                                badgeText = 'Blockchain Commit Failed';
+                                icon = <ShieldAlert className="h-3.5 w-3.5 animate-bounce" />;
+                            } else if (status === 'PENDING_CONFIRMATION') {
+                                cardClass = 'border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300';
+                                iconClass = 'text-amber-600 dark:text-amber-400';
+                                badgeText = 'Confirming Transaction...';
+                                icon = <Loader2 className="h-3.5 w-3.5 animate-spin" />;
+                            } else {
+                                // PENDING_COMMIT or empty
+                                cardClass = 'border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/20 text-blue-800 dark:text-blue-300';
+                                iconClass = 'text-blue-600 dark:text-blue-400';
+                                badgeText = 'Committing to Blockchain...';
+                                icon = <Loader2 className="h-3.5 w-3.5 animate-spin" />;
+                            }
+
+                            return (
+                                <div className={`p-3 rounded-lg border shadow-sm transition-all duration-300 ${cardClass}`}>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-[10px] font-bold tracking-wide">
+                                            {icon}
+                                            <span className={iconClass}>{badgeText}</span>
+                                        </div>
+                                        {blockchainInfo.tx_hash && (
+                                            <a 
+                                                href={`https://sepolia.etherscan.io/tx/${blockchainInfo.tx_hash}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-1 text-[9px] hover:underline opacity-85 hover:opacity-100 font-sans font-semibold transition-opacity duration-200 text-blue-650 dark:text-blue-450"
+                                            >
+                                                <span>View Tx</span>
+                                                <ExternalLink className="h-2.5 w-2.5" />
+                                            </a>
+                                        )}
+                                    </div>
+                                    <div className="text-[9px] mt-1.5 font-mono opacity-70 flex justify-between items-center">
+                                        <span>Network: {blockchainInfo.network || 'Sepolia'}</span>
+                                        {blockchainInfo.tx_hash && (
+                                            <span className="truncate max-w-[150px] text-right font-mono" title={blockchainInfo.tx_hash}>
+                                                Tx: {blockchainInfo.tx_hash.slice(0, 10)}...{blockchainInfo.tx_hash.slice(-8)}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })()
                     )}
 
                     {results.map((res, idx) => (
