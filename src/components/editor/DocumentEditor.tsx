@@ -160,6 +160,82 @@ export function DocumentEditor({
         }
     }, [currentDocument, editor]);
 
+    // Feature 7: Debounced Instant Guardrails Precheck
+    useEffect(() => {
+        if (!editor) return;
+
+        const timer = setTimeout(async () => {
+            const text = extractPlainText(editor);
+            if (!text) return;
+
+            // Extract item blocks like: "Semen Padang : Rp 120.000" or "Printer : Rp 4.500.000"
+            const itemPattern = /([a-zA-Z0-9\s]+?)\s*:\s*Rp\s*([0-9.,]+)/gi;
+            const items: Array<{ item_name: string; price: number }> = [];
+            let match;
+            while ((match = itemPattern.exec(text)) !== null) {
+                const name = match[1].trim();
+                const priceStr = match[2].replace(/[.,]/g, '');
+                const price = parseFloat(priceStr);
+                if (name && !isNaN(price)) {
+                    items.push({ item_name: name, price });
+                }
+            }
+
+            if (items.length === 0) {
+                // Clear highlights if no item blocks are present
+                editor.setOptions({
+                    fdsGuardrail: {
+                        violations: []
+                    }
+                } as any);
+                const tr = editor.view.state.tr;
+                tr.setMeta('fdsGuardrailViolations', []);
+                tr.setMeta('fdsGuardrailForceUpdate', true);
+                editor.view.dispatch(tr);
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/proxy/guardrails/precheck', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ items })
+                });
+
+                if (res.ok) {
+                    const result = await res.json();
+                    const newViolations: Array<{ term: string; max_price: number }> = [];
+                    if (result.data) {
+                        for (const item of result.data) {
+                            if (item.is_violation) {
+                                newViolations.push({
+                                    term: item.item_name,
+                                    max_price: item.max_price
+                                });
+                            }
+                        }
+                    }
+                    editor.setOptions({
+                        fdsGuardrail: {
+                            violations: newViolations
+                        }
+                    } as any);
+                    // Force ProseMirror plugin state apply to update decorations immediately
+                    const tr = editor.view.state.tr;
+                    tr.setMeta('fdsGuardrailViolations', newViolations);
+                    tr.setMeta('fdsGuardrailForceUpdate', true);
+                    editor.view.dispatch(tr);
+                }
+            } catch (err) {
+                console.error("Failed to perform guardrails precheck:", err);
+            }
+        }, 800);
+
+        return () => clearTimeout(timer);
+    }, [editor, currentDocument?.content]);
+
     const handleProcessWithAI = async () => {
         if (!editor) return;
 

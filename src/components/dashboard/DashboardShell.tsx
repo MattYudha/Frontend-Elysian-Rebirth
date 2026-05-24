@@ -34,6 +34,7 @@ import { TenantAvatarGroup, type TenantMember } from './TenantAvatarGroup';
 import { CostForecaster } from './enterprise/CostForecaster';
 import { LatencyMonitor } from './enterprise/LatencyMonitor';
 import { AuditLogWidget } from './enterprise/AuditLogWidget';
+import { RegionalHeatmap } from './enterprise/RegionalHeatmap';
 import type { CostMetric, LatencyMetric, AuditLog } from '@/types/api-responses';
 
 // ─── Date range type ───────────────────────────────────────
@@ -139,6 +140,7 @@ export function DashboardShell({ }: DashboardShellProps) {
     // ── Transform Data ────────────────────────────────────
     const usageCosts = (chartData && 'usage_costs' in chartData && Array.isArray(chartData.usage_costs)) ? chartData.usage_costs : [];
     const latencyList = (chartData && 'latency' in chartData && Array.isArray(chartData.latency)) ? chartData.latency : [];
+    const savingsList = (chartData && 'budget_savings' in chartData && Array.isArray(chartData.budget_savings)) ? chartData.budget_savings : [];
 
     const chartPoints: ChartDataPoint[] = usageCosts.map(d => ({
         day: d.date,
@@ -155,6 +157,13 @@ export function DashboardShell({ }: DashboardShellProps) {
         budget: budgetLimit,
         projected: d.cost * 1.25,
     }));
+
+    const savingsChartData = savingsList.map(d => ({
+        date: d.date,
+        savings: d.savings,
+    }));
+
+    const totalSavings = stats?.total_savings ?? 0;
 
     const latencyData: LatencyMetric[] = latencyList.map(d => ({
         timestamp: d.date,
@@ -346,7 +355,20 @@ export function DashboardShell({ }: DashboardShellProps) {
 
                     {/* 3. Cost Forecaster (Full Width) */}
                     <div className="w-full min-w-0">
-                        <CostForecaster data={costData} isLoading={statsLoading} />
+                        <CostForecaster 
+                            data={costData} 
+                            savingsData={savingsChartData} 
+                            totalSavings={totalSavings} 
+                            isLoading={statsLoading || chartLoading} 
+                        />
+                    </div>
+
+                    {/* Regional Heatmap (Full Width) */}
+                    <div className="w-full min-w-0">
+                        <RegionalHeatmap 
+                            data={stats?.regional_heatmap} 
+                            isLoading={statsLoading} 
+                        />
                     </div>
 
                     {/* 4. Latency Monitor (Full Width) */}

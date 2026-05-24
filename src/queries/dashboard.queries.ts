@@ -29,6 +29,8 @@ export interface DashboardStats {
     latency_p95_ms?: number;
     budget_limit?: number;
     systems?: Record<string, string>;
+    total_savings?: number;
+    regional_heatmap?: Array<{ region: string; flagged_count: number; total_markup: number; }>;
 }
 
 export function useDashboardStats() {
@@ -59,6 +61,10 @@ export function useDashboardStats() {
                 // Billing / system
                 budget_limit: Number(d.budget_limit ?? 5000),
                 systems:      d.systems as Record<string, string> | undefined,
+
+                // Savings & Heatmap
+                total_savings:    Number(d.total_savings ?? 0),
+                regional_heatmap: d.regional_heatmap ?? [],
             } satisfies DashboardStats;
         },
         staleTime: 30_000,
@@ -89,9 +95,15 @@ export interface LatencyPoint {
     errors?: number;
 }
 
+export interface SavingsPoint {
+    date: string;
+    savings: number;
+}
+
 export interface DashboardChartData {
     usage_costs: UsageCostPoint[];
     latency: LatencyPoint[];
+    budget_savings: SavingsPoint[];
 }
 
 export function useChartData() {
@@ -102,7 +114,7 @@ export function useChartData() {
         queryKey: ['dashboard', tenantId, 'chart'],
         queryFn: async () => {
             const res = await http.get<{ status: string; data: DashboardChartData }>('/api/v1/dashboard/charts');
-            return res.data || { usage_costs: [], latency: [] };
+            return res.data || { usage_costs: [], latency: [], budget_savings: [] };
         },
         staleTime: 30_000,
         enabled: !!tenantId,
