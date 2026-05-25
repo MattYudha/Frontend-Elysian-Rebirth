@@ -113,11 +113,10 @@ function LoginForm() {
                MOBILE LAYOUT: Unified "Clean Light" Aesthetic
                Matches Desktop "Glass Citadel" vibes.
             -------------------------------------------------------------------------------- */}
-            <div className="lg:hidden fixed inset-0 z-50 w-full min-h-screen flex flex-col items-center justify-start pt-12 px-6 bg-white overflow-y-auto">
-
+            <div className="lg:hidden fixed inset-0 z-50 w-full min-h-screen flex flex-col items-center justify-start pt-12 px-6 bg-slate-50 dark:bg-[#0b1120] overflow-y-auto overflow-x-hidden">
                 {/* Background Decor (Subtle) */}
-                <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[300px] bg-blue-100/50 rounded-full blur-[80px] pointer-events-none" />
-                <div className="absolute bottom-[-10%] right-[-20%] w-[80%] h-[300px] bg-indigo-100/50 rounded-full blur-[80px] pointer-events-none" />
+                <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[300px] bg-blue-100/50 dark:bg-blue-900/20 rounded-full blur-[80px] pointer-events-none overflow-hidden" />
+                <div className="absolute bottom-[-10%] right-[-20%] w-[80%] h-[300px] bg-indigo-100/50 dark:bg-indigo-900/20 rounded-full blur-[80px] pointer-events-none overflow-hidden" />
 
                 {/* 1. Header & Rive Stage */}
                 <div className="w-full flex flex-col items-center z-10 relative">
@@ -138,10 +137,10 @@ function LoginForm() {
                 </div>
 
                 {/* 2. The Card (Floating, White, Clean) */}
-                <div className="w-full max-w-[380px] bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 p-6 z-30 relative mb-8">
+                <div className="w-full max-w-[380px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-slate-200/60 dark:border-slate-800/60 p-6 z-30 relative mb-8">
                     <div className="text-center mb-6">
-                        <h1 className="text-xl font-bold tracking-tight text-slate-900">Selamat Datang Kembali</h1>
-                        <p className="text-slate-500 text-xs font-medium mt-1">Masukkan kredensial Anda untuk mengakses fitur.</p>
+                        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Selamat Datang Kembali</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Masukkan kredensial Anda untuk mengakses fitur.</p>
                     </div>
 
                     <SocialAuth />
@@ -159,10 +158,10 @@ function LoginForm() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Email</FormLabel>
                                         <FormControl>
                                             <Input
-                                                className="bg-slate-50 border-slate-200 h-11 rounded-xl px-4 text-slate-900 font-medium focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
+                                                className="bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 h-11 rounded-xl px-4 text-slate-900 dark:text-white font-medium focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all shadow-sm"
                                                 placeholder="name@company.com"
                                                 {...field}
                                                 onFocus={() => setIsEmailFocused(true)}
@@ -180,15 +179,15 @@ function LoginForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="flex items-center justify-between">
-                                            <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Kata Sandi</FormLabel>
-                                            <Link href="/forgot-password" className="text-xs text-blue-600 font-bold hover:underline">
+                                            <FormLabel className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Kata Sandi</FormLabel>
+                                            <Link href="/forgot-password" className="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">
                                                 Lupa?
                                             </Link>
                                         </div>
                                         <FormControl>
                                             <div className="relative">
                                                 <InputPassword
-                                                    className="bg-slate-50 border-slate-200 h-11 rounded-xl px-4 text-slate-900 font-medium focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
+                                                    className="bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 h-11 rounded-xl px-4 text-slate-900 dark:text-white font-medium focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all shadow-sm"
                                                     placeholder="••••••••"
                                                     {...field}
                                                     onFocus={() => setIsPasswordFocused(true)}
@@ -248,10 +247,10 @@ function LoginForm() {
                     </div>
 
                     <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                             Selamat Datang Kembali
                         </h1>
-                        <p className="text-slate-500 text-sm">
+                        <p className="text-slate-600 dark:text-slate-400 text-sm">
                             Masukkan kredensial Anda untuk mengakses ruang kerja.
                         </p>
                     </div>
@@ -271,11 +270,11 @@ function LoginForm() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Alamat Email</FormLabel>
+                                        <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 ml-1">Alamat Email</FormLabel>
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
+                                                className="h-11 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium shadow-sm"
                                                 placeholder="name@company.com"
                                                 onFocus={() => setIsEmailFocused(true)}
                                                 onBlur={() => setIsEmailFocused(false)}
@@ -292,15 +291,15 @@ function LoginForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="flex items-center justify-between">
-                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Kata Sandi</FormLabel>
-                                            <Link href="/forgot-password" className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 ml-1">Kata Sandi</FormLabel>
+                                            <Link href="/forgot-password" className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium hover:underline">
                                                 Lupa?
                                             </Link>
                                         </div>
                                         <FormControl>
                                             <InputPassword
                                                 {...field}
-                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
+                                                className="h-11 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium shadow-sm"
                                                 placeholder="••••••••"
                                                 onFocus={() => setIsPasswordFocused(true)}
                                                 onBlur={() => setIsPasswordFocused(false)}

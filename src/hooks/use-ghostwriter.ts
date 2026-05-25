@@ -21,41 +21,28 @@ const TRIGGER_ENDINGS = [
 
 // Conditions that SHOULD NOT trigger (user is mid-word or just started)
 function shouldNotTrigger(text: string): boolean {
-    if (!text || text.length < 20) return true;
-
+    if (!text || text.trim().length < 5) return true;
+    
     const lastChar = text[text.length - 1];
-
-    // Don't trigger mid-word (last char is a letter with no space before end)
-    // i.e., user is in the middle of typing a word
-    const lastWordMatch = text.match(/\S+$/);
-    if (lastWordMatch) {
-        const lastWord = lastWordMatch[0];
-        // If last word is short (< 3 chars) and no trigger ending, skip
-        if (lastWord.length < 3 && !/[,;:]$/.test(text)) return true;
-    }
-
+    
     // Don't trigger if the text ends with a newline (new paragraph)
     if (lastChar === '\n') return true;
 
+    // Allow trigger if user just typed a space (waiting for next word)
+    if (lastChar === ' ') return false;
+    
     // Don't trigger if text ends with numbers only (user typing a price)
     if (/\d+$/.test(text.trimEnd())) return true;
+    
+    // If no space, only trigger if it ends with punctuation
+    if (/[,;:\.]$/.test(text)) return false;
 
-    return false;
-}
-
-// Check if any trigger pattern matches the end of the text
-function hasTriggerEnding(text: string): boolean {
-    const trimmed = text.trimEnd();
-    return TRIGGER_ENDINGS.some(pattern => pattern.test(trimmed));
+    return true; // Wait for space or punctuation
 }
 
 // Calculate a debounce delay based on context:
-// - Faster for recognized trigger phrases
-// - Slower/off for neutral contexts
 function getDebounceDelay(text: string): number {
-    if (hasTriggerEnding(text)) return 900;  // 0.9s for clear trigger phrases
-    if (text.trimEnd().endsWith(' ')) return 1400; // 1.4s for general space pause
-    return 2000; // 2s default for ambiguous contexts
+    return 1000; // 1 second debounce for better responsiveness
 }
 
 export function useGhostwriter(editor: Editor | null, _isMobile: boolean) {

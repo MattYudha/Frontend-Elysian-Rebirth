@@ -29,6 +29,35 @@ import { QuickCreateModalLayout } from '@/components/ui/QuickCreateModalLayout';
 import { AiCopilotWidget } from './enterprise/AiCopilotWidget';
 import { PriorityActionQueue, ActionItem } from './enterprise/PriorityActionQueue';
 import { TenantAvatarGroup, type TenantMember } from './TenantAvatarGroup';
+import { GettingStartedWidget } from './GettingStartedWidget';
+import { GuidedTour } from '@/components/ui/GuidedTour';
+
+const dashboardTourSteps = [
+    {
+        targetSelector: '.tour-getting-started',
+        title: 'Checklist Langkah Awal',
+        content: 'Selamat datang di Elysian Rebirth! Selesaikan checklist interaktif ini untuk memandu Anda menguji fitur-fitur platform seperti mengunggah regulasi, memuat draf contoh, dan menjalankan AI Swarm.',
+        position: 'left' as const
+    },
+    {
+        targetSelector: '.tour-metrics',
+        title: 'Metrik Pengawasan Real-time',
+        content: 'Di sini Anda dapat melihat jumlah dokumen draf anggaran yang aktif, total panggilan API otonom, dan status alur pipa (pipelines) Anda.',
+        position: 'bottom' as const
+    },
+    {
+        targetSelector: '.tour-heatmap',
+        title: 'Peta Regional Anomali Anggaran',
+        content: 'Peta interaktif ini memperlihatkan daerah mana saja di Indonesia dengan tingkat markup anggaran tertinggi berdasarkan basis data pengadaan Nemesis DB.',
+        position: 'top' as const
+    },
+    {
+        targetSelector: '.tour-quick-create',
+        title: 'Pembuatan Cepat Pipeline',
+        content: 'Ingin membuat alur kerja audit kustom baru? Klik tombol ini untuk membuat Pipeline RAG, ETL, atau AI otonom kustom secara instan!',
+        position: 'bottom' as const
+    }
+];
 
 // New "Expansion" Components
 import { CostForecaster } from './enterprise/CostForecaster';
@@ -272,7 +301,7 @@ export function DashboardShell({ }: DashboardShellProps) {
                     {/* ── Quick Create (Wired to Backend) ── */}
                     <button
                         onClick={() => setIsQuickCreateOpen(true)}
-                        className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm shadow-blue-500/30 hover:shadow-blue-500/40"
+                        className="tour-quick-create flex-1 sm:flex-none justify-center flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm shadow-blue-500/30 hover:shadow-blue-500/40"
                     >
                         <Plus className="h-4 w-4" />
                         Quick Create
@@ -355,7 +384,7 @@ export function DashboardShell({ }: DashboardShellProps) {
                 <div className="flex min-w-0 flex-col space-y-4 sm:space-y-6 lg:col-span-7 xl:col-span-8">
 
                     {/* 1. Primary KPIs (Row of 3 or 4 small cards) */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="tour-metrics grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <PrimaryKpiCard
                             label={t.dashboard.documents}
                             value={(stats?.docs ?? 0).toLocaleString()}
@@ -411,7 +440,7 @@ export function DashboardShell({ }: DashboardShellProps) {
                     </div>
 
                     {/* Regional Heatmap (Full Width) — only real flagged data from DB */}
-                    <div className="w-full min-w-0">
+                    <div id="regional-heatmap" className="tour-heatmap w-full min-w-0">
                         <RegionalHeatmap 
                             data={(stats?.regional_heatmap ?? []).filter(
                                 (r: any) => r.flagged_count > 0 && r.total_markup > 0
@@ -446,6 +475,11 @@ export function DashboardShell({ }: DashboardShellProps) {
                 {/* RIGHT COLUMN: ASSISTANT & TASKS (Span 4 cols) */}
                 {/* ========================================== */}
                 <div className="flex w-full flex-col space-y-4 sm:space-y-6 lg:col-span-5 xl:col-span-4 lg:sticky lg:top-6 lg:self-start lg:h-[calc(100vh-2rem)] lg:overflow-y-auto lg:no-scrollbar pb-6">
+
+                    {/* Getting Started Onboarding Checklist Widget */}
+                    <div className="shrink-0">
+                        <GettingStartedWidget />
+                    </div>
 
                     {/* 1. AI Assistant Widget (Persistent, highly prominent) */}
                     <div className="shrink-0">
@@ -572,6 +606,9 @@ export function DashboardShell({ }: DashboardShellProps) {
                     </div>
                 )}
             </QuickCreateModalLayout>
+
+            {/* Guided Tour Engine */}
+            <GuidedTour steps={dashboardTourSteps} tourKey="dashboard_tour" />
         </div>
     );
 }

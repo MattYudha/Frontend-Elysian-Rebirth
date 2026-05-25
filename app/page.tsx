@@ -2,15 +2,24 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic'; // Dynamic import
+import dynamic from 'next/dynamic';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import {
     Shield, Zap, XCircle, Bot, FileText,
-    ArrowRight, Sparkles, TrendingUp, Store, Truck, PenTool, Stethoscope, CheckCircle2
+    ArrowRight, Sparkles, TrendingUp, Store, Truck, PenTool, Stethoscope, CheckCircle2,
+    Layers, Cpu, Database, Network, HelpCircle, ArrowUpRight
 } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton'; // Skeleton for lazy loading
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useTheme } from 'next-themes';
+
+// Eager imports (Above the fold components)
+import { LandingNavbar } from '@/components/LandingNavbar';
+import { LandingTerminal } from '@/components/LandingTerminal';
+import { CTASection } from '@/components/CTASection';
+
+// Interactive Hackathon Blueprint Component
+import { HackathonBlueprint } from '@/components/HackathonBlueprint';
 
 // Dynamic Imports with Loading Skeletons for Heavy Sections
 const ProductShowcase = dynamic(() => import('@/components/ProductShowcase').then(mod => mod.ProductShowcase), {
@@ -20,7 +29,7 @@ const FeatureDeepDive = dynamic(() => import('@/components/FeatureDeepDive').the
     loading: () => <div className="py-20"><Skeleton className="w-full max-w-7xl mx-auto h-[500px] rounded-3xl" /></div>,
 });
 const IntegrationsCarousel = dynamic(() => import('@/components/IntegrationsCarousel').then(mod => mod.IntegrationsCarousel), {
-    ssr: false, // Carousel often has hydration issues, safe to disable SSR if below fold
+    ssr: false,
     loading: () => <div className="py-12"><Skeleton className="w-full h-32 rounded-xl" /></div>,
 });
 const CollaborationSection = dynamic(() => import('@/components/CollaborationSection').then(mod => mod.CollaborationSection), {
@@ -30,26 +39,12 @@ const AiAgentsSection = dynamic(() => import('@/components/AiAgentsSection').the
     loading: () => <div className="py-20"><Skeleton className="w-full max-w-7xl mx-auto h-[600px] rounded-3xl" /></div>,
 });
 const FloatingBentoGrid = dynamic(() => import('@/components/FloatingBentoGrid').then(mod => mod.FloatingBentoGrid), {
-    ssr: false, // Client interaction heavy
+    ssr: false,
     loading: () => <Skeleton className="w-full h-full rounded-3xl min-h-[500px]" />,
 });
 const ElysianSpace = dynamic(() => import('@/components/backgrounds/ElysianSpace').then(mod => mod.ElysianSpace), {
     ssr: false,
 });
-import { CTASection } from '@/components/CTASection';
-
-
-// Eager imports (Above the fold components)
-// import { ProductShowcase } from '@/components/ProductShowcase'; // Converted to dynamic
-// import { FeatureDeepDive } from '@/components/FeatureDeepDive'; // Converted to dynamic
-// import { IntegrationsCarousel } from '@/components/IntegrationsCarousel'; // Converted to dynamic
-// import { CollaborationSection } from '@/components/CollaborationSection'; // Converted to dynamic
-// import { AiAgentsSection } from '@/components/AiAgentsSection'; // Converted to dynamic
-// import { FloatingBentoGrid } from '@/components/FloatingBentoGrid'; // Converted to dynamic
-// Eager imports (Above the fold components)
-import { LandingNavbar } from '@/components/LandingNavbar';
-import { LandingTerminal } from '@/components/LandingTerminal';
-// import { PricingSection } from '@/components/PricingSection';
 
 export default function ElysianLanding() {
     const { t, locale } = useTranslation();
@@ -59,59 +54,54 @@ export default function ElysianLanding() {
         offset: ["start start", "end start"]
     });
 
-    // Terminal View State
     const [showTerminal, setShowTerminal] = useState(false);
-
-    const toggleTerminal = (value: boolean) => {
-        setShowTerminal(value);
-    };
-
     const [showBackground, setShowBackground] = useState(false);
-
-    useEffect(() => {
-        // Delayed load of heavy background to prioritize TTI
-        const timer = setTimeout(() => setShowBackground(true), 2000);
-        return () => clearTimeout(timer);
-    }, []);
-
     const { resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
+        const timer = setTimeout(() => setShowBackground(true), 2000);
+        return () => clearTimeout(timer);
     }, []);
 
-    // Provide safe defaults during SSR and before hydration
     const isLandingDark = mounted ? resolvedTheme === 'dark' : false;
-
     const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
     const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -50]);
+
+    const toggleTerminal = (value: boolean) => {
+        setShowTerminal(value);
+    };
 
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className={`min-h-screen font-sans overflow-x-hidden w-full selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900 dark:selection:text-blue-100 transition-colors duration-[600ms] ease-in-out ${isLandingDark ? 'bg-transparent' : 'bg-white'
-                }`}
+            className={`min-h-screen font-sans overflow-x-hidden w-full selection:bg-blue-100 selection:text-blue-900 dark:selection:bg-blue-900 dark:selection:text-blue-100 transition-colors duration-[600ms] ease-in-out ${
+                isLandingDark ? 'bg-[#030712] text-slate-100' : 'bg-white text-slate-900'
+            }`}
         >
-            {/* Floating Navigation - Custom SaaS Style */}
+            {/* Floating Navigation */}
             <LandingNavbar
                 showTerminal={showTerminal}
                 setShowTerminal={toggleTerminal}
             />
 
-            {/* 3D Space Background - Fixed Global Overlay (Dark Mode Only) - Lazy Loaded */}
+            {/* 3D Space Background Overlay (Dark Mode Only) */}
             {showBackground && isLandingDark && <ElysianSpace />}
 
-            {/* Hero Section - Anti-Gravity + Floating Bento (Combined) */}
-            <section ref={heroRef} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden elysian-grid-light">
+            {/* HERO SECTION: Anti-Gravity + Dynamic Typography */}
+            <section ref={heroRef} className="relative min-h-[95vh] flex items-center justify-center overflow-hidden elysian-grid-light pt-24 sm:pt-28">
+                {/* Background Decorators */}
+                <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute bottom-[10%] right-[-10%] w-[600px] h-[600px] bg-cyan-500/5 dark:bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
                 <motion.div
                     style={{ opacity: heroOpacity, y: heroY, willChange: 'transform, opacity' }}
-                    className="container mx-auto px-4 pt-20 pb-8 sm:py-12 lg:py-20 relative z-10"
+                    className="container mx-auto px-4 relative z-10"
                 >
-                    <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-24">
+                    <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
                         {/* Left Content (Typography) */}
                         <div className="w-full lg:w-1/2 text-center lg:text-left">
                             <motion.div
@@ -122,122 +112,72 @@ export default function ElysianLanding() {
                                 {/* Badge */}
                                 <motion.div
                                     whileHover={{ scale: 1.02 }}
-                                    className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border border-blue-200/60 dark:border-blue-500/20 mb-10 mx-auto lg:mx-0 shadow-lg shadow-blue-100/50 dark:shadow-blue-900/20 cursor-default backdrop-blur-sm"
+                                    className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 mb-8 mx-auto lg:mx-0 shadow-lg shadow-blue-500/5 cursor-default backdrop-blur-md"
                                 >
                                     <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 animate-pulse" />
-                                    <span className="text-xs font-semibold bg-gradient-to-r from-blue-700 to-cyan-700 dark:from-blue-300 dark:to-cyan-300 bg-clip-text text-transparent tracking-wide uppercase">{t.landing.hero.badge}</span>
+                                    <span className="text-xs font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent tracking-wider uppercase">
+                                        Elysian Rebirth v3.0 • Swarm Intelligence
+                                    </span>
                                 </motion.div>
 
                                 {/* Headline - Enterprise Premium */}
-                                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-7 leading-[1.15] tracking-tight font-heading relative">
-                                    {/* Subtle Spotlight Glow */}
-                                    <div className="absolute inset-0 opacity-20 pointer-events-none"
-                                        style={{
-                                            background: 'radial-gradient(ellipse 500px 250px at 50% 30%, rgba(59, 130, 246, 0.15), transparent 60%)'
-                                        }}
-                                    />
-                                    <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-white dark:via-blue-100 dark:to-blue-200 block mb-2 font-heading tracking-tight drop-shadow-sm">
-                                        {t.landing.hero.title1}
+                                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-[1.12] tracking-tight font-heading relative">
+                                    <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 dark:from-white dark:via-blue-100 dark:to-blue-200 block mb-2 font-heading">
+                                        Autonomous
                                     </span>
-                                    <span className="relative inline-block">
-                                        <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-300 dark:via-blue-200 dark:to-cyan-100">
-                                            {t.landing.hero.title2}
-                                        </span>
-                                        {/* Organic Brush Stroke Underline */}
-                                        <div className="absolute -bottom-4 left-0 right-0 flex items-center justify-center opacity-70">
-                                            <svg
-                                                className="w-full max-w-[300px] h-4"
-                                                viewBox="0 0 300 16"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                preserveAspectRatio="none"
-                                            >
+                                    <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:via-blue-200 dark:to-cyan-200">
+                                        Financial Oversight
+                                        {/* Organic Brush Underline */}
+                                        <div className="absolute -bottom-3 left-0 right-0 flex items-center justify-center opacity-70">
+                                            <svg className="w-full max-w-[340px] h-3" viewBox="0 0 300 16" fill="none" preserveAspectRatio="none">
                                                 <defs>
-                                                    <linearGradient id="brushGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <linearGradient id="brushGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                                                         <stop offset="0%" className="text-blue-500/10 dark:text-blue-400/10" stopColor="currentColor" />
-                                                        <stop offset="20%" className="text-blue-600/80 dark:text-blue-400/80" stopColor="currentColor" />
                                                         <stop offset="50%" className="text-blue-500 dark:text-blue-400" stopColor="currentColor" />
-                                                        <stop offset="80%" className="text-cyan-500/80 dark:text-cyan-400/80" stopColor="currentColor" />
                                                         <stop offset="100%" className="text-cyan-500/10 dark:text-cyan-400/10" stopColor="currentColor" />
                                                     </linearGradient>
                                                 </defs>
-
-                                                {/* Main thick stroke */}
-                                                <path
-                                                    d="M 10 8 Q 30 6, 60 7.5 T 120 8 Q 180 9, 240 7.5 T 290 8"
-                                                    stroke="url(#brushGradient)"
-                                                    strokeWidth="4.5"
-                                                    strokeLinecap="round"
-                                                    opacity="0.9"
-                                                />
-
-                                                {/* Upper texture stroke */}
-                                                <path
-                                                    d="M 15 6.5 Q 35 5, 65 6.5 T 125 7 Q 185 7.5, 245 6.5 T 285 7"
-                                                    stroke="url(#brushGradient)"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                    opacity="0.45"
-                                                />
-
-                                                {/* Lower depth stroke */}
-                                                <path
-                                                    d="M 12 9.5 Q 32 8.5, 62 9.5 T 122 10 Q 182 10.5, 242 9.5 T 288 10"
-                                                    stroke="url(#brushGradient)"
-                                                    strokeWidth="2.5"
-                                                    strokeLinecap="round"
-                                                    opacity="0.3"
-                                                />
+                                                <path d="M 10 8 Q 30 6, 60 7.5 T 120 8 Q 180 9, 240 7.5 T 290 8" stroke="url(#brushGrad)" strokeWidth="4" strokeLinecap="round" />
                                             </svg>
                                         </div>
                                     </span>
                                 </h1>
 
-                                <motion.p
-                                    className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 mb-8 sm:mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0 px-4 sm:px-0"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.8, delay: 0.4 }}
-                                >
-                                    {t.landing.hero.description}
-                                </motion.p>
+                                <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-350 mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0 px-2 sm:px-0">
+                                    Infrastruktur pengawasan anggaran otonom berbasis kecerdasan buatan multi-agent (*Swarm Intelligence*). Otomatis mengevaluasi draf RAPBD daerah terhadap regulasi lokal dan mendeteksi potensi *markup* harga secara akurat dalam hitungan detik.
+                                </p>
 
                                 {/* CTA Buttons */}
-                                <motion.div
-                                    className="flex flex-col items-center lg:items-start gap-4 w-full sm:w-auto px-4 sm:px-0"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.8, delay: 0.5 }}
-                                >
-                                    <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
-                                        <Link href="/dashboard" className="w-full sm:w-auto">
-                                            <motion.button
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                className="w-full sm:w-auto h-12 px-8 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 text-white font-semibold shadow-lg shadow-blue-400/25 hover:shadow-blue-400/40 flex items-center justify-center gap-2 transition-all"
-                                            >
-                                                {t.landing.hero.ctaStart}
-                                            </motion.button>
-                                        </Link>
+                                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full sm:w-auto px-4 sm:px-0 mb-6">
+                                    <Link href="/dashboard" className="w-full sm:w-auto">
                                         <motion.button
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            className="w-full sm:w-auto h-12 px-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="w-full sm:w-auto h-12 px-8 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
                                         >
-                                            {t.landing.hero.ctaDemo}
+                                            Mulai Masuk Dashboard
+                                            <ArrowRight className="w-4 h-4" />
                                         </motion.button>
-                                    </div>
-                                    {/* Proof Point */}
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-1">
-                                        <CheckCircle2 className="w-4 h-4 text-blue-500" />
-                                        {t.landing.hero.proof}
-                                    </p>
-                                </motion.div>
+                                    </Link>
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => toggleTerminal(!showTerminal)}
+                                        className="w-full sm:w-auto h-12 px-8 rounded-full bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-blue-950/45 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm cursor-pointer"
+                                    >
+                                        {showTerminal ? "Lihat Bento Grid" : "Uji Coba Konsol Swarm"}
+                                    </motion.button>
+                                </div>
+                                
+                                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center lg:justify-start gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0" />
+                                    Tipe Transaksi EIP-1559 • Kompatibel dengan BPK, LKPP, & SPBE Nasional
+                                </p>
                             </motion.div>
                         </div>
 
-                        {/* Right: The Elysian System Console OR Bento Grid */}
-                        <div className="hidden lg:flex w-full lg:w-1/2 relative min-h-[500px] items-center justify-center">
+                        {/* Right: Console or Bento Grid */}
+                        <div className="hidden lg:flex w-full lg:w-1/2 relative min-h-[500px] items-center justify-center z-20">
                             {showTerminal ? (
                                 <LandingTerminal key={locale} />
                             ) : (
@@ -248,47 +188,147 @@ export default function ElysianLanding() {
                 </motion.div>
             </section>
 
-
-            {/* Infinite Marquee - Key visual, keep eager or high margin */}
+            {/* Infinite Marquee */}
             <InfiniteMarquee />
 
-            <div id="product">
+            {/* 🛠️ SECTION: Deep Technical Integration Blueprint */}
+            <section className="py-20 lg:py-32 relative z-20 bg-slate-50/50 dark:bg-slate-950/40 border-y border-slate-200/40 dark:border-blue-950/30 overflow-hidden">
+                <div className="container mx-auto px-4">
+                    <div className="text-center max-w-3xl mx-auto mb-20">
+                        <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-xs font-bold uppercase tracking-wider mb-4 border border-cyan-500/20">
+                            <Layers className="w-3.5 h-3.5" />
+                            Elysian 6-Tool Architecture
+                        </span>
+                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white font-heading">
+                            Integrasi Teknologi <br />
+                            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
+                                SupTech Tingkat Korporat
+                            </span>
+                        </h2>
+                        <p className="text-slate-650 dark:text-slate-400 mt-4 leading-relaxed text-base sm:text-lg">
+                            Elysian mengintegrasikan enam repositori modular canggih demi menciptakan akurasi deteksi maksimal, integritas audit yang tidak dapat disabotase, dan skalabilitas data terdistribusi.
+                        </p>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* 1. Swarm Intelligence (MiroFish) */}
+                        <div className="p-8 rounded-3xl bg-white/70 dark:bg-[#070e1c]/80 backdrop-blur-xl border border-slate-200/60 dark:border-blue-950/40 shadow-sm hover:shadow-xl hover:border-blue-500/30 transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-6">
+                                <Bot className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 font-heading">Cognitive Swarm</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">
+                                <strong className="font-extrabold text-blue-600 dark:text-blue-400">MiroFish (Python worker)</strong> mensimulasikan perdebatan kolaboratif multi-agent (Auditor, Compliance, Manager) menggunakan <span className="italic">Caveman Prompt</span> JSON-only yang sangat kaku, disaring dari teks penalaran (thinking block) untuk keputusan audit objektif 100%.
+                            </p>
+                        </div>
+
+                        {/* 2. EVM Blockchain Trust Layer */}
+                        <div className="p-8 rounded-3xl bg-white/70 dark:bg-[#070e1c]/80 backdrop-blur-xl border border-slate-200/60 dark:border-blue-950/40 shadow-sm hover:shadow-xl hover:border-blue-500/30 transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-6">
+                                <Network className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 font-heading">Solana & Sepolia L2 Batching</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">
+                                Hash keputusan audit didepositkan secara permanen (Provenance Check) ke <strong className="font-extrabold text-purple-600 dark:text-purple-450">EVM Sepolia/Amoy Testnet</strong> (AuditTrail.sol). Go Backend bertindak sebagai Committer otomatis dengan batching L2 dan transaksi dinamis tipe <strong className="font-extrabold">EIP-1559</strong> yang tahan macet.
+                            </p>
+                        </div>
+
+                        {/* 3. MongoDB Staging & QA Gate */}
+                        <div className="p-8 rounded-3xl bg-white/70 dark:bg-[#070e1c]/80 backdrop-blur-xl border border-slate-200/60 dark:border-blue-950/40 shadow-sm hover:shadow-xl hover:border-blue-500/30 transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-6">
+                                <Database className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 font-heading">MongoDB QA Gate</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">
+                                Berkas draf anggaran mentah diekstrak oleh parser Rust <strong className="font-extrabold text-emerald-600 dark:text-emerald-400">OpenViking</strong> dan diparkir di <strong className="font-extrabold text-emerald-600 dark:text-emerald-400">MongoDB Staging</strong>. Melalui sistem Human-in-the-Loop QA Gate, data divalidasi oleh auditor manusia sebelum di-vektorisasi ke basis data produksi.
+                            </p>
+                        </div>
+
+                        {/* 4. Split PostgreSQL Architecture */}
+                        <div className="p-8 rounded-3xl bg-white/70 dark:bg-[#070e1c]/80 backdrop-blur-xl border border-slate-200/60 dark:border-blue-950/40 shadow-sm hover:shadow-xl hover:border-blue-500/30 transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mb-6">
+                                <Cpu className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 font-heading">Split DB: PG1 & PG2 Nemesis</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">
+                                Memisahkan database transaksi utama (<strong className="font-extrabold text-cyan-600 dark:text-cyan-400">PostgreSQL 1</strong>) dengan <strong className="font-extrabold text-cyan-600 dark:text-cyan-400">PostgreSQL 2 (Nemesis Ground Truth)</strong> read-only setebal <strong className="font-extrabold">4GB+ data SIRUP nasional</strong> berisi 1 juta barang pengadaan riil Indonesia sebagai patokan harga wajar audit.
+                            </p>
+                        </div>
+
+                        {/* 5. Qdrant Vector & OpenViking Librarian */}
+                        <div className="p-8 rounded-3xl bg-white/70 dark:bg-[#070e1c]/80 backdrop-blur-xl border border-slate-200/60 dark:border-blue-950/40 shadow-sm hover:shadow-xl hover:border-blue-500/30 transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-orange-500/15 text-orange-600 dark:text-orange-400 flex items-center justify-center mb-6">
+                                <FileText className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 font-heading">Qdrant DB Regulation RAG</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">
+                                PDF regulasi daerah (Perda) setebal ratusan halaman di-vektorisasi ke <strong className="font-extrabold text-orange-600 dark:text-orange-450">Qdrant Vector DB</strong> oleh OpenViking. AI Swarm memanggil semantic search RAG ini untuk mencocokkan setiap pos draf APBD dengan regulasi hukum yang berlaku daerah tersebut.
+                            </p>
+                        </div>
+
+                        {/* 6. React Flow & SSE Live Workflow */}
+                        <div className="p-8 rounded-3xl bg-white/70 dark:bg-[#070e1c]/80 backdrop-blur-xl border border-slate-200/60 dark:border-blue-950/40 shadow-sm hover:shadow-xl hover:border-blue-500/30 transition-all duration-300">
+                            <div className="w-12 h-12 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-6">
+                                <Zap className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 font-heading">React Flow & SSE Streaming</h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">
+                                Visualisasi perdebatan Swarm Agents ditampilkan sebagai diagram alir interaktif (<strong className="font-extrabold text-rose-600 dark:text-rose-400">React Flow</strong>) di frontend, disiarkan langsung secara asinkron dari server backend Go menggunakan <strong className="font-extrabold text-rose-600 dark:text-rose-400">Server-Sent Events (SSE)</strong> yang hemat bandwidth.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Product Showcase */}
+            <div id="product" className="relative z-20">
                 <ProductShowcase />
             </div>
 
-            <div id="solutions">
+            {/* Deep Feature Dive */}
+            <div id="solutions" className="relative z-20">
                 <FeatureDeepDive />
             </div>
 
-            <AiAgentsSection />
+            {/* AI Agents Section */}
+            <div className="relative z-20">
+                <AiAgentsSection />
+            </div>
 
-            <CollaborationSection />
+            {/* Collaboration Section */}
+            <div className="relative z-20">
+                <CollaborationSection />
+            </div>
 
-            <IntegrationsCarousel />
+            {/* Integrations Carousel */}
+            <div className="relative z-20">
+                <IntegrationsCarousel />
+            </div>
 
+            {/* Problem & Solution Showcase Section */}
             <ProblemSection />
-
             <SolutionSection />
 
-            <div id="use-cases">
+            {/* Use Cases Section */}
+            <div id="use-cases" className="relative z-20">
                 <UseCasesSection />
             </div>
 
-            {/* Pricing Section removed for MVP */}
-            {/* <PricingSection /> */}
-
-            <CTASection />
-
-            <div id="faq">
-                <FAQSection />
+            {/* 💎 SECTION: 25 Hackathon Blueprint Portal Gate */}
+            <div id="hackathon-blueprint" className="relative z-20 border-t border-slate-200/40 dark:border-blue-950/30 bg-white dark:bg-[#030712]">
+                <HackathonBlueprint />
             </div>
 
-            {/* Global footer is handled by Providers/SiteFooter, avoiding double footer here */}
+            {/* Call to Action */}
+            <CTASection />
+
+            {/* FAQ Section */}
+            <div id="faq" className="relative z-20">
+                <FAQSection />
+            </div>
         </motion.div>
     );
 }
-
-// Old Navbar Component Removed
 
 // Infinite Marquee
 function InfiniteMarquee() {
@@ -304,14 +344,14 @@ function InfiniteMarquee() {
                     className="flex gap-16 whitespace-nowrap will-change-transform"
                 >
                     {[...industries, ...industries].map((industry, i) => (
-                        <span key={i} className="text-2xl font-bold text-slate-300 dark:text-slate-700">
+                        <span key={i} className="text-2xl font-bold text-slate-350 dark:text-slate-700">
                             {industry}
                         </span>
                     ))}
                 </motion.div>
             </div>
-            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white/90 dark:from-slate-900/90 to-transparent pointer-events-none" />
-            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white/90 dark:from-slate-900/90 to-transparent pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white/90 dark:from-[#030712]/90 to-transparent pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white/90 dark:from-[#030712]/90 to-transparent pointer-events-none" />
         </div>
     );
 }
@@ -320,7 +360,7 @@ function InfiniteMarquee() {
 function ProblemSection() {
     const { t } = useTranslation();
     return (
-        <section className="py-16 lg:py-32 relative z-10 overflow-hidden">
+        <section className="py-16 lg:py-32 relative z-20 overflow-hidden bg-slate-50/30 dark:bg-slate-950/20">
             <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-slate-50/50 dark:via-slate-900/20 to-white/0 pointer-events-none" />
 
             <div className="container mx-auto px-4 relative z-10">
@@ -331,33 +371,41 @@ function ProblemSection() {
                         viewport={{ once: true, margin: "-50px" }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                     >
-                        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-slate-900 dark:text-white leading-tight font-heading">
-                            {t.landing.problem.title1} <br />
-                            <span className="relative inline-block">
-                                {t.landing.problem.title2}
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-wider mb-4">
+                            Modus Operandi Anggaran
+                        </span>
+                        <h2 className="text-3xl sm:text-4xl font-bold mb-6 text-slate-900 dark:text-white leading-tight font-heading">
+                            Kebocoran APBD Akibat <br />
+                            <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-500">
+                                Manipulasi Anggaran Manual
                                 <svg className="absolute -bottom-2 left-0 w-full" height="12" viewBox="0 0 200 12" fill="none">
                                     <path d="M2 10C50 2 150 2 198 10" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" strokeDasharray="8 8" />
                                 </svg>
                             </span>
                         </h2>
-                        <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
-                            {t.landing.problem.description}
+                        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-350 mb-8 leading-relaxed font-medium">
+                            Setiap tahun daerah kehilangan triliunan rupiah APBD akibat ketidaksesuaian harga satuan draf anggaran dengan Standar Harga Regional (SHR) yang dimanipulasi secara sistemik karena minimnya pengawasan.
                         </p>
 
                         <div className="space-y-3">
-                            {t.landing.problem.items.map((problem, i) => (
+                            {[
+                                "Beban ribuan baris item RAPBD yang harus divalidasi manual satu demi satu.",
+                                "Asimetri data pengadaan pembanding daerah terdekat yang tertutup.",
+                                "Audit trail reviu anggaran yang tidak aman dan rentan intervensi eksternal.",
+                                "Lamanya proses audit birokrasi manual yang memakan waktu berminggu-minggu."
+                            ].map((problem, i) => (
                                 <motion.div
                                     key={i}
                                     initial={{ opacity: 0, y: 10 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true, margin: "-50px" }}
                                     transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
-                                    className="flex items-center gap-4 p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm border border-slate-100 dark:border-slate-700 hover:border-red-200 dark:hover:border-red-500/50 transition-all group"
+                                    className="flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-blue-950/30 hover:border-red-200 dark:hover:border-red-950/40 transition-all group"
                                 >
-                                    <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                                         <XCircle className="w-5 h-5 text-red-500" />
                                     </div>
-                                    <span className="text-slate-700 dark:text-slate-200 font-medium">{problem}</span>
+                                    <span className="text-slate-700 dark:text-slate-200 text-sm font-semibold">{problem}</span>
                                 </motion.div>
                             ))}
                         </div>
@@ -370,18 +418,22 @@ function ProblemSection() {
                         transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
                         className="relative"
                     >
-                        <div className="bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] p-10 shadow-2xl border border-white/50 dark:border-slate-700 relative overflow-hidden">
+                        <div className="bg-white dark:bg-slate-900/90 backdrop-blur-xl rounded-[2.5rem] p-8 sm:p-10 shadow-2xl border border-slate-200/60 dark:border-blue-950/40 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-blue-500/10 to-transparent rounded-tr-[2.5rem]" />
 
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
                                     <TrendingUp className="w-6 h-6" />
                                 </div>
-                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white font-heading">{t.landing.problem.solutionTitle}</h3>
+                                <h3 className="text-2xl font-bold text-slate-900 dark:text-white font-heading">Elysian Oversight</h3>
                             </div>
 
                             <div className="space-y-6 mb-8">
-                                {t.landing.problem.solutionItems.map((item, i) => (
+                                {[
+                                    { title: "Deteksi Markup Instan", desc: "Cognitive Swarm mengidentifikasi harga di luar batas Nemesis DB secara otonom." },
+                                    { title: "Kepatuhan Regulasi Cerdas", desc: "RAG OpenViking mencocokkan draf APBD dengan klausul hukum Perda regional." },
+                                    { title: "Audit Trail On-Chain Immutable", desc: "Hash keputusan dibekukan di blockchain Sepolia EVM sebagai bukti autentik." }
+                                ].map((item, i) => (
                                     <motion.div
                                         key={i}
                                         initial={{ opacity: 0, y: 20 }}
@@ -390,24 +442,26 @@ function ProblemSection() {
                                         transition={{ delay: i * 0.1 }}
                                         className="flex items-start gap-4"
                                     >
-                                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
-                                            <CheckCircle2 className="w-5 h-5 text-blue-600" />
+                                        <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0 mt-1">
+                                            <CheckCircle2 className="w-5 h-5 text-blue-500" />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-slate-900 dark:text-white text-lg">{item.title}</h4>
-                                            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{item.desc}</p>
+                                            <h4 className="font-extrabold text-slate-900 dark:text-white text-base sm:text-lg">{item.title}</h4>
+                                            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 font-medium">{item.desc}</p>
                                         </div>
                                     </motion.div>
                                 ))}
                             </div>
 
-                            <motion.button
-                                whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(37, 99, 235, 0.2)" }}
-                                whileTap={{ scale: 0.98 }}
-                                className="w-full h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold shadow-lg"
-                            >
-                                {t.landing.problem.cta}
-                            </motion.button>
+                            <Link href="/dashboard" className="block w-full">
+                                <motion.button
+                                    whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(37, 99, 235, 0.2)" }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold shadow-lg transition-all cursor-pointer"
+                                >
+                                    Uji Coba Keandalan Audit
+                                </motion.button>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
@@ -420,14 +474,14 @@ function ProblemSection() {
 function SolutionSection() {
     const { t } = useTranslation();
     const features = [
-        { icon: Bot, title: t.landing.features.items.ai.title, desc: t.landing.features.items.ai.desc, color: 'from-blue-400 to-cyan-300', bg: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800' },
-        { icon: FileText, title: t.landing.features.items.docs.title, desc: t.landing.features.items.docs.desc, color: 'from-sky-400 to-blue-300', bg: 'bg-sky-50 dark:bg-sky-900/10 border-sky-100 dark:border-sky-800' },
-        { icon: Shield, title: t.landing.features.items.security.title, desc: t.landing.features.items.security.desc, color: 'from-emerald-400 to-teal-300', bg: 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800' },
-        { icon: Zap, title: t.landing.features.items.automation.title, desc: t.landing.features.items.automation.desc, color: 'from-cyan-400 to-blue-300', bg: 'bg-cyan-50 dark:bg-cyan-900/10 border-cyan-100 dark:border-cyan-800' }
+        { icon: Bot, title: "Cognitive Swarm AI", desc: "Simulasi debat otonom multi-agent (Auditor & Compliance) untuk kesepakatan verifikasi yang sangat objektif.", color: 'from-blue-500 to-cyan-400', bg: 'bg-white/70 dark:bg-[#070e1c]/80 border-slate-200/50 dark:border-blue-950/40' },
+        { icon: FileText, title: "Librarian Perda RAG", desc: "Ekstraksi PDF regulasi daerah menggunakan OpenViking Rust & kueri semantik Qdrant DB secara dinamis.", color: 'from-sky-500 to-blue-400', bg: 'bg-white/70 dark:bg-[#070e1c]/80 border-slate-200/50 dark:border-blue-950/40' },
+        { icon: Shield, title: "Blockchain Trust Layer", desc: "Pencatatan hash keputusan audit di Sepolia EVM Testnet (`AuditTrail.sol`) demi kepatuhan BPK.", color: 'from-emerald-500 to-teal-400', bg: 'bg-white/70 dark:bg-[#070e1c]/80 border-slate-200/50 dark:border-blue-950/40' },
+        { icon: Zap, title: "Instant Guardrails", desc: "Pendeteksian anomali harga anggaran secara real-time di editor dokumen dengan debounced (800ms) API check.", color: 'from-cyan-500 to-blue-400', bg: 'bg-white/70 dark:bg-[#070e1c]/80 border-slate-200/50 dark:border-blue-950/40' }
     ];
 
     return (
-        <section className="py-16 lg:py-32 relative z-10 bg-gradient-to-b from-white to-slate-50 dark:from-slate-950 dark:to-slate-900">
+        <section className="py-16 lg:py-32 relative z-20 bg-white dark:bg-[#030712]">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -435,12 +489,13 @@ function SolutionSection() {
                     viewport={{ once: true }}
                     className="text-center max-w-3xl mx-auto mb-20"
                 >
-                    <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-heading text-slate-900 dark:text-white">
-                        {t.landing.features.title.split(' ').map((word, i) => word === 'Mengangkat' || word === 'Elevate' ? (
-                            <span key={i} className="bg-gradient-to-r from-blue-700 to-cyan-600 bg-clip-text text-transparent"> {word} </span>
-                        ) : ' ' + word)}
+                    <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-heading text-slate-900 dark:text-white leading-tight">
+                        Mengangkat Kualitas Pengawasan Anggaran dengan
+                        <span className="bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent"> Kecerdasan Swarm </span>
                     </h2>
-                    <p className="text-xl text-slate-600 dark:text-slate-400">{t.landing.features.subtitle}</p>
+                    <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Kami merancang teknologi pengawasan anggaran (*SupTech*) tercanggih untuk mewujudkan tata kelola pemerintahan yang bersih (*Good Governance*).
+                    </p>
                 </motion.div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -454,11 +509,11 @@ function SolutionSection() {
                             whileHover={{ y: -5, transition: { duration: 0.2 } }}
                             className={`group ${feature.bg} backdrop-blur-xl rounded-3xl p-8 border shadow-sm hover:shadow-xl transition-all cursor-pointer`}
                         >
-                            <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform shadow-lg`}>
-                                <feature.icon className="w-8 h-8 text-white" />
+                            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform shadow-lg`}>
+                                <feature.icon className="w-7 h-7 text-white" />
                             </div>
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 font-heading">{feature.title}</h3>
-                            <p className="text-slate-600 dark:text-slate-300">{feature.desc}</p>
+                            <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium">{feature.desc}</p>
                         </motion.div>
                     ))}
                 </div>
@@ -471,14 +526,14 @@ function SolutionSection() {
 function UseCasesSection() {
     const { t } = useTranslation();
     const cases = [
-        { icon: Store, title: t.landing.useCases.items.retail.title, items: t.landing.useCases.items.retail.items, color: 'from-cyan-400 to-blue-300', bg: 'bg-cyan-50 dark:bg-cyan-900/10 border-cyan-100 dark:border-cyan-800' },
-        { icon: Truck, title: t.landing.useCases.items.logistics.title, items: t.landing.useCases.items.logistics.items, color: 'from-blue-400 to-cyan-300', bg: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800' },
-        { icon: PenTool, title: t.landing.useCases.items.agency.title, items: t.landing.useCases.items.agency.items, color: 'from-sky-400 to-blue-400', bg: 'bg-sky-50 dark:bg-sky-900/10 border-sky-100 dark:border-sky-800' },
-        { icon: Stethoscope, title: t.landing.useCases.items.clinic.title, items: t.landing.useCases.items.clinic.items, color: 'from-emerald-400 to-teal-300', bg: 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800' }
+        { icon: Store, title: "Reviu Dinas Kominfo", items: ["Evaluasi lisensi perangkat lunak", "Pencegahan markup pengadaan server", "Kepatuhan regulasi SPBE nasional"], color: 'from-cyan-500 to-blue-400', bg: 'bg-slate-50 dark:bg-slate-900/30 border-slate-200/50 dark:border-blue-950/40' },
+        { icon: Truck, title: "Reviu Dinas Perhubungan", items: ["Kesesuaian harga pengadaan rambu", "Analisis aspal jalan regional", "Validasi pembanding Nemesis DB"], color: 'from-blue-500 to-cyan-400', bg: 'bg-slate-50 dark:bg-slate-900/30 border-slate-200/50 dark:border-blue-950/40' },
+        { icon: PenTool, title: "Reviu Dinas Pendidikan", items: ["Markup buku paket sekolah", "Kepatuhan anggaran dana BOS", "Validasi audit trail tak terubah"], color: 'from-sky-500 to-blue-400', bg: 'bg-slate-50 dark:bg-slate-900/30 border-slate-200/50 dark:border-blue-950/40' },
+        { icon: Stethoscope, title: "Reviu Dinas Kesehatan", items: ["Audit harga alat kesehatan RSUD", "Validasi SHR regional obat-obatan", "Penyaringan data PII sensitif"], color: 'from-emerald-500 to-teal-400', bg: 'bg-slate-50 dark:bg-slate-900/30 border-slate-200/50 dark:border-blue-950/40' }
     ];
 
     return (
-        <section className="py-16 lg:py-32 relative z-10 bg-white dark:bg-slate-950">
+        <section className="py-16 lg:py-32 relative z-20 bg-white dark:bg-[#030712] border-t border-slate-200/30 dark:border-blue-950/20">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -486,8 +541,10 @@ function UseCasesSection() {
                     viewport={{ once: true }}
                     className="text-center max-w-3xl mx-auto mb-20"
                 >
-                    <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-heading text-slate-900 dark:text-white">{t.landing.useCases.title}</h2>
-                    <p className="text-xl text-slate-600 dark:text-slate-400">{t.landing.useCases.subtitle}</p>
+                    <h2 className="text-3xl lg:text-4xl font-bold mb-6 font-heading text-slate-900 dark:text-white">Kasus Penggunaan Pengawasan Dinas</h2>
+                    <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Elysian dapat diadaptasikan secara modular untuk mengawasi dan menyaring draf anggaran pengadaan di berbagai satuan kerja perangkat daerah (OPD).
+                    </p>
                 </motion.div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -499,16 +556,16 @@ function UseCasesSection() {
                             viewport={{ once: true, margin: "-100px" }}
                             transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
                             whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                            className={`group ${useCase.bg} rounded-3xl p-8 shadow-sm hover:shadow-xl border transition-all cursor-default`}
+                            className={`group ${useCase.bg} rounded-3xl p-8 border shadow-sm hover:shadow-xl transition-all cursor-default`}
                         >
-                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3 bg-gradient-to-br ${useCase.color}`}>
-                                <useCase.icon className="h-8 w-8 text-white" />
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3 bg-gradient-to-br ${useCase.color}`}>
+                                <useCase.icon className="h-7 w-7 text-white" />
                             </div>
                             <h3 className="text-xl font-bold mb-4 text-slate-900 dark:text-white font-heading">{useCase.title}</h3>
                             <ul className="space-y-3">
                                 {useCase.items.map((item, idx) => (
-                                    <li key={idx} className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-3">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+                                    <li key={idx} className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center gap-3 font-semibold">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-350 dark:bg-slate-700 shrink-0" />
                                         {item}
                                     </li>
                                 ))}
@@ -521,29 +578,26 @@ function UseCasesSection() {
     );
 }
 
-
-// CTASection moved to dedicated component
-
-
 // FAQ Section
 function FAQSection() {
-    const { t } = useTranslation();
     const faqs = [
-        { q: t.landing.faq.q1, a: t.landing.faq.a1 },
-        { q: t.landing.faq.q2, a: t.landing.faq.a2 },
-        { q: t.landing.faq.q3, a: t.landing.faq.a3 },
-        { q: t.landing.faq.q4, a: t.landing.faq.a4 }
+        { q: "Bagaimana Swarm Agents (MiroFish) menjamin objektivitas audit anggaran?", a: "Swarm AI mensimulasikan perdebatan asinkron kaku antara tiga agen berdedikasi: Auditor Agent mengevaluasi aspek harga pasar riil (Nemesis DB), Compliance Agent memvalidasi aspek legalitas hukum regulasi (OpenViking RAG), dan Manager Agent mengambil konsensus penengah. Keduanya saling berdebat layaknya rapat komisi auditor profesional untuk mencegah bias model tunggal." },
+        { q: "Dari mana asal data kebenaran dasar (Ground Truth) Nemesis DB?", a: "Nemesis DB berukuran 4GB+ berisi lebih dari 1 juta baris data riil Sistem Informasi Rencana Umum Pengadaan (SIRUP) nasional Indonesia. Data ini adalah catatan riil transaksi barang/jasa pemerintah Indonesia yang dijadikan patokan harga wajar daerah setempat secara presisi, meminimalisir kesalahan deteksi markup." },
+        { q: "Bagaimana Elysian menangani kerahasiaan berkas draf APBD daerah?", a: "Sebelum dokumen diproses oleh LLM (MiniMax AI), Elysian menjalankan modul Payload Interceptor (Auto-Redaction PII). Modul ini secara otomatis memindai dan menyensor data pribadi sensitif (seperti nama dinas internal, nomor HP, NIP, alamat pribadi) dan menyajikannya sebagai teks bertopeng (masked text) demi menjaga privasi data daerah." },
+        { q: "Mengapa Elysian memilih blockchain EVM Sepolia/Amoy untuk audit trail?", a: "Integrasi Sepolia EVM (`AuditTrail.sol`) menjamin integritas audit transparan yang tidak dapat disabotase (*Provenance Check*). Setiap konsensus draf APBD yang dihasilkan di-hash secara kriptografis dan dibekukan on-chain, sehingga juri hackathon, BPK, BPKP, maupun masyarakat dapat melacak orisinalitas laporan audit tanpa celah manipulasi." }
     ];
 
     return (
-        <section className="py-32 bg-slate-50 dark:bg-slate-900 relative overflow-hidden">
-            {/* Decorative Background Elements */}
-            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+        <section className="py-20 lg:py-32 bg-slate-50 dark:bg-[#070e1c]/40 relative overflow-hidden border-t border-slate-200/40 dark:border-blue-950/20">
+            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-200/30 to-transparent" />
 
-            <div className="container mx-auto px-4 max-w-3xl relative z-10">
+            <div className="container mx-auto px-4 max-w-3xl relative z-20">
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white font-heading">{t.landing.faq.title}</h2>
-                    <p className="text-lg text-slate-600 dark:text-slate-400">{t.landing.faq.subtitle}</p>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-4">
+                        Pertanyaan Umum Teknis
+                    </span>
+                    <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-slate-900 dark:text-white font-heading">FAQ Hackathon & Juri</h2>
+                    <p className="text-slate-500 dark:text-slate-450 text-base font-semibold">Tanya jawab teknis seputar arsitektur modular, blockchain, dan kepatuhan audit Elysian.</p>
                 </div>
                 <div className="space-y-4">
                     {faqs.map((item, i) => (
@@ -553,10 +607,13 @@ function FAQSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.1 }}
-                            className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] border border-slate-100 dark:border-slate-700 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300"
+                            className="bg-white dark:bg-[#070e1c]/80 rounded-2xl p-6 shadow-sm border border-slate-200/60 dark:border-blue-950/30 hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300"
                         >
-                            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2 font-heading">{item.q}</h3>
-                            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{item.a}</p>
+                            <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white mb-2.5 font-heading flex items-start gap-2.5">
+                                <HelpCircle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                                {item.q}
+                            </h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed font-medium pl-7">{item.a}</p>
                         </motion.div>
                     ))}
                 </div>

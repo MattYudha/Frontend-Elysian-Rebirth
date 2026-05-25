@@ -1,20 +1,60 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Editor } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { Button } from '@/components/ui/button';
-import { Bold, Italic, Strikethrough, MessageSquarePlus, Sparkles } from 'lucide-react';
+import { Bold, Italic, Strikethrough, MessageSquarePlus, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface EditorBubbleMenuProps {
     editor: Editor | null;
 }
 
 export function EditorBubbleMenu({ editor }: EditorBubbleMenuProps) {
+    const [isRewriting, setIsRewriting] = useState(false);
+
     if (!editor) {
         return null;
     }
+
+    const handleAskAI = async () => {
+        const selection = editor.view.state.selection;
+        const text = editor.state.doc.textBetween(selection.from, selection.to, ' ');
+        if (!text) {
+            toast.error("Tidak ada teks yang dipilih!");
+            return;
+        }
+        
+        setIsRewriting(true);
+        const toastId = toast.loading("AI sedang memperbaiki teks Anda...");
+        
+        try {
+            const res = await fetch('/api/ghostwriter/rewrite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                if (data.suggestion) {
+                    editor.chain().focus().insertContent(data.suggestion).run();
+                    toast.success("Teks berhasil diperbaiki AI!", { id: toastId });
+                } else {
+                    toast.error("AI gagal memperbaiki teks.", { id: toastId });
+                }
+            } else {
+                toast.error("Terjadi kesalahan pada server AI.", { id: toastId });
+            }
+        } catch (e) {
+            console.error(e);
+            toast.error("Gagal menghubungi AI.", { id: toastId });
+        } finally {
+            setIsRewriting(false);
+        }
+    };
 
     return (
         <BubbleMenu
@@ -24,14 +64,12 @@ export function EditorBubbleMenu({ editor }: EditorBubbleMenuProps) {
             <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {
-                    // Placeholder for future AI action
-                    console.log("Ask AI triggered");
-                }}
+                onClick={handleAskAI}
+                disabled={isRewriting}
                 className={cn("h-8 gap-1.5 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20")}
                 title="Ask AI"
             >
-                <Sparkles className="h-3.5 w-3.5" />
+                {isRewriting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                 <span className="text-xs font-semibold">Ask AI</span>
             </Button>
 

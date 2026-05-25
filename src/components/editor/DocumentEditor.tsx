@@ -3,8 +3,37 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Save, FileText, Maximize2, Sparkles, ShieldX, Printer, Plus, Trash2, Loader2, UploadCloud } from 'lucide-react';
+import { Save, FileText, Maximize2, Sparkles, ShieldX, Printer, Plus, Trash2, Loader2, UploadCloud, FilePlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { GuidedTour } from '@/components/ui/GuidedTour';
+
+const editorTourSteps = [
+    {
+        targetSelector: '.tour-editor-select',
+        title: 'Pemilih Dokumen & Draf Baru',
+        content: 'Pilih draf anggaran yang ingin diedit, buat draf kosong baru, atau klik ikon berkas-plus di samping untuk memuat Template Contoh secara instan!',
+        position: 'bottom' as const
+    },
+    {
+        targetSelector: '.tour-canvas',
+        title: 'Lembaran Kertas A4 Word-like',
+        content: 'Tulis draf anggaran Anda di sini. Kanvas ini memiliki visual margin dan pembagi halaman Microsoft Word otomatis untuk kenyamanan kerja Anda.',
+        position: 'top' as const
+    },
+    {
+        targetSelector: '.tour-guardrail',
+        title: 'AI Guardrail Check',
+        content: 'Klik tombol ini untuk memindai draf anggaran Anda secara mandiri cepat dan mendeteksi anomali secara real-time berdasarkan batas wajar Nemesis DB.',
+        position: 'bottom' as const
+    },
+    {
+        targetSelector: '.tour-swarm',
+        title: 'AI Swarm Review Otonom',
+        content: 'Kirim dokumen ke multi-agent swarm otonom untuk disimulasikan perdebatannya oleh Auditor, Compliance, dan Manager Agent demi hasil konsensus audit yang mendalam.',
+        position: 'bottom' as const
+    }
+];
 import type { EditorDocument } from '@/lib/sdk/schemas';
 import { useEditor, EditorContent, type JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -89,6 +118,18 @@ export function DocumentEditor({
     pdfUrl,
     isMobile = false
 }: DocumentEditorProps) {
+    const [isMobileScreen, setIsMobileScreen] = useState(isMobile);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        const checkMobile = () => {
+            setIsMobileScreen(window.innerWidth < 768 || isMobile);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, [isMobile]);
+
     // Next.js Navigation Hooks
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -239,6 +280,35 @@ export function DocumentEditor({
         router.replace(`/editor?id=${newId}`);
     };
 
+    const handleLoadSampleDirect = async () => {
+        const sampleId = crypto.randomUUID();
+        const title = "Draf Anggaran Hardware Dinas Kominfo 2026";
+        const text = `DRAFT ANGGARAN DINAS KOMUNIKASI & INFORMATIKA
+Wilayah : Purbalingga
+--------------------------------------------
+Berikut adalah rencana anggaran pengadaan hardware tahun 2026:
+
+1. Laptop IT Lenovo ThinkPad : Rp 25.000.000 (5 unit)
+2. Printer HP LaserJet : Rp 4.500.000 (3 unit)
+3. AC Split Daikin 1.5 PK : Rp 8.500.000 (2 unit)
+4. Semen Padang : Rp 120.000 (150 sak)
+5. Printer Canon Pixma : Rp 1.500.000 (2 unit)`;
+
+        try {
+            toast.loading("Membuat dokumen contoh...", { id: "sample-loader-direct" });
+            await updateTextMutation.mutateAsync({
+                id: sampleId,
+                text,
+                title
+            });
+            localStorage.setItem('elysian_editor_last_active', Date.now().toString());
+            toast.success("Draf anggaran contoh berhasil dimuat! AI Guardrails telah mendeteksi anomali secara instan.", { id: "sample-loader-direct" });
+            router.replace(`/editor?id=${sampleId}`);
+        } catch (e: any) {
+            toast.error("Gagal memuat template: " + (e.message || e), { id: "sample-loader-direct" });
+        }
+    };
+
     // Default schema to prevent crashes
     const defaultContent: JSONContent = {
         type: 'doc',
@@ -271,7 +341,7 @@ export function DocumentEditor({
         content: currentDocument?.content || initialContent || defaultContent,
         editorProps: {
             attributes: {
-                class: 'prose prose-slate prose-base w-full p-10 focus:outline-none min-h-[800px] dark:prose-invert max-w-none bg-white dark:bg-[#0B1120] shadow-sm mx-auto my-4 border border-slate-200 dark:border-blue-900/30',
+                class: 'prose prose-slate prose-base w-full max-w-[816px] min-h-[1050px] p-16 focus:outline-none dark:prose-invert bg-white dark:bg-[#0b1120] mx-auto transition-colors duration-300',
             },
             handleKeyDown: (_view, _event) => {
                 // This handleKeyDown is intentionally left empty or for specific key events.
@@ -290,7 +360,7 @@ export function DocumentEditor({
     });
 
     // Enterprise: AI Ghostwriter (Initialized AFTER editor)
-    const { suggestion, isLoading: isGhostwriterLoading, acceptSuggestion, discardSuggestion } = useGhostwriter(editor, isMobile);
+    const { suggestion, isLoading: isGhostwriterLoading, acceptSuggestion, discardSuggestion } = useGhostwriter(editor, isMobileScreen);
 
     // Handle Tab key to accept suggestion, Escape to discard
     useEffect(() => {
@@ -603,11 +673,63 @@ export function DocumentEditor({
     return (
         <div className={cn(
             "flex flex-1 gap-4 p-4 h-full",
-            isMobile ? "flex-col" : "flex-row"
+            isMobileScreen ? "flex-col p-2" : "flex-row"
         )}>
+            {/* Custom Inline Styling for Microsoft Word Page Breaks inside Tiptap */}
+            <style jsx global>{`
+                .ProseMirror hr {
+                    border: none !important;
+                    height: 48px !important;
+                    background-color: #f1f5f9 !important; /* Light mode workspace background */
+                    margin-left: -4rem !important; /* Exceed the 4rem paper padding */
+                    margin-right: -4rem !important;
+                    margin-top: 2.5rem !important;
+                    margin-bottom: 2.5rem !important;
+                    box-shadow: inset 0 12px 10px -10px rgba(0,0,0,0.06), inset 0 -12px 10px -10px rgba(0,0,0,0.06) !important;
+                    position: relative !important;
+                    cursor: not-allowed !important;
+                    user-select: none !important;
+                }
+                .dark .ProseMirror hr {
+                    background-color: #070e1c !important; /* Dark mode workspace background */
+                    box-shadow: inset 0 15px 12px -10px rgba(0,0,0,0.55), inset 0 -15px 12px -10px rgba(0,0,0,0.55) !important;
+                }
+                .ProseMirror hr::before {
+                    content: "PAGE BREAK • HALAMAN BARU" !important;
+                    position: absolute !important;
+                    left: 50% !important;
+                    top: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    font-size: 8px !important;
+                    font-weight: 850 !important;
+                    letter-spacing: 0.18em !important;
+                    color: #94a3b8 !important;
+                    background-color: #ffffff !important;
+                    padding: 3px 12px !important;
+                    border-radius: 9999px !important;
+                    border: 1px dashed #cbd5e1 !important;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+                }
+                .dark .ProseMirror hr::before {
+                    color: #475569 !important;
+                    background-color: #0b1120 !important;
+                    border: 1px dashed #1e293b !important;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+                }
+                
+                /* Hide scrollbar utility class */
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .no-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
+
             {/* PDF/Source View */}
-            {!isMobile && pdfUrl && (
-                <Card className="flex-1 bg-slate-50 dark:bg-[#0B1120]/40 border-slate-200 dark:border-blue-900/30 overflow-hidden flex flex-col glass-obsidian">
+            {!isMobileScreen && pdfUrl && (
+                <Card className="flex-1 bg-slate-50 dark:bg-[#0B1120]/40 border-slate-200 dark:border-blue-900/30 overflow-hidden flex flex-col glass-obsidian max-w-[450px]">
                     <div className="p-3 border-b border-slate-200 dark:border-blue-900/30 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
                         <div className="flex items-center gap-2">
                             <FileText className="h-4 w-4 text-blue-400" />
@@ -630,75 +752,114 @@ export function DocumentEditor({
 
             {/* Editor View */}
             <Card className="flex-1 border-slate-200 dark:border-blue-900/30 flex flex-col bg-white/80 dark:bg-slate-950/95 overflow-hidden shadow-sm backdrop-blur-xl glass-obsidian">
-                <div className="px-4 py-3 border-b border-slate-200 dark:border-blue-900/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50/50 dark:bg-[#0B1120]/60 backdrop-blur-sm">
-                    <div className="flex items-center flex-wrap gap-2 w-full sm:w-auto">
-                        <Select
-                            value={activeDocumentId}
-                            onValueChange={(val) => {
-                                if (val) router.replace(`/editor?id=${val}`);
-                            }}
-                        >
-                            <SelectTrigger className="w-[140px] sm:w-[180px] h-8 border border-slate-200/50 dark:border-blue-900/30 bg-white/90 dark:bg-slate-900/40 backdrop-blur-md text-slate-800 dark:text-slate-200 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-all text-xs font-medium px-2.5 flex items-center gap-1.5">
-                                <FileText className="h-3.5 w-3.5 text-blue-500 shrink-0" />
-                                <SelectValue placeholder="Pilih Dokumen">
-                                    <span className="truncate">{activeDocInfo ? activeDocInfo.title : 'Draft Baru'}</span>
-                                </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent className="bg-white/95 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200/50 dark:border-blue-900/30 rounded-lg shadow-lg text-xs z-[50]">
-                                {documents.length > 0 ? (
-                                    documents.map((d) => (
-                                        <SelectItem
-                                            key={d.id}
-                                            value={d.id}
-                                            className="focus:bg-blue-50 dark:focus:bg-blue-950/50 cursor-pointer text-slate-700 dark:text-slate-300"
+                <div className="px-4 py-3 border-b border-slate-200 dark:border-blue-900/30 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3 bg-slate-50/50 dark:bg-[#0B1120]/60 backdrop-blur-sm shrink-0">
+                    <div className="flex items-center flex-wrap gap-2 w-full lg:w-auto">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="shrink-0">
+                                        <Select
+                                            value={activeDocumentId}
+                                            onValueChange={(val) => {
+                                                if (val) router.replace(`/editor?id=${val}`);
+                                            }}
                                         >
-                                            <span className="flex items-center justify-between w-full gap-4">
-                                                <span className="font-medium truncate max-w-[120px]">{d.title || 'Untitled Document'}</span>
-                                            </span>
-                                        </SelectItem>
-                                    ))
-                                ) : (
-                                    <div className="p-3 text-center text-[10px] text-slate-500">
-                                        Tidak ada dokumen
+                                            <SelectTrigger className="tour-editor-select w-[140px] sm:w-[180px] h-8 border border-slate-200/50 dark:border-blue-900/30 bg-white/90 dark:bg-slate-900/40 backdrop-blur-md text-slate-800 dark:text-slate-200 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-all text-xs font-medium px-2.5 flex items-center gap-1.5 shrink-0">
+                                                <FileText className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                                                <SelectValue placeholder="Pilih Dokumen">
+                                                    <span className="truncate">{activeDocInfo ? activeDocInfo.title : 'Draft Baru'}</span>
+                                                </SelectValue>
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-white/95 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200/50 dark:border-blue-900/30 rounded-lg shadow-lg text-xs z-[50]">
+                                                {documents.length > 0 ? (
+                                                    documents.map((d) => (
+                                                        <SelectItem
+                                                            key={d.id}
+                                                            value={d.id}
+                                                            className="focus:bg-blue-50 dark:focus:bg-blue-950/50 cursor-pointer text-slate-700 dark:text-slate-300"
+                                                        >
+                                                            <span className="flex items-center justify-between w-full gap-4">
+                                                                <span className="font-medium truncate max-w-[120px]">{d.title || 'Untitled Document'}</span>
+                                                            </span>
+                                                        </SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <div className="p-3 text-center text-[10px] text-slate-500">
+                                                        Tidak ada dokumen
+                                                    </div>
+                                                )}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
-                                )}
-                            </SelectContent>
-                        </Select>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Pilih draf anggaran aktif yang ingin diedit
+                                </TooltipContent>
+                            </Tooltip>
 
-                        <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={handleCreateNew}
-                            title="Buat Draft Baru"
-                            className="h-8 w-8 border border-slate-200/50 dark:border-blue-900/30 bg-white/90 dark:bg-slate-900/40 backdrop-blur-md text-slate-800 dark:text-slate-200 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-all flex items-center justify-center"
-                        >
-                            <Plus className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                        </Button>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        variant="outline"
+                                        onClick={handleCreateNew}
+                                        className="h-8 w-8 shrink-0 border border-slate-200/50 dark:border-blue-900/30 bg-white/90 dark:bg-slate-900/40 backdrop-blur-md text-slate-800 dark:text-slate-200 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-all flex items-center justify-center"
+                                    >
+                                        <Plus className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Buat draf dokumen kosong baru
+                                </TooltipContent>
+                            </Tooltip>
 
-                        <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={handleDeleteActive}
-                            disabled={deleteDocumentMutation.isPending}
-                            title="Hapus Dokumen"
-                            className="h-8 w-8 border border-red-200/30 dark:border-red-900/30 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-lg shadow-sm backdrop-blur-md transition-all flex items-center justify-center disabled:opacity-30"
-                        >
-                            {deleteDocumentMutation.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                <Trash2 className="h-4 w-4" />
-                            )}
-                        </Button>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        variant="outline"
+                                        onClick={handleLoadSampleDirect}
+                                        className="h-8 w-8 shrink-0 border border-blue-200/50 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 rounded-lg shadow-sm hover:bg-blue-105 dark:hover:bg-blue-900/40 transition-all flex items-center justify-center animate-pulse"
+                                    >
+                                        <FilePlus className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Muat draf anggaran contoh Dinas Kominfo 2026 secara instan
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        variant="outline"
+                                        onClick={handleDeleteActive}
+                                        disabled={deleteDocumentMutation.isPending}
+                                        className="h-8 w-8 shrink-0 border border-red-200/30 dark:border-red-900/30 bg-red-50/10 hover:bg-red-50/20 text-red-600 dark:text-red-400 rounded-lg shadow-sm backdrop-blur-md transition-all flex items-center justify-center disabled:opacity-30"
+                                    >
+                                        {deleteDocumentMutation.isPending ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Trash2 className="h-4 w-4" />
+                                        )}
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Hapus draf aktif saat ini secara permanen
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
 
                         <div className="h-6 w-px bg-slate-200 dark:bg-blue-900/30 mx-1 hidden sm:block" />
 
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
                             <span className="text-[10px] sm:text-xs text-muted-foreground font-medium shrink-0">Judul:</span>
                             <input
                                 type="text"
                                 value={titleInput}
                                 onChange={(e) => setTitleInput(e.target.value)}
-                                className="bg-white/50 dark:bg-slate-900/30 border border-slate-200 dark:border-blue-900/30 rounded px-2.5 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500 w-[120px] sm:w-[180px] font-medium placeholder-slate-400"
+                                className="bg-white/50 dark:bg-slate-900/30 border border-slate-200 dark:border-blue-900/30 rounded px-2.5 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500 w-full sm:w-[160px] font-medium placeholder-slate-400"
                                 placeholder="Judul Dokumen..."
                             />
                             <Badge variant="outline" className="text-[10px] font-normal bg-white dark:bg-slate-800 shrink-0 h-6">
@@ -707,59 +868,109 @@ export function DocumentEditor({
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-end w-full sm:w-auto gap-2">
-                        <span className="text-xs text-muted-foreground hidden sm:inline-block mr-2">
+                    {/* HORIZONTAL SCROLL ACTION BAR ON MOBILE */}
+                    <div className={cn(
+                        "flex items-center gap-2 w-full",
+                        isMobileScreen 
+                            ? "overflow-x-auto whitespace-nowrap no-scrollbar pb-1 px-0.5 pt-0.5 scroll-smooth" 
+                            : "lg:w-auto justify-end shrink-0"
+                    )}>
+                        <span className="text-xs text-muted-foreground hidden lg:inline-block mr-2 shrink-0">
                             {editor?.storage.characterCount.words() || 0} words
                         </span>
-                        <VersionHistory />
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleProcessWithAI}
-                            className="h-8 gap-1.5 flex-1 sm:flex-none text-purple-600 border-purple-200 hover:text-white hover:bg-gradient-to-r hover:from-purple-500 hover:to-indigo-600 hover:border-transparent transition-all duration-300 shadow-sm hover:shadow-md"
-                        >
-                            <Sparkles className="h-3.5 w-3.5" />
-                            <span className="truncate">Guardrail Check</span>
-                        </Button>
-                        <Button
-                            size="sm"
-                            onClick={handleSwarmReview}
-                            className="h-8 gap-1.5 flex-1 sm:flex-none bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 shadow-sm transition-all"
-                        >
-                            <Users className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline-block">Swarm Review</span>
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setIsBulkModalOpen(true)}
-                            className="h-8 gap-1.5 flex-1 sm:flex-none text-blue-600 border-blue-200 hover:text-blue-700 hover:bg-blue-50 transition-all shadow-sm"
-                        >
-                            <UploadCloud className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline-block">Import Bulk</span>
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleExportPDF}
-                            className="h-8 gap-1.5 flex-1 sm:flex-none text-emerald-600 border-emerald-200 hover:text-emerald-700 hover:bg-emerald-50 transition-all shadow-sm"
-                        >
-                            <Printer className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline-block">Export PDF</span>
-                        </Button>
-                        <Button
-                            size="sm"
-                            onClick={handleSave}
-                            disabled={updateTextMutation.isPending}
-                            className="h-8 gap-1.5 flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-                        >
-                            {updateTextMutation.isPending ? (
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                                <Save className="h-3.5 w-3.5" />
-                            )}
-                            <span>Save</span>
-                        </Button>
+                        
+                        <div className="shrink-0">
+                            <VersionHistory />
+                        </div>
+                                                <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleProcessWithAI}
+                                        className="tour-guardrail h-8 gap-1.5 text-purple-600 dark:text-purple-400 border-purple-200/60 dark:border-purple-900/30 hover:text-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-indigo-600 hover:border-transparent transition-all duration-300 shadow-sm shrink-0 text-xs font-bold"
+                                    >
+                                        <Sparkles className="h-3.5 w-3.5" />
+                                        <span>Guardrail Check</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Cek harga mandiri cepat secara real-time terhadap batas wajar Nemesis DB
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="sm"
+                                        onClick={handleSwarmReview}
+                                        className="tour-swarm h-8 gap-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 shadow-sm transition-all shrink-0 text-xs font-bold"
+                                    >
+                                        <Users className="h-3.5 w-3.5" />
+                                        <span>Swarm Review</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Jalankan debat otonom Multi-Agent Swarm (Auditor, Compliance, Manager) untuk analisis mendalam
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setIsBulkModalOpen(true)}
+                                        className="h-8 gap-1.5 text-blue-600 dark:text-blue-400 border-blue-200/50 dark:border-blue-900/30 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all shadow-sm shrink-0 text-xs font-bold"
+                                    >
+                                        <UploadCloud className="h-3.5 w-3.5" />
+                                        <span>Import Bulk</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Impor banyak draf anggaran sekaligus dari database staging
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleExportPDF}
+                                        className="h-8 gap-1.5 text-emerald-600 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-900/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all shadow-sm shrink-0 text-xs font-bold"
+                                    >
+                                        <Printer className="h-3.5 w-3.5" />
+                                        <span>Export PDF</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Ekspor dokumen ke PDF resmi lengkap dengan laporan kepatuhan AI
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="sm"
+                                        onClick={handleSave}
+                                        disabled={updateTextMutation.isPending}
+                                        className="h-8 gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-sm shrink-0 text-xs font-bold"
+                                    >
+                                        {updateTextMutation.isPending ? (
+                                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                            <Save className="h-3.5 w-3.5" />
+                                        )}
+                                        <span>Save</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Simpan draf anggaran Anda ke server secara manual
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </div>
                 </div>
 
@@ -770,17 +981,61 @@ export function DocumentEditor({
                 <EditorBubbleMenu editor={editor} />
 
                 <div className="flex flex-1 overflow-hidden">
-                    {/* Editor Area */}
+                    {/* ADAPTIVE WORKSPACE BACKGROUND (Light: slate-100, Dark: obsidian #070e1c) */}
                     <div
-                        className="flex-1 overflow-y-auto bg-white/60 dark:bg-[#0B1120]/80 backdrop-blur-sm group relative cursor-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEgMUwyMyAxNkwxNCAxOEw5IDMwTDEgMVoiIGZpbGw9IiMxMTE4MjciIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4='),_default]"
+                        className="flex-1 overflow-y-auto bg-slate-100 dark:bg-[#070e1c] p-3 sm:p-6 md:p-8 flex flex-col items-center w-full min-h-[500px] transition-colors duration-300"
                         onClick={() => editor?.chain().focus().run()}
                     >
-                        <EditorContent editor={editor} className="min-h-full" />
+                        <div className="w-full max-w-[816px] flex flex-col relative shrink-0">
+                            {/* Sleek Contextual Tip Banner */}
+                            <div className="w-full mb-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200/50 dark:border-blue-900/30 rounded-lg flex items-center justify-between text-xs text-blue-800 dark:text-blue-300 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 shrink-0">
+                                <div className="flex items-center gap-2">
+                                    <Sparkles className="h-4 w-4 text-blue-500 shrink-0 animate-pulse" />
+                                    <span>
+                                        <strong>Petunjuk Cepat:</strong> Tulis anggaran dalam format <code>Nama Barang : Rp Harga</code> (contoh: <code>Laptop IT : Rp 25.000.000</code>) agar AI Guardrails mendeteksinya secara otomatis!
+                                    </span>
+                                </div>
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleLoadSampleDirect();
+                                    }}
+                                    className="ml-3 px-2.5 py-1 bg-white hover:bg-blue-50 dark:bg-slate-900 dark:hover:bg-slate-800 border border-blue-200 dark:border-blue-900/50 rounded-md font-bold text-[10px] text-blue-600 dark:text-blue-400 transition-colors shadow-sm"
+                                >
+                                    Muat Contoh
+                                </button>
+                            </div>
+
+                            {/* MICROSOFT WORD STYLE RULER */}
+                            <div className="w-full h-5 bg-white dark:bg-[#0f172a] border-x border-t border-slate-200 dark:border-blue-900/30 rounded-t-lg flex items-center justify-between px-16 text-[8px] text-slate-400 dark:text-slate-500 font-bold select-none shrink-0 transition-colors duration-300">
+                                <span>L</span>
+                                <div className="flex-1 h-px bg-slate-200 dark:bg-blue-950/25 mx-4 relative">
+                                    <div className="absolute top-1/2 left-[10%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                    <div className="absolute top-1/2 left-[20%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                    <div className="absolute top-1/2 left-[30%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                    <div className="absolute top-1/2 left-[40%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                    <div className="absolute top-1/2 left-[50%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                    <div className="absolute top-1/2 left-[60%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                    <div className="absolute top-1/2 left-[70%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                    <div className="absolute top-1/2 left-[80%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                    <div className="absolute top-1/2 left-[90%] w-0.5 h-1 bg-slate-300 dark:bg-slate-700" />
+                                </div>
+                                <span>R</span>
+                            </div>
+
+                            {/* WORD PAPER A4 CONTAINER */}
+                            <div 
+                                className="tour-canvas w-full bg-white dark:bg-[#0b1120] border-x border-b border-slate-200 dark:border-blue-900/30 shadow-[0_10px_35px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.45)] rounded-b-lg group relative transition-colors duration-300"
+                                onClick={() => editor?.commands.focus()}
+                            >
+                                <EditorContent editor={editor} />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Fraud Alert Sidebar */}
                     {fraudAlert && (
-                        <div className="w-80 border-l border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/20 p-4 overflow-y-auto animate-in slide-in-from-right-8">
+                        <div className="w-80 border-l border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/20 p-4 overflow-y-auto animate-in slide-in-from-right-8 shrink-0">
                             <div className="flex items-center gap-2 mb-4 text-red-600 dark:text-red-400">
                                 <ShieldX className="h-5 w-5" />
                                 <h3 className="font-semibold">Guardrail Alert</h3>
@@ -843,8 +1098,10 @@ export function DocumentEditor({
                 isLoading={isGhostwriterLoading}
                 onAccept={acceptSuggestion}
                 onDiscard={discardSuggestion}
-                isMobile={isMobile}
+                isMobile={isMobileScreen}
             />
+            {/* Guided Tour Engine */}
+            <GuidedTour steps={editorTourSteps} tourKey="editor_tour" />
         </div>
     );
 }

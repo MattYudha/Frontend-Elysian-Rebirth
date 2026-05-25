@@ -20,10 +20,14 @@ export function StoreInitializer({ user, accessToken }: StoreInitializerProps) {
     const initialized = useRef(false);
 
     if (!initialized.current) {
-        // Hydrate from SSR if we have a fresh access token, or the client is not authenticated.
-        // This ensures the client-side store stays synchronized with the fresh SSR token.
-        if (accessToken || !useAuthStore.getState().isAuthenticated) {
+        // HANYA sinkronisasi data dari SSR jika kita memiliki accessToken nyata dan valid.
+        // Jangan pernah menimpa sesi klien yang aktif di localStorage dengan mock user fallback!
+        if (accessToken) {
             useAuthStore.getState().login(user, accessToken);
+            useAuthStore.getState().setLoadingSession(false);
+        } else if (!useAuthStore.getState().isAuthenticated) {
+            // Jika klien sama sekali belum terautentikasi dan tidak ada session, 
+            // set loading session ke false agar query data tidak tersumbat.
             useAuthStore.getState().setLoadingSession(false);
         }
         initialized.current = true;

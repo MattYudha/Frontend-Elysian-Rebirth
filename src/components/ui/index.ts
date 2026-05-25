@@ -47,3 +47,5 @@ export * from "./toggle";
 export * from "./tooltip";
 export * from "./password-strength-meter";
 export * from "./input-password";
+export * from "./GuidedTour";
+

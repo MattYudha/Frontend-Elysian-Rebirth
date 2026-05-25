@@ -19,18 +19,18 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     };
 
     return (
-        <div className="min-h-screen w-full bg-slate-50 lg:bg-slate-100 flex items-center justify-center p-0 lg:p-0 overflow-hidden">
+        <div className="min-h-screen w-full bg-slate-100 dark:bg-black flex items-center justify-center p-0 lg:p-0 overflow-hidden">
             {/* MAIN CONTAINER - Supports Magic Motion Layout */}
             <motion.div
                 layout
                 transition={layoutTransition}
-                className={`w-full max-w-[1920px] h-screen flex ${isRegister ? 'flex-row-reverse' : 'flex-row'} bg-white shadow-2xl overflow-hidden`}
+                className={`w-full max-w-[1920px] h-screen flex ${isRegister ? 'flex-row-reverse' : 'flex-row'} bg-slate-50 dark:bg-[#070e1c] shadow-2xl overflow-hidden`}
             >
                 {/* --- PANEL 1: FORM SECTION (Content) --- */}
                 <motion.div
                     layout
                     transition={layoutTransition}
-                    className="w-full lg:w-[40%] h-full flex flex-col justify-center relative z-20 bg-white"
+                    className="w-full lg:w-[40%] h-full flex flex-col justify-center relative z-20 bg-slate-50 dark:bg-[#0b1120]"
                 >
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div

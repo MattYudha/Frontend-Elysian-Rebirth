@@ -68,8 +68,43 @@ class HttpClient {
                 globalDegradation.clearFor(response.config.url);
                 return response;
             },
-            (error) => {
+            async (error) => {
                 const status = error.response?.status;
+                const originalRequest = error.config;
+
+                // Attempt to silently refresh token on 401 before redirecting
+                if (status === 401 && originalRequest && !originalRequest._retry) {
+                    originalRequest._retry = true;
+                    try {
+                        console.log('[HTTP Client] Token expired. Attempting token refresh...');
+                        const res = await fetch('/api/auth/refresh', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json();
+                            const newAccessToken = data.data?.access_token || data.data?.data?.access_token;
+
+                            if (newAccessToken) {
+                                console.log('[HTTP Client] Token refresh succeeded. Retrying request.');
+                                // 1. Update Zustand state
+                                const user = useAuthStore.getState().user;
+                                if (user) {
+                                    useAuthStore.getState().login(user, newAccessToken);
+                                }
+
+                                // 2. Update header and retry original request
+                                originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                                return this.client(originalRequest);
+                            }
+                        }
+                    } catch (refreshError) {
+                        console.error('[HTTP Client] Silent token refresh failed:', refreshError);
+                    }
+                }
 
                 // The Global 401/403 Interceptor: Kills Zombie Sessions / Invalid Tenants
                 if (status === 401 || status === 403) {

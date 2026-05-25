@@ -170,8 +170,13 @@
 }
 
 /* TipTap Editor Styles & Copy-Paste Cleanup */
-.ProseMirror {
+.ProseMirror,
+.tour-canvas {
   outline: none;
+  cursor:
+    url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNC41IDIuNSBMNC41IDE5LjUgTDkuNSAxNC41IEwxMy41IDIyLjUgTDE2IDIxIEwxMiAxMyBMMTggMTMgWiIgZmlsbD0iIzAwMDAwMCIgc3Ryb2tlPSIjZmZmZmZmIiBzdHJva2Utd2lkdGg9IjEuMiIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==")
+      4 2,
+    default !important;
 }
 
 /* Strip inline pasted background & text colors to keep background/foreground matching the editor theme */

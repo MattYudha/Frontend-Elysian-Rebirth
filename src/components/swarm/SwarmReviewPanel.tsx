@@ -90,7 +90,7 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
     const [progress, setProgress] = useState(0);
     const [currentStep, setCurrentStep] = useState('Initializing Swarm Review...');
     const [activeAgent, setActiveAgent] = useState<'System' | 'Auditor' | 'Pengawas' | 'Manager' | null>('System');
-    const consoleEndRef = useRef<HTMLDivElement>(null);
+    const consoleContainerRef = useRef<HTMLDivElement>(null);
     const hasTriggeredRef = useRef(false);
 
     const checkExistingTask = async () => {
@@ -213,8 +213,8 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
 
     // Auto-scroll logic for terminal console
     useEffect(() => {
-        if (consoleEndRef.current) {
-            consoleEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        if (consoleContainerRef.current) {
+            consoleContainerRef.current.scrollTop = consoleContainerRef.current.scrollHeight;
         }
     }, [consoleLogs]);
 
@@ -618,7 +618,10 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                         </div>
 
                         {/* Live Console Output */}
-                        <div className="flex-1 bg-white dark:bg-slate-950 p-3 font-mono text-[10px] lg:text-[11px] overflow-y-auto space-y-2 select-text text-slate-700 dark:text-slate-350 leading-relaxed">
+                        <div 
+                            ref={consoleContainerRef}
+                            className="flex-1 bg-white dark:bg-slate-950 p-3 font-mono text-[10px] lg:text-[11px] overflow-y-auto space-y-2 select-text text-slate-700 dark:text-slate-350 leading-relaxed"
+                        >
                             {consoleLogs.map((log, i) => {
                                 const timeString = new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                                 
@@ -640,7 +643,6 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                                     </div>
                                 );
                             })}
-                            <div ref={consoleEndRef} />
                         </div>
                     </div>
 

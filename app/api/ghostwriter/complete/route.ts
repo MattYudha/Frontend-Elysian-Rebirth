@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize the Gemini API client using the environment key
-const apiKey = process.env.GEMINI_API_KEY || '';
+const apiKey = 'sk-cp-SG-5IJCfPIDQRYO0Ep3JJs8iqzxekQgMDSFZcOfxyWEg8ZNPRTIsS7_g-_ibYxzR4HW3SYpChn4CaDBUHYeb_OPfJvp8i8PhvYt9CDsbeHFbptCDNj4Iw8M';
+const apiBaseUrl = 'https://api.minimax.io/v1/chat/completions';
+const modelName = 'MiniMax-M2.5';
 
 // A high-fidelity, hyper-targeted rule-based local Indonesian fallback engine
 // designed specifically for the SPBE Kominfo Purbalingga budget proposal context.
@@ -127,9 +127,9 @@ export async function POST(request: Request) {
             }
         }
 
-        // If no local rule matches, attempt to call Gemini for a fully dynamic completion
+        // If no local rule matches, attempt to call MiniMax for a fully dynamic completion
         if (!apiKey) {
-            console.warn('[Ghostwriter API] GEMINI_API_KEY is not defined. Falling back to default suggestions.');
+            console.warn('[Ghostwriter API] API Key is not defined. Falling back to default suggestions.');
             const defaultRaw = "untuk segera melanjutkan ke Tahap 1 implementasi dan integrasi SPBE.";
             const defaultSuggestion = deduplicateSuggestion(text, defaultRaw);
             return NextResponse.json({ 
@@ -138,18 +138,8 @@ export async function POST(request: Request) {
             });
         }
 
-        console.log('[Ghostwriter API] Calling Gemini for completion...');
+        console.log('[Ghostwriter API] Calling MiniMax for completion...');
         
-        // Use the correct @google/generative-ai SDK syntax
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ 
-            model: 'gemini-2.5-flash',
-            generationConfig: {
-                maxOutputTokens: 30,
-                temperature: 0.2,
-            }
-        });
-
         const lastSentence = text.slice(-300); // Send the last 300 characters as immediate context
 
         const prompt = `You are a professional SPBE (Sistem Pemerintahan Berbasis Elektronik) and Indonesian government budget proposal assistant.
@@ -174,9 +164,29 @@ Rules:
 
 Continuation text:`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        let suggestion = response.text ? response.text().trim() : '';
+        const minRes = await fetch(apiBaseUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: modelName,
+                messages: [{ role: 'user', content: prompt }],
+                temperature: 0.2,
+                max_tokens: 300
+            })
+        });
+
+        if (!minRes.ok) {
+            throw new Error(`MiniMax API error: ${minRes.status} ${minRes.statusText}`);
+        }
+
+        const result = await minRes.json();
+        let suggestion = result.choices?.[0]?.message?.content?.trim() || '';
+        
+        // Remove thinking block if any
+        suggestion = suggestion.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
         // Clean suggestions to make sure it looks like a clean continuation (removes quotes, ellipses)
         suggestion = suggestion.replace(/^["'“”‘`\s\.\,\-]+/g, '');
