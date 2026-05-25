@@ -1,11 +1,66 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const apiKey = process.env.MINIMAX_API_KEY || process.env.GEMINI_API_KEY || "";
+const minimaxKey = process.env.MINIMAX_API_KEY;
+const geminiKey = process.env.GEMINI_API_KEY;
+const apiKey = minimaxKey || geminiKey || "";
+const isGemini = !minimaxKey && !!geminiKey;
+
+async function getAIResponse(requestMessages: any[], systemInstructionText: string, apiKey: string, isGemini: boolean): Promise<string> {
+    if (isGemini) {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-2.5-flash',
+            systemInstruction: systemInstructionText,
+        });
+
+        const contents = requestMessages
+            .filter((m: any) => m.role !== 'system')
+            .map((m: any) => ({
+                role: m.role === 'user' ? 'user' : 'model',
+                parts: [{ text: m.content }]
+            }));
+
+        const result = await model.generateContent({
+            contents: contents
+        });
+
+        return result.response.text();
+    } else {
+        const response = await fetch("https://api.minimax.io/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                model: "MiniMax-M2.5",
+                messages: requestMessages,
+            }),
+        });
+
+        if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`MiniMax API returned status ${response.status}: ${errText}`);
+        }
+
+        const data = await response.json();
+        if (data.base_resp && data.base_resp.status_code !== 0) {
+            throw new Error(`MiniMax API error: ${data.base_resp.status_msg} (code ${data.base_resp.status_code})`);
+        }
+
+        if (!data.choices || data.choices.length === 0) {
+            throw new Error("No response text returned from MiniMax");
+        }
+
+        return data.choices[0].message.content;
+    }
+}
 
 export async function POST(req: Request) {
     if (!apiKey) {
         return NextResponse.json(
-            { error: "API Key MiniMax belum dikonfigurasi di file .env.local" },
+            { error: "API Key belum dikonfigurasi di file .env.local" },
             { status: 500 }
         );
     }
@@ -58,103 +113,119 @@ Ketika pengguna meminta rekomendasi perencanaan pengadaan hardware (seperti pend
         }
 
         if (debate) {
-            const response = await fetch("https://api.minimax.io/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`,
-                },
-                body: JSON.stringify({
-                    model: "MiniMax-M2.5",
-                    messages: requestMessages,
-                    stream: true,
-                }),
-            });
+            if (isGemini) {
+                const genAI = new GoogleGenerativeAI(apiKey);
+                const model = genAI.getGenerativeModel({
+                    model: 'gemini-2.5-flash',
+                    systemInstruction: systemInstructionText,
+                });
 
-            if (!response.ok) {
-                const errText = await response.text();
-                return NextResponse.json({ error: `MiniMax API returned status ${response.status}: ${errText}` }, { status: 500 });
-            }
+                const contents = requestMessages
+                    .filter((m: any) => m.role !== 'system')
+                    .map((m: any) => ({
+                        role: m.role === 'user' ? 'user' : 'model',
+                        parts: [{ text: m.content }]
+                    }));
 
-            const reader = response.body?.getReader();
-            const encoder = new TextEncoder();
-            const decoder = new TextDecoder();
+                const resultStream = await model.generateContentStream({
+                    contents: contents
+                });
 
-            const customStream = new ReadableStream({
-                async start(controller) {
-                    if (!reader) {
+                const encoder = new TextEncoder();
+                const customStream = new ReadableStream({
+                    async start(controller) {
+                        for await (const chunk of resultStream.stream) {
+                            const chunkText = chunk.text();
+                            if (chunkText) {
+                                controller.enqueue(
+                                    encoder.encode(`data: ${JSON.stringify({ delta: chunkText })}\n\n`)
+                                );
+                            }
+                        }
                         controller.close();
-                        return;
                     }
-                    let buffer = "";
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
+                });
 
-                        buffer += decoder.decode(value, { stream: true });
-                        const lines = buffer.split("\n");
-                        buffer = lines.pop() || "";
+                return new Response(customStream, {
+                    headers: {
+                        "Content-Type": "text/event-stream",
+                        "Cache-Control": "no-cache",
+                        "Connection": "keep-alive",
+                    }
+                });
+            } else {
+                const response = await fetch("https://api.minimax.io/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({
+                        model: "MiniMax-M2.5",
+                        messages: requestMessages,
+                        stream: true,
+                    }),
+                });
 
-                        for (const line of lines) {
-                            const cleanLine = line.trim();
-                            if (!cleanLine) continue;
-                            if (cleanLine === "data: [DONE]") continue;
+                if (!response.ok) {
+                    const errText = await response.text();
+                    return NextResponse.json({ error: `MiniMax API returned status ${response.status}: ${errText}` }, { status: 500 });
+                }
 
-                            if (cleanLine.startsWith("data: ")) {
-                                try {
-                                    const jsonStr = cleanLine.slice(6);
-                                    const parsed = JSON.parse(jsonStr);
-                                    const delta = parsed.choices?.[0]?.delta?.content || "";
-                                    if (delta) {
-                                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`));
+                const reader = response.body?.getReader();
+                const encoder = new TextEncoder();
+                const decoder = new TextDecoder();
+
+                const customStream = new ReadableStream({
+                    async start(controller) {
+                        if (!reader) {
+                            controller.close();
+                            return;
+                        }
+                        let buffer = "";
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+
+                            buffer += decoder.decode(value, { stream: true });
+                            const lines = buffer.split("\n");
+                            buffer = lines.pop() || "";
+
+                            for (const line of lines) {
+                                const cleanLine = line.trim();
+                                if (!cleanLine) continue;
+                                if (cleanLine === "data: [DONE]") continue;
+
+                                if (cleanLine.startsWith("data: ")) {
+                                    try {
+                                        const jsonStr = cleanLine.slice(6);
+                                        const parsed = JSON.parse(jsonStr);
+                                        const delta = parsed.choices?.[0]?.delta?.content || "";
+                                        if (delta) {
+                                            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ delta })}\n\n`));
+                                        }
+                                    } catch (e) {
+                                        // Ignore json parse errors for incomplete chunks
                                     }
-                                } catch (e) {
-                                    // Ignore json parse errors for incomplete chunks
                                 }
                             }
                         }
+                        controller.close();
                     }
-                    controller.close();
-                }
-            });
+                });
 
-            return new Response(customStream, {
-                headers: {
-                    "Content-Type": "text/event-stream",
-                    "Cache-Control": "no-cache",
-                    "Connection": "keep-alive",
-                }
-            });
+                return new Response(customStream, {
+                    headers: {
+                        "Content-Type": "text/event-stream",
+                        "Cache-Control": "no-cache",
+                        "Connection": "keep-alive",
+                    }
+                });
+            }
         }
 
         // Standard non-streaming request
-        const response = await fetch("https://api.minimax.io/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: "MiniMax-M2.5",
-                messages: requestMessages,
-            }),
-        });
-
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`MiniMax API returned status ${response.status}: ${errText}`);
-        }
-
-        const data = await response.json();
-        if (data.base_resp && data.base_resp.status_code !== 0) {
-            throw new Error(`MiniMax API error: ${data.base_resp.status_msg} (code ${data.base_resp.status_code})`);
-        }
-
-        if (!data.choices || data.choices.length === 0) {
-            throw new Error("No response text returned from MiniMax");
-        }
-
-        let rawReply = data.choices[0].message.content;
+        const rawReply = await getAIResponse(requestMessages, systemInstructionText, apiKey, isGemini);
         let responseText = rawReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
         // Tool execution flow
@@ -197,25 +268,8 @@ Ketika pengguna meminta rekomendasi perencanaan pengadaan hardware (seperti pend
                             content: `Berikut adalah hasil pencarian dari database Nemesis:\n${dbResultText}\n\nBerikan jawaban final kepada pengguna berdasarkan data di atas.` 
                         });
 
-                        const finalRes = await fetch("https://api.minimax.io/v1/chat/completions", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${apiKey}`,
-                            },
-                            body: JSON.stringify({
-                                model: "MiniMax-M2.5",
-                                messages: requestMessages,
-                            }),
-                        });
-
-                        if (finalRes.ok) {
-                            const finalData = await finalRes.json();
-                            if (finalData.choices && finalData.choices.length > 0) {
-                                rawReply = finalData.choices[0].message.content;
-                                responseText = rawReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-                            }
-                        }
+                        const finalReply = await getAIResponse(requestMessages, systemInstructionText, apiKey, isGemini);
+                        responseText = finalReply.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
                     }
                 } catch (e) {
                     console.error("Error executing tool call:", e);
@@ -225,9 +279,9 @@ Ketika pengguna meminta rekomendasi perencanaan pengadaan hardware (seperti pend
 
         return NextResponse.json({ reply: responseText });
     } catch (error: any) {
-        console.error("MiniMax API Error:", error);
+        console.error("Chat API Error:", error);
         return NextResponse.json(
-            { error: "Terjadi kesalahan saat menghubungi layanan AI MiniMax: " + error.message },
+            { error: "Terjadi kesalahan saat menghubungi layanan AI: " + error.message },
             { status: 500 }
         );
     }

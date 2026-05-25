@@ -74,12 +74,6 @@ export const rag = {
      * 3. Store in Vector DB (Pinecone/Milvus)
      */
     processDocument: async (documentId: string, text: string): Promise<{ success: boolean; message: string }> => {
-        console.log(`[RAG-SDK] Processing document ${documentId}...`);
-        console.log(`[RAG-SDK] Extracted Text Length: ${text.length} characters`);
-
-        // Simulating network delay for AI processing
-        await delay(2000);
-
         if (text.length < 50) {
             return {
                 success: false,
@@ -87,10 +81,31 @@ export const rag = {
             };
         }
 
-        return {
-            success: true,
-            message: "Dokumen berhasil dikirim ke pipeline RAG. AI akan mempelajarinya."
-        };
+        try {
+            const res = await fetch(`/api/proxy/documents/${documentId}/text`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ extracted_text: text })
+            });
+
+            if (!res.ok) {
+                const body = await res.json().catch(() => ({}));
+                throw new Error(body?.message || body?.error || `HTTP ${res.status}`);
+            }
+
+            return {
+                success: true,
+                message: "Dokumen berhasil disimpan ke database."
+            };
+        } catch (err: any) {
+            console.error("Failed to save staging document text:", err);
+            return {
+                success: false,
+                message: `Gagal menyimpan dokumen: ${err.message}`
+            };
+        }
     },
 
     /**
@@ -135,15 +150,50 @@ export const rag = {
      * Enterprise RAG Evaluator (Phase 3)
      */
     evaluateGuardrails: async (text: string) => {
-        await delay(1200); // Simulate network and MiniMax Semantic Analysis
+        // Parse items from the text editor
+        const itemPattern = /([a-zA-Z0-9\s\-\*]+?)\s*:\s*Rp\s*([0-9.,]+)/gi;
+        const items: Array<{ item_name: string; price: number }> = [];
+        let match;
+        while ((match = itemPattern.exec(text)) !== null) {
+            const name = match[1].trim();
+            const priceStr = match[2].replace(/[.,]/g, '');
+            const price = parseFloat(priceStr);
+            if (name && !isNaN(price)) {
+                const cleanedName = name.replace(/^[-\*\s\d]+\s*(?:unit|sak|pcs|buah|box|kg|lembar|pax|lusin)?\s*/i, "").trim();
+                if (cleanedName) {
+                    items.push({ item_name: cleanedName, price });
+                }
+            }
+        }
 
-        // FDS Hackathon strict rule matching
-        if (text.includes("25.000.000") || text.toLowerCase().includes("25 juta")) {
-            return {
-                isAnomaly: true,
-                reason: "Terindikasi Mark-up Anggaran. Harga yang diajukan melebih batas regulasi Pengadaan IT.",
-                quote: 'Ref: "DUMMY_POJK_Standar_Harga.md (Bab 2.1)"\n\n"Batas Maksimum Harga Satuan: Rp 15.000.000. Pengajuan di atas batas maksimal harus ditandai sebagai FRAUD WARNING."'
-            };
+        if (items.length === 0) {
+            return { isAnomaly: false };
+        }
+
+        try {
+            const res = await fetch('/api/proxy/guardrails/precheck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ items })
+            });
+
+            if (res.ok) {
+                const result = await res.json();
+                if (result.data) {
+                    const violation = result.data.find((item: any) => item.is_violation);
+                    if (violation) {
+                        return {
+                            isAnomaly: true,
+                            reason: `Terindikasi Mark-up Anggaran pada item '${violation.item_name}'. Harga pengajuan Rp ${violation.price.toLocaleString('id-ID')} melebihi batas regulasi daerah.`,
+                            quote: `Ref: "Nemesis Ground Truth Database (standard_price)"\n\n"Batas Maksimum Harga Satuan resmi untuk '${violation.item_name}' (${violation.standard_category || 'Kategori Umum'}) adalah Rp ${violation.max_price.toLocaleString('id-ID')}. Kelebihan anggaran sebesar Rp ${violation.excess_amount.toLocaleString('id-ID')} per unit."`
+                        };
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("Failed to perform real guardrails check:", err);
         }
 
         return { isAnomaly: false };

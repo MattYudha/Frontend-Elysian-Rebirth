@@ -87,10 +87,20 @@ export function RegionalHeatmap({ data = [], isLoading }: RegionalHeatmapProps) 
             <div className="mb-6 flex items-start justify-between">
                 <div>
                     <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-50 tracking-tight">Regional Markup Hotspots</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Locations with the highest flagged excess budget (Click for details)</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Wilayah dengan anggaran melebihi batas maksimal Nemesis — data real dari swarm audit
+                    </p>
                 </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500">
-                    <MapPin className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                    {!isLoading && !isEmpty && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 px-2 py-0.5 rounded-full">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                            LIVE DB
+                        </span>
+                    )}
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500">
+                        <MapPin className="h-4 w-4" />
+                    </div>
                 </div>
             </div>
 
@@ -100,9 +110,9 @@ export function RegionalHeatmap({ data = [], isLoading }: RegionalHeatmapProps) 
                         <ShieldAlert className="h-5 w-5 text-emerald-500" />
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">All Regions Clear</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[240px] leading-relaxed">
-                            No budget anomalies or markups have been flagged in any region.
+                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Tidak Ada Pelanggaran Anggaran</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[260px] leading-relaxed">
+                            Belum ada item dengan status FLAGGED di database. Jalankan Swarm Review pada dokumen untuk menghasilkan data audit.
                         </p>
                     </div>
                 </div>

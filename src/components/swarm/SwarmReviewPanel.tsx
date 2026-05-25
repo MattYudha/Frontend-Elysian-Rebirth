@@ -16,6 +16,7 @@ interface SwarmResult {
     status: 'FLAGGED' | 'CLEARED' | 'PENDING';
     agent_logs: LogLine[];
     manager_conclusion?: string;
+    name?: string;
 }
 
 interface BlockchainInfo {
@@ -80,6 +81,9 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
     const [results, setResults] = useState<SwarmResult[]>([]);
     const [blockchainInfo, setBlockchainInfo] = useState<BlockchainInfo | null>(null);
     const [selectedItemForChat, setSelectedItemForChat] = useState<SwarmResult | null>(null);
+    const [nftTokenId, setNftTokenId] = useState<string | null>(null);
+    const [ipfsCid, setIpfsCid] = useState<string | null>(null);
+    const [nftTxHash, setNftTxHash] = useState<string | null>(null);
 
     // Dynamic console tracking states
     const [consoleLogs, setConsoleLogs] = useState<ConsoleLog[]>([]);
@@ -107,6 +111,10 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                     network: task.blockchain_network || 'Sepolia',
                     status: task.blockchain_status || 'PENDING_COMMIT'
                 };
+
+                setNftTokenId(task.nft_token_id || null);
+                setIpfsCid(task.ipfs_cid || null);
+                setNftTxHash(task.nft_tx_hash || null);
 
                 if (task.status === 'COMPLETED') {
                     const rawResults = task.results;
@@ -351,6 +359,9 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
 
                     setResults(cleanedResults);
                     setBlockchainInfo(data.blockchain || null);
+                    setNftTokenId(data.nft_token_id || null);
+                    setIpfsCid(data.ipfs_cid || null);
+                    setNftTxHash(data.nft_tx_hash || null);
                     setStatus('COMPLETED');
 
                     const bcStatus = data.blockchain?.status;
@@ -459,6 +470,10 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                         network: task.blockchain_network || 'Sepolia',
                         status: task.blockchain_status || 'PENDING_COMMIT'
                     };
+
+                    setNftTokenId(task.nft_token_id || null);
+                    setIpfsCid(task.ipfs_cid || null);
+                    setNftTxHash(task.nft_tx_hash || null);
 
                     const isBlockchainFinal = blockchain.status === 'VERIFIED' || blockchain.status === 'FAILED' || blockchain.status === 'UNCOMMITTED';
 
@@ -772,6 +787,47 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                         })()
                     )}
 
+                    {/* Sertifikat Audit Digital Card */}
+                    {nftTokenId && (
+                        <Card className="border-amber-400/60 bg-gradient-to-br from-amber-950/20 via-slate-900/40 to-amber-950/10 p-3 rounded-lg border shadow-lg relative overflow-hidden group shrink-0 mb-2 animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all duration-500"></div>
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xl">🎖️</span>
+                                    <div>
+                                        <h4 className="font-bold text-amber-500 text-xs tracking-wide">Sertifikat Audit Digital</h4>
+                                        <p className="text-[10px] text-slate-400 font-sans mt-0.5">Blockchain Ethereum Sepolia Terverifikasi</p>
+                                    </div>
+                                </div>
+                                <Badge variant="outline" className="text-[9px] px-1 bg-amber-500/10 text-amber-400 border-amber-500/30">
+                                    # {nftTokenId}
+                                </Badge>
+                            </div>
+                            
+                            <div className="mt-3 flex items-center justify-between border-t border-amber-500/10 pt-2.5">
+                                <a 
+                                    href={`https://ipfs.io/ipfs/${ipfsCid}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-[9px] font-sans font-semibold text-slate-400 hover:text-white transition-colors"
+                                >
+                                    <Link2 className="h-3 w-3 text-amber-500" />
+                                    <span>Buka IPFS</span>
+                                </a>
+                                
+                                <a 
+                                    href={`https://sepolia.opensea.io/assets/sepolia/0xdF0CD6Fae64183ff9798276d633E5591a103CD3D/${nftTokenId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-[10px] font-sans font-bold bg-amber-500 text-slate-950 px-2.5 py-1 rounded hover:bg-amber-400 transition-colors shadow-md shadow-amber-950/50"
+                                >
+                                    <span>Lihat Sertifikat</span>
+                                    <ExternalLink className="h-3 w-3" />
+                                </a>
+                            </div>
+                        </Card>
+                    )}
+
                     {results.map((res, idx) => (
                         <div 
                             key={idx} 
@@ -787,7 +843,20 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                             }}
                         >
                             <div className="flex items-center justify-between mb-2">
-                                <span className="font-bold text-slate-500 dark:text-slate-400">Item: {res.item_id}</span>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="font-bold text-slate-500 dark:text-slate-400">Item: {res.item_id}</span>
+                                    <a 
+                                        href={`/dashboard/documents/${documentId}#:~:text=${encodeURIComponent(res.name || res.item_id || '')}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="inline-flex items-center gap-0.5 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 ml-1.5"
+                                        title="Buka Dokumen Utuh & Verifikasi Blockchain"
+                                    >
+                                        <Link2 className="h-3 w-3" />
+                                        <span className="text-[10px] underline">Verify</span>
+                                    </a>
+                                </div>
                                 {res.status === 'FLAGGED' ? (
                                     <Badge variant="destructive" className="h-5 text-[10px] px-1 rounded-sm gap-1 bg-red-650 dark:bg-red-900 hover:bg-red-700">
                                         <ShieldAlert className="h-3 w-3" /> FLAGGED

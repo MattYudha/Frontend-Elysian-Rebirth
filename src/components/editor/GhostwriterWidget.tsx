@@ -1,5 +1,7 @@
-import React from 'react';
-import { Sparkles, MoveRight, X } from 'lucide-react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { Sparkles, MoveRight, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -17,73 +19,124 @@ export function GhostwriterWidget({
     isLoading,
     onAccept,
     onDiscard,
-    isMobile = false
+    isMobile = false,
 }: GhostwriterWidgetProps) {
-    // Determine positioning based on device
-    // Desktop: Following cursor is hard without coordinates, so we'll use a Fixed "smart" position 
-    // (e.g., bottom-center or floated right) for this version.
-    // A safe bet is bottom-right of the viewport or editor container.
+    const isVisible = suggestion !== null || isLoading;
 
-    // Using bottom-center for maximum visibility as requested by "Active Suggestion"
+    // Keyboard shortcut hint state
+    const [showKeyHint, setShowKeyHint] = useState(false);
+    useEffect(() => {
+        if (suggestion) {
+            // Show key hint after 0.8s so the user notices TAB
+            const t = setTimeout(() => setShowKeyHint(true), 800);
+            return () => clearTimeout(t);
+        } else {
+            setShowKeyHint(false);
+        }
+    }, [suggestion]);
 
     return (
         <AnimatePresence>
-            {(suggestion || isLoading) && (
+            {isVisible && (
                 <motion.div
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    key="ghostwriter-widget"
+                    initial={{ opacity: 0, y: 16, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.97, transition: { duration: 0.15 } }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 28 }}
                     className={cn(
-                        "z-50 flex items-center gap-3 p-4 rounded-2xl border border-blue-100/50 shadow-2xl shadow-blue-500/10 backdrop-blur-xl",
-                        "bg-gradient-to-br from-white/95 to-blue-50/90 dark:from-slate-900/95 dark:to-slate-800/90 dark:border-blue-500/20",
+                        // Core layout
+                        'flex items-center gap-3 rounded-2xl border shadow-2xl backdrop-blur-xl',
+                        // Background + border — premium glass look
+                        'bg-gradient-to-br from-white/96 via-blue-50/60 to-indigo-50/80',
+                        'dark:from-slate-900/96 dark:via-slate-800/80 dark:to-indigo-950/80',
+                        'border-blue-200/60 dark:border-blue-500/25',
+                        'shadow-blue-500/10 dark:shadow-blue-900/20',
+                        // Positioning: fixed to bottom of viewport — never overlaps the typing area
                         isMobile
-                            ? "fixed bottom-20 left-4 right-4" // Above keyboard/nav
-                            : "absolute bottom-8 right-8 max-w-md" // Inside relative editor container
+                            ? 'fixed bottom-20 left-3 right-3 z-[60]' // Above mobile nav
+                            : 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] w-auto max-w-[600px] min-w-[340px]'
                     )}
+                    style={{ padding: isMobile ? '12px 14px' : '10px 16px' }}
+                    role="status"
+                    aria-live="polite"
+                    aria-label="Saran AI"
                 >
-                    {isLoading ? (
-                        <div className="flex items-center gap-2 text-blue-500">
-                            <Sparkles className="h-4 w-4 animate-spin" />
-                            <span className="text-xs font-medium animate-pulse">Elysian AI sedang berpikir...</span>
+                    {/* Loading state */}
+                    {isLoading && !suggestion ? (
+                        <div className="flex items-center gap-2.5 text-blue-500 dark:text-blue-400 py-0.5 px-1">
+                            <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 animate-pulse">
+                                Elysian AI sedang menyusun saran...
+                            </span>
                         </div>
-                    ) : (
-                        <div className="flex flex-col gap-3 w-full">
-                            <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                                    <div className="p-1 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                        <Sparkles className="h-3.5 w-3.5" />
-                                    </div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
-                                        SARAN AI
-                                    </span>
+                    ) : suggestion ? (
+                        <div className="flex items-center gap-3 w-full min-w-0">
+                            {/* Icon badge */}
+                            <div className="shrink-0 flex items-center gap-1.5">
+                                <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md shadow-blue-500/30">
+                                    <Sparkles className="h-3 w-3 text-white" />
                                 </div>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 hidden sm:inline-block">
+                                    Saran AI
+                                </span>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="w-px h-6 bg-blue-200 dark:bg-blue-700/50 shrink-0" />
+
+                            {/* Suggestion text */}
+                            <p className="text-sm text-slate-700 dark:text-slate-200 italic flex-1 min-w-0 truncate font-medium">
+                                <span className="text-slate-400 dark:text-slate-500 not-italic font-normal mr-1">…</span>
+                                {suggestion}
+                            </p>
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                                {/* Accept button */}
                                 <Button
+                                    id="ghostwriter-accept-btn"
+                                    size="sm"
+                                    onClick={onAccept}
+                                    className={cn(
+                                        'h-7 text-xs font-semibold px-3 gap-1.5',
+                                        'bg-gradient-to-r from-blue-600 to-indigo-600',
+                                        'hover:from-blue-700 hover:to-indigo-700',
+                                        'text-white border-0 shadow-md shadow-blue-500/25',
+                                        'rounded-lg transition-all duration-200 hover:scale-105',
+                                    )}
+                                    title="Terima saran (Tab)"
+                                >
+                                    <span>Terima</span>
+                                    <AnimatePresence>
+                                        {showKeyHint && (
+                                            <motion.span
+                                                initial={{ opacity: 0, width: 0 }}
+                                                animate={{ opacity: 1, width: 'auto' }}
+                                                exit={{ opacity: 0, width: 0 }}
+                                                className="bg-white/20 px-1.5 py-0.5 rounded font-mono text-[9px] tracking-tight hidden sm:inline-block overflow-hidden"
+                                            >
+                                                TAB
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
+                                    <MoveRight className="h-3 w-3 sm:hidden" />
+                                </Button>
+
+                                {/* Dismiss button */}
+                                <Button
+                                    id="ghostwriter-dismiss-btn"
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6 rounded-full hover:bg-red-50 hover:text-red-500 text-slate-400 dark:hover:bg-slate-800 transition-colors"
+                                    className="h-7 w-7 rounded-lg hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 text-slate-400 transition-colors"
                                     onClick={onDiscard}
+                                    title="Abaikan saran (Esc)"
                                 >
                                     <X className="h-3.5 w-3.5" />
                                 </Button>
                             </div>
-
-                            <p className="text-sm text-slate-600 dark:text-slate-300 italic pl-3 border-l-2 border-cyan-400 leading-relaxed font-medium">
-                                &quot;{suggestion}&quot;
-                            </p>
-
-                            <div className="flex justify-end pt-1">
-                                <Button
-                                    size="sm"
-                                    onClick={onAccept}
-                                    className="h-8 text-xs bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white gap-2 shadow-lg shadow-blue-500/20 border-0 rounded-lg px-4 transition-all duration-300 hover:scale-105"
-                                >
-                                    <span className="font-semibold">Terima</span>
-                                    <span className="bg-white/20 px-1.5 py-0.5 rounded text-[10px] hidden sm:inline-block font-mono tracking-tighter">TAB</span>
-                                    <MoveRight className="h-3 w-3 sm:hidden" />
-                                </Button>
-                            </div>
                         </div>
-                    )}
+                    ) : null}
                 </motion.div>
             )}
         </AnimatePresence>

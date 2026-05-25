@@ -47,7 +47,7 @@ export const translationsEN = {
         heading: 'Dashboard',
         description: 'Monitor token usage and pipeline status.',
         documents: 'Documents',
-        apiCalls: 'API Calls',
+        apiCalls: 'LLM Tokens',
         errorRate: 'Error Rate',
         knowledgeHealth: 'Knowledge Health',
         activePipelines: 'Active Pipelines',

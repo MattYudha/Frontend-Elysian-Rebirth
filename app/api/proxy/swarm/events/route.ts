@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         // Client disconnected or upstream closed — swallow gracefully
         console.error('[SSE Proxy] Stream read error (expected on disconnect):', err);
       } finally {
-        try { writer.close(); } catch { /* already closed */ }
+        writer.close().catch(() => {});
       }
     })();
 

@@ -49,7 +49,7 @@ export const translationsZH: TranslationKeys = {
         heading: '仪表板',
         description: '监控令牌使用情况和管道状态。',
         documents: '文档',
-        apiCalls: 'API 调用',
+        apiCalls: 'LLM 令牌',
         errorRate: '错误率',
         knowledgeHealth: '知识健康度',
         activePipelines: '活动管道',

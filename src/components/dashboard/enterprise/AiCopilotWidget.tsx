@@ -5,12 +5,20 @@ import { useRouter } from 'next/navigation';
 import { Send, Bot, Sparkles, ChevronRight } from 'lucide-react';
 import { useChatStore } from '@/store/chatStore';
 import { useAuthStore } from '@/store/authStore';
+import { usePriorityQueue } from '@/queries/dashboard.queries';
 
-export function AiCopilotWidget() {
+interface AiCopilotWidgetProps {
+    activeAlertsCount?: number;
+}
+
+export function AiCopilotWidget({ activeAlertsCount }: AiCopilotWidgetProps = {}) {
     const router = useRouter();
     const user = useAuthStore(state => state.user);
     const setDraftMessage = useChatStore(state => state.setDraftMessage);
     const [input, setInput] = useState('');
+    const { data: priorityQueueData } = usePriorityQueue();
+
+    const count = activeAlertsCount !== undefined ? activeAlertsCount : (priorityQueueData ?? []).length;
 
     const handleSend = () => {
         if (!input.trim()) return;
@@ -47,7 +55,9 @@ export function AiCopilotWidget() {
                         Good Afternoon, {user?.name?.split(' ')[0] || 'User'}
                     </h2>
                     <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                        I&apos;ve analyzed your pipelines. 3 tasks require attention. How can I assist you today?
+                        {count === 0 
+                            ? "I've analyzed your pipelines. Everything is operational. How can I assist you today?"
+                            : `I've analyzed your pipelines. ${count} task${count > 1 ? 's' : ''} require attention. How can I assist you today?`}
                     </p>
                 </div>
 

@@ -3,11 +3,11 @@
 import { Protected } from '@/components/auth/Protected';
 import Image from 'next/image';
 import { Button } from '@/components/ui/';
-import { Upload, CheckCircle2 } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { EditorSkeleton } from '@/components/LoadingSkeletons';
 import dynamic from 'next/dynamic';
-import { toast } from 'sonner';
+import { useDocuments } from '@/queries/document.queries';
 
 // Dynamically import DocumentEditor to prevent SSR issues with Tiptap
 const DocumentEditor = dynamic(
@@ -21,6 +21,14 @@ const DocumentEditor = dynamic(
 export default function DocumentEditorPage() {
     const [isActive, setIsActive] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const { data: documents } = useDocuments();
+
+    useEffect(() => {
+        // Auto-activate editor if tenant already has saved documents
+        if (documents && documents.length > 0) {
+            setIsActive(true);
+        }
+    }, [documents]);
 
     useEffect(() => {
         // Check local storage for last active timestamp
@@ -49,7 +57,7 @@ export default function DocumentEditorPage() {
         <Protected>
             <div className="flex flex-col h-[calc(100vh-6rem)]">
                 {!isActive ? (
-                    // Empty State Illustration (Shown only if > 24h since last use)
+                    // Empty State Illustration (Shown only if > 24h since last use and no saved documents)
                     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
                         <div className="relative w-64 h-64 mb-8 animate-float delay-200">
                             <Image
@@ -77,32 +85,14 @@ export default function DocumentEditorPage() {
                         </div>
                     </div>
                 ) : (
-                    // Active Editor Interface (Mock UI)
+                    // Active Editor Interface
                     <div className="flex-1 flex flex-col p-4 md:p-6 animate-in fade-in duration-500 w-full max-w-[1600px] mx-auto">
                         {/* Actual Document Editor Component */}
-                        <DocumentEditor
-                            document={{
-                                id: 'draft-1',
-                                title: 'Draft Dokumen Baru',
-                                version: 1,
-                                lastModified: new Date(),
-                                content: { type: 'doc', content: [] }, // Initial empty content
-                            }}
-                            initialContent={null} // Will trigger default schema in Editor
-                            onChange={(json) => console.log('Editor Content:', json)}
-                            onSave={() => {
-                                toast.success("Dokumen Disimpan", {
-                                    description: "Perubahan Anda telah tersimpan dengan aman.",
-                                    icon: <div className="bg-green-500 rounded-full p-0.5"><CheckCircle2 className="h-3 w-3 text-white" /></div>,
-                                    duration: 3000,
-                                });
-                            }}
-                            pdfUrl={undefined}
-                            isMobile={false}
-                        />
+                        <DocumentEditor />
                     </div>
                 )}
             </div>
         </Protected>
     );
 }
+

@@ -33,9 +33,9 @@ export function AgentChatPanel({ result, onBack }: AgentChatPanelProps) {
         cleaned = cleaned.replace(/<think>[\s\S]*/gi, '');
         cleaned = cleaned.trim();
         
-        if (cleaned.startsWith('{') && cleaned.endsWith('}')) {
+        if (cleaned.startsWith('{') && (cleaned.endsWith('}') || cleaned.includes('"manager_conclusion"') || cleaned.includes('"message"'))) {
             try {
-                const parsed = JSON.parse(cleaned);
+                const parsed = JSON.parse(cleaned.endsWith('}') ? cleaned : cleaned + '}');
                 if (parsed.manager_conclusion) {
                     return parsed.manager_conclusion.trim();
                 }
@@ -43,15 +43,19 @@ export function AgentChatPanel({ result, onBack }: AgentChatPanelProps) {
                     return parsed.message.trim();
                 }
             } catch (e) {
-                const match = cleaned.match(/"manager_conclusion"\s*:\s*"([^"]+)"/);
-                if (match && match[1]) {
-                    return match[1].trim();
-                }
+                // Ignore parse errors, proceed to regex match
             }
         }
         
         if (cleaned.includes('"manager_conclusion"')) {
-            const match = cleaned.match(/"manager_conclusion"\s*:\s*"([^"]+)"/);
+            const match = cleaned.match(/"manager_conclusion"\s*:\s*"([^"]*)/);
+            if (match && match[1]) {
+                return match[1].trim();
+            }
+        }
+
+        if (cleaned.includes('"message"')) {
+            const match = cleaned.match(/"message"\s*:\s*"([^"]*)/);
             if (match && match[1]) {
                 return match[1].trim();
             }

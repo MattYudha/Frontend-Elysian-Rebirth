@@ -254,3 +254,24 @@ export async function updateDocumentText(
     }
     return res.json();
 }
+
+/**
+ * Fetches the raw staging document text and its hash.
+ */
+export async function getDocumentRaw(
+    authToken: string,
+    tenantId: string,
+    documentId: string,
+): Promise<{ id: string; raw_text: string; hash: string }> {
+    const res = await fetch(`${API_BASE}/api/v1/documents/${documentId}/raw`, {
+        headers: {
+            Authorization: `Bearer ${authToken}`,
+            'X-Tenant-ID': tenantId,
+        },
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? `Failed to fetch raw document: HTTP ${res.status}`);
+    }
+    return res.json();
+}

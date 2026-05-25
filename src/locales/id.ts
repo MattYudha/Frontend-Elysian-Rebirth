@@ -49,7 +49,7 @@ export const translationsID: TranslationKeys = {
         heading: 'Dasbor',
         description: 'Monitor penggunaan token dan status pipeline.',
         documents: 'Dokumen',
-        apiCalls: 'Panggilan API',
+        apiCalls: 'Token LLM',
         errorRate: 'Tingkat Error',
         knowledgeHealth: 'Kesehatan Pengetahuan',
         activePipelines: 'Pipeline Aktif',
