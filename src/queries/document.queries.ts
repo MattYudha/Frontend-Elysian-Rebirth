@@ -71,10 +71,10 @@ export function useUpdateDocumentText() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ id, text, title }: { id: string; text: string; title?: string }) => {
+        mutationFn: async ({ id, text, title, status }: { id: string; text: string; title?: string; status?: string }) => {
             const res = await http.patch<{ status: string; message: string }>(
                 `/api/v1/documents/${id}/text`,
-                { extracted_text: text, title }
+                { extracted_text: text, title, status }
             );
             return res;
         },

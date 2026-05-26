@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchWorkflows, getExecution, executeWorkflow, Workflow, Execution } from '@/services/workflow.service';
+import { fetchWorkflows, getExecution, executeWorkflow, updateWorkflow, Workflow, Execution } from '@/services/workflow.service';
 import { TimelineAgentTask, AgentTaskStatus as GanttTaskStatus } from '@/components/workstreams/TimelineGantt';
 import { PipelineAgentTask, AgentTaskStatus as PipelineTaskStatus } from '@/components/workstreams/AgentTaskCard';
 import { addHours, subHours } from 'date-fns';
@@ -20,6 +20,16 @@ const mapStatusToPipelineStage = (status: Workflow['status']): PipelineTaskStatu
         case 'completed': return 'completed';
         case 'failed': return 'final_review';
         default: return 'data_ingestion'; // fallback
+    }
+};
+
+const mapPipelineStageToWorkflowStatus = (stage: PipelineTaskStatus): Workflow['status'] => {
+    switch (stage) {
+        case 'data_ingestion': return 'processing';
+        case 'processing': return 'active';
+        case 'final_review': return 'failed';
+        case 'completed': return 'completed';
+        default: return 'processing';
     }
 };
 
@@ -94,9 +104,8 @@ export function useMoveWorkstreamStage() {
 
     return useMutation({
         mutationFn: async ({ id, newStatus }: { id: string, newStatus: PipelineTaskStatus }) => {
-            // In a real app, this would hit a PUT/PATCH endpoint like updateWorkflowStatus
-            // For now, we simulate the network delay
-            return new Promise((resolve) => setTimeout(resolve, 500));
+            const workflowStatus = mapPipelineStageToWorkflowStatus(newStatus);
+            return updateWorkflow(id, { status: workflowStatus });
         },
         onMutate: async ({ id, newStatus }) => {
             await queryClient.cancelQueries({ queryKey: WORKSTREAM_KEYS.active });
@@ -121,9 +130,8 @@ export function useMoveWorkstreamStage() {
                 queryClient.setQueryData(WORKSTREAM_KEYS.active, context.previousData);
             }
         },
-        // NOTE: onSettled/invalidateQueries intentionally omitted.
-        // The optimistic cache update persists in-session (until refresh).
-        // This is the intended placeholder behavior — feels integrated,
-        // resets on refresh until a real backend endpoint is wired up.
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: WORKSTREAM_KEYS.active });
+        }
     });
 }

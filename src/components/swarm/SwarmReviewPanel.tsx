@@ -184,7 +184,6 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                     setProgress(task.status === 'PENDING' ? 10 : 50);
                     setCurrentStep('Resuming consensus task...');
                     setStatus('PROCESSING');
-                    listenToSSE(task.id);
                 } else if (task.status === 'FAILED') {
                     setConsoleLogs([
                         {
@@ -270,7 +269,6 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                 ]);
                 setProgress(10);
                 setCurrentStep('Subscribing to consensus stream...');
-                listenToSSE(data.task_id);
             } else {
                 setConsoleLogs(prev => [
                     ...prev,
@@ -297,14 +295,15 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
         }
     };
 
-    const listenToSSE = (taskId: string) => {
-        // Use BFF Proxy SSE endpoint
+    useEffect(() => {
+        if (!taskId || status !== 'PROCESSING') return;
+
+        const abortController = new AbortController();
         const eventSource = new EventSource(`/api/proxy/swarm/events?task_id=${taskId}`);
         let errorCount = 0;
         const MAX_SSE_ERRORS = 5;
-        
+
         eventSource.onmessage = (event) => {
-            // Reset error count on successful message
             errorCount = 0;
             try {
                 const data = JSON.parse(event.data);
@@ -440,7 +439,12 @@ export function SwarmReviewPanel({ documentId, items, onClose }: SwarmReviewPane
                 ]);
             }
         };
-    };
+
+        return () => {
+            eventSource.close();
+            abortController.abort();
+        };
+    }, [taskId, status]);
 
     useEffect(() => {
         if (items.length > 0 && status === 'IDLE' && !hasTriggeredRef.current) {

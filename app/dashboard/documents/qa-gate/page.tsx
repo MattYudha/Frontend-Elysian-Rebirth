@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Protected } from '@/components/auth/Protected';
 import { useAuthStore } from '@/store/authStore';
 import { useTenant } from '@/contexts/TenantContext';
-import { listDocuments, approveDocument, rejectDocument, updateDocumentText, DocumentRecord } from '@/services/rag.service';
+import { listDocuments, approveDocument, rejectDocument, updateDocumentText, getDocumentRaw, DocumentRecord } from '@/services/rag.service';
 import { 
     FileText, 
     Check, 
@@ -23,14 +23,19 @@ import {
     Clock,
     Hash,
     AlignLeft,
-    Sparkles
+    Sparkles,
+    ShieldCheck,
+    AlertCircle,
+    ThumbsUp
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export default function QaGatePage() {
     return (
@@ -59,6 +64,70 @@ function QaGateContent() {
     const [isEditing, setIsEditing] = useState(false);
     const [editedText, setEditedText] = useState('');
     const [savingText, setSavingText] = useState(false);
+
+    // Raw Text fetching states
+    const [loadingRaw, setLoadingRaw] = useState(false);
+    const [originalRawText, setOriginalRawText] = useState('');
+
+    // Automated Scan states
+    const [scanResults, setScanResults] = useState<any[]>([]);
+    const [scanning, setScanning] = useState(false);
+    const [scanError, setScanError] = useState<string | null>(null);
+    const [selectedTab, setSelectedTab] = useState('raw');
+
+    const runAutomatedScan = async (text: string) => {
+        if (!text || text === 'No text extracted.' || text === 'Failed to parse text metadata.') {
+            setScanResults([]);
+            return;
+        }
+        setScanning(true);
+        setScanError(null);
+        try {
+            // Parse items like: "Laptop IT : Rp 25.000.000 (5 unit)"
+            const itemPattern = /([a-zA-Z0-9\s]+?)\s*:\s*Rp\s*([0-9.,]+)/gi;
+            const parsedItems: any[] = [];
+            let match;
+            while ((match = itemPattern.exec(text)) !== null) {
+                const name = match[1].trim();
+                const priceStr = match[2].replace(/[.,]/g, '');
+                const price = parseFloat(priceStr);
+                if (name && !isNaN(price)) {
+                    // Clean prefixes like "8 unit ", "150 sak ", etc.
+                    const cleanedName = name.replace(/^[-\*\s\d]+\s*(?:unit|sak|pcs|buah|box|kg|lembar|pax|lusin)?\s*/i, "").trim();
+                    if (cleanedName) {
+                        parsedItems.push({ item_name: cleanedName, price });
+                    }
+                }
+            }
+
+            if (parsedItems.length === 0) {
+                setScanResults([]);
+                setScanning(false);
+                return;
+            }
+
+            const res = await fetch('/api/proxy/guardrails/precheck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`,
+                    'X-Tenant-ID': tenantId
+                },
+                body: JSON.stringify({ items: parsedItems })
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to connect to Nemesis DB precheck service");
+            }
+            const data = await res.json();
+            setScanResults(data.data || []);
+        } catch (e: any) {
+            console.error("Automated scan failed:", e);
+            setScanError(e.message || "Unable to retrieve standards comparison.");
+        } finally {
+            setScanning(false);
+        }
+    };
 
     const loadPendingDocs = async () => {
         if (!tenantId || !accessToken) return;
@@ -92,13 +161,42 @@ function QaGateContent() {
 
     // Handle selection and edit sync
     useEffect(() => {
+        let active = true;
         if (selectedDoc) {
-            setEditedText(getExtractedText(selectedDoc));
+            setLoadingRaw(true);
+            setEditedText('');
+            setOriginalRawText('');
+            getDocumentRaw(accessToken, tenantId, selectedDoc.id)
+                .then((res) => {
+                    if (active) {
+                        setEditedText(res.raw_text);
+                        setOriginalRawText(res.raw_text);
+                        runAutomatedScan(res.raw_text);
+                    }
+                })
+                .catch((err) => {
+                    console.error('Failed to load raw text:', err);
+                    if (active) {
+                        setEditedText('Failed to load document content.');
+                        setOriginalRawText('Failed to load document content.');
+                    }
+                })
+                .finally(() => {
+                    if (active) {
+                        setLoadingRaw(false);
+                    }
+                });
             setIsEditing(false);
+            setSelectedTab('raw');
         } else {
             setEditedText('');
+            setOriginalRawText('');
+            setScanResults([]);
         }
-    }, [selectedDoc]);
+        return () => {
+            active = false;
+        };
+    }, [selectedDoc, tenantId, accessToken]);
 
     const handleApprove = async (docId: string) => {
         if (!tenantId || !accessToken) return;
@@ -157,6 +255,7 @@ function QaGateContent() {
                 }
             } : null);
             setIsEditing(false);
+            runAutomatedScan(editedText);
         } catch (err: any) {
             console.error('Save text failed:', err);
             toast.error(err.message || 'Failed to save document text.');
@@ -395,62 +494,168 @@ function QaGateContent() {
                                 </div>
 
                                 {/* Monospace Text Extraction Body */}
-                                <CardContent className="flex-1 overflow-y-auto p-0 flex flex-col bg-slate-950/95">
-                                    <div className="flex items-center justify-between px-5 py-3 border-b border-slate-900/60 bg-slate-950/40 text-[10px] text-slate-500 uppercase tracking-wider">
-                                        <span className="flex items-center gap-1.5">
-                                            <Eye className="h-3.5 w-3.5 text-slate-400" />
-                                            Extracted Raw Text
-                                        </span>
-                                        {isEditing ? (
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    className="h-6 px-2 w-auto text-[10px] text-slate-400 hover:text-slate-100"
-                                                    onClick={() => {
-                                                        setEditedText(getExtractedText(selectedDoc));
-                                                        setIsEditing(false);
-                                                    }}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    className="h-6 px-2 w-auto text-[10px] text-emerald-450 hover:text-emerald-300 font-semibold flex gap-1 items-center"
-                                                    onClick={handleSaveText}
-                                                    disabled={savingText}
-                                                >
-                                                    {savingText ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                                                    Apply Text
-                                                </Button>
+                                <CardContent className="flex-1 overflow-y-auto p-0 flex flex-col bg-slate-50 dark:bg-[#070D18]/90">
+                                    <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full flex-1 flex flex-col overflow-hidden">
+                                        <div className="flex items-center justify-between px-5 py-2.5 border-b border-slate-200 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm shrink-0">
+                                            <TabsList className="bg-slate-100 dark:bg-slate-950/60 p-0.5 rounded-lg h-8">
+                                                <TabsTrigger value="raw" className="text-xs h-7 px-3 py-1 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm rounded-md">
+                                                    Dokumen Mentah (Raw Text)
+                                                </TabsTrigger>
+                                                <TabsTrigger value="scan" className="text-xs h-7 px-3 py-1 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm rounded-md flex items-center gap-1.5">
+                                                    Hasil Scan AI (Nemesis Check)
+                                                    {scanResults.some(r => r.is_violation) && (
+                                                        <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                                                    )}
+                                                </TabsTrigger>
+                                            </TabsList>
+                                            
+                                            {selectedTab === 'raw' && (
+                                                isEditing ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            className="h-6 px-2 w-auto text-[10px] text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                                                            onClick={() => {
+                                                                setEditedText(originalRawText);
+                                                                setIsEditing(false);
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            className="h-6 px-2 w-auto text-[10px] text-emerald-600 hover:text-emerald-550 font-semibold flex gap-1 items-center"
+                                                            onClick={handleSaveText}
+                                                            disabled={savingText}
+                                                        >
+                                                            {savingText ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                                                            Apply Text
+                                                        </Button>
+                                                    </div>
+                                                ) : (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="h-6 px-2.5 w-auto text-[10px] text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 flex gap-1 items-center"
+                                                        onClick={() => setIsEditing(true)}
+                                                    >
+                                                        <Edit2 className="h-3 w-3" />
+                                                        Correct Content
+                                                    </Button>
+                                                )
+                                            )}
+                                        </div>
+
+                                        <TabsContent value="raw" className="flex-1 p-0 m-0 overflow-y-auto flex flex-col bg-slate-50 dark:bg-[#070D18]/90">
+                                            <div className="flex-1 p-5 font-mono text-[11px] leading-relaxed text-slate-800 dark:text-slate-300 select-text overflow-y-auto min-h-[350px]">
+                                                {loadingRaw ? (
+                                                    <div className="h-full flex flex-col items-center justify-center py-20 space-y-3">
+                                                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                                                        <p className="text-xs text-slate-500 animate-pulse font-sans">Retrieving document text from MongoDB staging...</p>
+                                                    </div>
+                                                ) : isEditing ? (
+                                                    <textarea
+                                                        className="w-full h-full min-h-[320px] bg-white dark:bg-slate-950/60 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800 font-mono resize-none leading-relaxed"
+                                                        value={editedText}
+                                                        onChange={(e) => setEditedText(e.target.value)}
+                                                        placeholder="Tulis draf anggaran di sini..."
+                                                    />
+                                                ) : (
+                                                    <pre className="whitespace-pre-wrap break-all font-mono font-normal">
+                                                        {editedText || 'No text content available.'}
+                                                    </pre>
+                                                )}
                                             </div>
-                                        ) : (
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="h-6 px-2.5 w-auto text-[10px] text-blue-400 hover:text-blue-300 hover:bg-slate-900 flex gap-1 items-center"
-                                                onClick={() => setIsEditing(true)}
-                                            >
-                                                <Edit2 className="h-3 w-3" />
-                                                Correct Content
-                                            </Button>
-                                        )}
-                                    </div>
-                                    
-                                    <div className="flex-1 p-5 font-mono text-[11px] leading-relaxed text-slate-350 select-text overflow-y-auto">
-                                        {isEditing ? (
-                                            <textarea
-                                                className="w-full h-full bg-slate-950 text-slate-205 focus:outline-none focus:ring-1 focus:ring-blue-500/50 p-3 rounded-lg border border-slate-800 font-mono resize-none leading-relaxed"
-                                                value={editedText}
-                                                onChange={(e) => setEditedText(e.target.value)}
-                                                placeholder="Write or paste document contents here..."
-                                            />
-                                        ) : (
-                                            <pre className="whitespace-pre-wrap break-all font-mono font-normal">
-                                                {getExtractedText(selectedDoc)}
-                                            </pre>
-                                        )}
+                                        </TabsContent>
+
+                                        <TabsContent value="scan" className="flex-1 p-5 m-0 overflow-y-auto bg-slate-50 dark:bg-slate-950/20">
+                                            {scanning ? (
+                                                <div className="h-full flex flex-col items-center justify-center py-20 space-y-3">
+                                                    <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                                                    <p className="text-xs text-slate-500 animate-pulse">Membandingkan standar harga di Nemesis DB...</p>
+                                                </div>
+                                            ) : scanError ? (
+                                                <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/35 rounded-xl flex items-start gap-3">
+                                                    <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                                                    <div>
+                                                        <h4 className="text-sm font-semibold text-red-800 dark:text-red-400">Scan Failed</h4>
+                                                        <p className="text-xs text-red-750 dark:text-red-500 mt-0.5">{scanError}</p>
+                                                    </div>
+                                                </div>
+                                            ) : scanResults.length === 0 ? (
+                                                <div className="h-full flex flex-col items-center justify-center py-20 text-center text-slate-400">
+                                                    <ThumbsUp className="h-10 w-10 text-emerald-550/60 mb-2" />
+                                                    <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Format Anggaran Tidak Terdeteksi</p>
+                                                    <p className="text-[11px] text-slate-500 max-w-xs mt-1 leading-normal">
+                                                        Tulis anggaran dalam format <code>Nama Barang : Rp Harga</code> di Dokumen Mentah agar AI dapat mencocokkannya dengan database standar Nemesis.
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                                                        <ShieldAlert className="h-4 w-4 text-blue-550" />
+                                                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Hasil Audit Harga Standar</h4>
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {scanResults.map((res: any, idx: number) => (
+                                                            <div 
+                                                                key={idx}
+                                                                className={cn(
+                                                                    "p-3 rounded-xl border flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-sm transition-all",
+                                                                    res.is_violation 
+                                                                        ? "bg-red-50/40 dark:bg-red-950/10 border-red-200/60 dark:border-red-900/40" 
+                                                                        : "bg-emerald-50/20 dark:bg-emerald-950/5 border-emerald-100/50 dark:border-emerald-950/40"
+                                                                )}
+                                                            >
+                                                                <div className="space-y-1">
+                                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{res.item_name}</span>
+                                                                        {res.similarity > 0 && (
+                                                                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-850 font-normal">
+                                                                                {Math.round(res.similarity * 100)}% match
+                                                                            </Badge>
+                                                                        )}
+                                                                    </div>
+                                                                    {res.matched_name && res.matched_name.toLowerCase() !== res.item_name.toLowerCase() && (
+                                                                        <p className="text-[10px] text-slate-450">Cocok standar: <span className="font-medium italic">{res.matched_name}</span></p>
+                                                                    )}
+                                                                    <div className="flex items-center gap-4 text-[11px] text-slate-500 pt-1">
+                                                                        <span>Diajukan: <strong className="font-mono text-slate-700 dark:text-slate-300">Rp {res.price.toLocaleString()}</strong></span>
+                                                                        {res.max_price > 0 && (
+                                                                            <span>Batas Nemesis: <strong className="font-mono text-slate-750 dark:text-slate-450">Rp {res.max_price.toLocaleString()}</strong></span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="shrink-0 flex items-center md:justify-end">
+                                                                    {res.is_violation ? (
+                                                                        <Badge className="bg-red-100 hover:bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400 border border-red-200 dark:border-red-900/40 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                                            <AlertCircle className="h-3 w-3" /> Potensi Markup (+Rp {res.excess_amount.toLocaleString()})
+                                                                        </Badge>
+                                                                    ) : (
+                                                                        <Badge className="bg-emerald-100 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-250 dark:border-emerald-950/40 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                                            <ShieldCheck className="h-3 w-3" /> Sesuai Standar
+                                                                        </Badge>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </TabsContent>
+                                    </Tabs>
+
+                                    {/* Swarm Intelligence Memory Pack update Explanation */}
+                                    <div className="mx-5 mb-4 p-3.5 rounded-xl border border-blue-500/20 bg-gradient-to-tr from-blue-500/5 to-purple-500/5 dark:from-blue-950/20 dark:to-purple-950/5 shadow-sm space-y-2">
+                                        <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 dark:text-blue-400">
+                                            <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
+                                            <span>Umpan Balik AI Swarm (Memory Pack Update)</span>
+                                        </div>
+                                        <p className="text-[11px] text-slate-600 dark:text-slate-350 leading-relaxed">
+                                            Setelah Anda memberikan justifikasi dan menyetujui, <strong>AI Swarm akan mempelajari pengecualian ini secara otomatis</strong> untuk audit di masa mendatang (Memory Pack updated). Tindakan ini membantu melatih model kolektif agar lebih akurat mendeteksi dan memvalidasi anggaran di masa mendatang.
+                                        </p>
                                     </div>
                                 </CardContent>
 

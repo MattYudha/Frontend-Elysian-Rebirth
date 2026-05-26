@@ -125,3 +125,12 @@ export async function getExecution(id: string): Promise<Execution> {
 export async function publishWorkflow(id: string): Promise<void> {
     await http.post(`/api/v1/workflows/${id}/publish`);
 }
+
+/**
+ * Update workflow metadata (name, status)
+ * Endpoint: PATCH /api/v1/workflows/:id
+ */
+export async function updateWorkflow(id: string, data: Partial<Workflow>): Promise<Workflow> {
+    const res = await http.patch<{ status: string; data: Workflow }>(`/api/v1/workflows/${id}`, data);
+    return res.data;
+}

@@ -78,10 +78,20 @@ export function DocumentList({
             accessorKey: "status",
             header: "Status",
             cell: ({ row }) => {
-                const status = row.original.status;
+                const status = row.original.status as string;
                 if (status === "ready") return <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 gap-1"><CheckCircle2 className="w-3 h-3" /> Ready</Badge>;
-                if (status === "indexing") return <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Indexing</Badge>;
-                if (status === "uploading") return <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">Uploading</Badge>;
+                if (status === "indexing" || status === "processing" || status === "pending") {
+                    return <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 gap-1"><Loader2 className="w-3 h-3 animate-spin" /> {status === 'indexing' ? 'Indexing' : status === 'pending' ? 'Pending Parse' : 'Processing'}</Badge>;
+                }
+                if (status === "pending_qa") {
+                    return <Badge variant="outline" className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800">Pending QA</Badge>;
+                }
+                if (status === "draft") {
+                    return <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-350 border-slate-200 dark:border-slate-700">Draft</Badge>;
+                }
+                if (status === "uploading" || status === "queued") {
+                    return <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">{status === 'uploading' ? 'Uploading' : 'Queued'}</Badge>;
+                }
                 return <Badge variant="destructive" className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/30">Failed</Badge>;
             }
         },
@@ -105,16 +115,16 @@ export function DocumentList({
             id: "actions",
             cell: ({ row }) => {
                 return (
-                    <div className="flex justify-end">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-slate-400 hover:text-red-500"
-                            onClick={(e: React.MouseEvent) => handleDelete(row.original.id, e)}
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
-                    </div>
+                     <div className="flex justify-end">
+                         <Button
+                             variant="ghost"
+                             size="icon"
+                             className="text-slate-400 hover:text-red-500"
+                             onClick={(e: React.MouseEvent) => handleDelete(row.original.id, e)}
+                         >
+                             <Trash2 className="w-4 h-4" />
+                         </Button>
+                     </div>
                 );
             }
         }
@@ -125,15 +135,25 @@ export function DocumentList({
         switch (type) {
             case 'pdf': return <FileText className="text-red-500" />;
             case 'docx': return <FileText className="text-blue-500" />;
-            case 'url': return <LinkIcon className="text-cyan-500" />;
+            case 'url': return <LinkIcon className="text-cyan-550" />;
             default: return <FileCode className="text-slate-500" />;
         }
     };
 
     const getStatusBadge = (status: string) => {
         if (status === "ready") return <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 gap-1"><CheckCircle2 className="w-3 h-3" /> Ready</Badge>;
-        if (status === "indexing" || status === "processing") return <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 gap-1"><Loader2 className="w-3 h-3 animate-spin" /> {status === 'indexing' ? 'Indexing' : 'Processing'}</Badge>;
-        if (status === "queued") return <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">Queued</Badge>;
+        if (status === "indexing" || status === "processing" || status === "pending") {
+            return <Badge variant="outline" className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 gap-1"><Loader2 className="w-3 h-3 animate-spin" /> {status === 'indexing' ? 'Indexing' : status === 'pending' ? 'Pending Parse' : 'Processing'}</Badge>;
+        }
+        if (status === "pending_qa") {
+            return <Badge variant="outline" className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800">Pending QA</Badge>;
+        }
+        if (status === "draft") {
+            return <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-350 border-slate-200 dark:border-slate-700">Draft</Badge>;
+        }
+        if (status === "uploading" || status === "queued") {
+            return <Badge variant="outline" className="bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700">{status === 'uploading' ? 'Uploading' : 'Queued'}</Badge>;
+        }
         return <Badge variant="destructive" className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/30">Failed</Badge>;
     };
 

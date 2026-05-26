@@ -43,8 +43,10 @@ export const SourceCard: React.FC<SourceCardProps> = ({
         failed: AlertOctagon,
         queued: Clock,
         indexing: Clock, // Should use Loader2 if imported, but Clock matches existing
-        uploading: Clock
-    }[source.status] || FileText;
+        uploading: Clock,
+        pending_qa: Clock,
+        draft: Clock
+    }[source.status as string] || FileText;
 
     return (
         <div

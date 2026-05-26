@@ -5,52 +5,109 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const rag = {
     getSources: async (): Promise<RagSource[]> => {
-        await delay(800);
-
-        const mockData = [
-            {
-                id: 'src-101',
-                name: 'INV-2024-001_Acme.pdf',
-                type: 'pdf',
-                size: 245678,
-                uploadedAt: new Date(Date.now() - 1000 * 60 * 5),
-                channel: 'email',
-                stage: 'verify',
-                status: 'ready',
-                confidenceScore: 0.85,
-                metadata: {
-                    documentType: 'Faktur',
-                    period: 'Jan 2024',
-                    summary: 'Biaya server bulanan berulang',
-                    keyMetrics: [{ label: 'Total', value: 'Rp 4.500.000' }]
+        try {
+            const res = await fetch('/api/proxy/documents?limit=100');
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            const json = await res.json();
+            const mapped = (json.data || []).map((doc: any) => {
+                const ext = doc.title ? doc.title.split('.').pop()?.toLowerCase() : 'pdf';
+                const type = ['pdf', 'docx', 'txt', 'csv', 'scanned_img', 'url', 'md'].includes(ext) ? ext : 'pdf';
+                return {
+                    id: doc.id,
+                    name: doc.title,
+                    type: type,
+                    size: 10240, // 10KB static
+                    uploadedAt: new Date(doc.created_at || Date.now()),
+                    channel: 'web_upload',
+                    stage: doc.status === 'pending_qa' ? 'verify' : 'archive',
+                    status: doc.status === 'pending_qa' ? 'pending_qa' :
+                             doc.status === 'draft' ? 'draft' :
+                             (doc.status === 'pending' || doc.status === 'processing') ? 'processing' :
+                             (doc.status === 'ready' || doc.status === 'approved') ? 'ready' :
+                             doc.status === 'failed' ? 'failed' : 'processing',
+                    confidenceScore: 1.0,
+                    suggestedActions: [],
+                    executionStatus: 'none',
+                    entities: [],
+                    insights: [],
+                    auditLog: [],
+                };
+            });
+            return z.array(RagSourceSchema).parse(mapped);
+        } catch (err) {
+            console.error("Failed to fetch real RAG sources, returning fallback mock:", err);
+            const mockData = [
+                {
+                    id: 'src-101',
+                    name: 'INV-2024-001_Acme.pdf',
+                    type: 'pdf' as const,
+                    size: 245678,
+                    uploadedAt: new Date(Date.now() - 1000 * 60 * 5),
+                    channel: 'email' as const,
+                    stage: 'verify' as const,
+                    status: 'ready' as const,
+                    confidenceScore: 0.85,
+                    metadata: {
+                        documentType: 'Faktur' as const,
+                        period: 'Jan 2024',
+                        summary: 'Biaya server bulanan berulang',
+                        keyMetrics: [{ label: 'Total', value: 'Rp 4.500.000' }]
+                    },
+                    suggestedActions: [
+                        { label: 'Post ke Buku Besar', actionId: 'post_ledger', style: 'primary' as const },
+                        { label: 'Ingatkan Approval', actionId: 'remind_mgr', style: 'ghost' as const }
+                    ],
+                    executionStatus: 'pending_review' as const,
+                    entities: [{ type: 'supplier' as const, name: 'Acme Cloud Services' }],
+                    insights: [{ type: 'risk' as const, text: 'Jumlah 10% lebih tinggi dari rata-rata' }],
+                    auditLog: [{ action: 'Masuk via Email', user: 'System', timestamp: new Date() }],
                 },
-                suggestedActions: [
-                    { label: 'Post ke Buku Besar', actionId: 'post_ledger', style: 'primary' },
-                    { label: 'Ingatkan Approval', actionId: 'remind_mgr', style: 'ghost' }
-                ],
-                executionStatus: 'pending_review',
-                entities: [{ type: 'supplier', name: 'Acme Cloud Services' }],
-                insights: [{ type: 'risk', text: 'Jumlah 10% lebih tinggi dari rata-rata' }],
-                auditLog: [{ action: 'Masuk via Email', user: 'System', timestamp: new Date() }],
-            },
-            // ... more mock items can be added here
-        ];
-
-        return z.array(RagSourceSchema).parse(mockData);
+            ];
+            return z.array(RagSourceSchema).parse(mockData);
+        }
     },
 
     search: async (query: string): Promise<RagSearchResult[]> => {
-        await delay(800);
-        const mockData = [
-            {
-                id: 'chunk-1',
-                content: `Revenue for the third quarter increased by 15% year-over-year. Matches: "${query}"`,
-                source: 'Q3_Financials.pdf',
-                score: 0.94,
-                metadata: { page: 12, section: '4.1' },
+        try {
+            const res = await fetch('/api/proxy/documents/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query, top_k: 10 }),
+            });
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
             }
-        ];
-        return z.array(RagSearchResultSchema).parse(mockData);
+            const data = await res.json();
+            const mapped = (data.results || []).map((r: any) => ({
+                id: r.chunk_id || `chunk_${Math.random()}`,
+                content: r.content,
+                source: r.document_title || 'Unknown Document',
+                score: r.rrf_score || 0,
+                metadata: {
+                    vector_rank: r.vector_rank || 0,
+                    fts_rank: r.fts_rank || 0,
+                    document_id: r.document_id || '',
+                },
+            }));
+            return z.array(RagSearchResultSchema).parse(mapped);
+        } catch (err) {
+            console.error("Failed to query real RAG search, returning fallback mock:", err);
+            await delay(800);
+            const mockData = [
+                {
+                    id: 'chunk-1',
+                    content: `Revenue for the third quarter increased by 15% year-over-year. Matches: "${query}"`,
+                    source: 'Q3_Financials.pdf',
+                    score: 0.94,
+                    metadata: { page: 12, section: '4.1' },
+                }
+            ];
+            return z.array(RagSearchResultSchema).parse(mockData);
+        }
     },
 
     getEditorDocument: async (id: string): Promise<EditorDocument> => {

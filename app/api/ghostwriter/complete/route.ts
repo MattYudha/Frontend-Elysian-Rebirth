@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const apiKey = 'sk-cp-SG-5IJCfPIDQRYO0Ep3JJs8iqzxekQgMDSFZcOfxyWEg8ZNPRTIsS7_g-_ibYxzR4HW3SYpChn4CaDBUHYeb_OPfJvp8i8PhvYt9CDsbeHFbptCDNj4Iw8M';
+const apiKey = process.env.LLM_API_KEY || process.env.GEMINI_API_KEY || '';
 const apiBaseUrl = 'https://api.minimax.io/v1/chat/completions';
 const modelName = 'MiniMax-M2.5';
 

@@ -5,6 +5,7 @@ import { UploadCloud, FileText, X, CheckCircle2, AlertCircle, Loader2, Database,
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import { uploadDocument as realUploadDocument, listDocuments } from "@/services/rag.service";
+import { AIProcessingPipeline } from "@/components/AIProcessingPipeline";
 
 export interface FileUploadZoneProps {
     tenantId?: string;
@@ -184,7 +185,7 @@ export function FileUploadZone({ tenantId, authToken, onUpload, onUploadComplete
             {uploadQueue.length > 0 && (
                 <div className="grid grid-cols-1 gap-3">
                     {uploadQueue.map((item, idx) => (
-                        <div key={idx} className="relative flex items-center justify-between p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm animate-in fade-in slide-in-from-top-2 overflow-hidden">
+                        <div key={idx} className="relative flex flex-col p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm animate-in fade-in slide-in-from-top-2 overflow-hidden">
 
                             {/* Progress bar */}
                             <div
@@ -195,48 +196,57 @@ export function FileUploadZone({ tenantId, authToken, onUpload, onUploadComplete
                                 style={{ width: `${item.progress}%`, opacity: item.status === 'completed' ? 0 : 1 }}
                             />
 
-                            <div className="flex items-center gap-4 z-10">
-                                <div className={cn(
-                                    "p-2 rounded-lg",
-                                    item.status === 'completed' ? "bg-green-100 text-green-600" :
-                                        item.status === 'error' ? "bg-red-100 text-red-500" :
-                                            "bg-blue-50 text-blue-500"
-                                )}>
-                                    {item.status === 'completed' ? <CheckCircle2 className="w-5 h-5" /> :
-                                        item.status === 'error' ? <AlertCircle className="w-5 h-5" /> :
-                                            <FileText className="w-5 h-5" />}
-                                </div>
-                                <div>
-                                    <p className="font-semibold text-sm text-slate-700 dark:text-slate-200">{item.file.name}</p>
-                                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                                        <span>{(item.file.size / 1024).toFixed(0)} KB</span>
-                                        {item.status === 'uploading' && (
-                                            <>
-                                                <span>•</span>
-                                                <span className="text-blue-500 font-medium flex items-center gap-1">
-                                                    <Loader2 className="w-3 h-3 animate-spin" />
-                                                    {item.backendState === 'PARSING' ? 'Extracting Text...' 
-                                                        : item.backendState === 'VECTORIZING' ? 'Embedding AI...' 
-                                                        : 'Uploading...'} {item.progress}%
-                                                </span>
-                                            </>
-                                        )}
-                                        {item.status === 'completed' && (
-                                            <><span>•</span><span className="text-green-500 font-medium">Queued for indexing</span></>
-                                        )}
-                                        {item.status === 'error' && (
-                                            <><span>•</span><span className="text-red-500 font-medium">{item.error}</span></>
-                                        )}
+                            <div className="flex items-center justify-between w-full z-10">
+                                <div className="flex items-center gap-4">
+                                    <div className={cn(
+                                        "p-2 rounded-lg",
+                                        item.status === 'completed' ? "bg-green-100 text-green-600" :
+                                            item.status === 'error' ? "bg-red-100 text-red-500" :
+                                                "bg-blue-50 text-blue-500"
+                                    )}>
+                                        {item.status === 'completed' ? <CheckCircle2 className="w-5 h-5" /> :
+                                            item.status === 'error' ? <AlertCircle className="w-5 h-5" /> :
+                                                <FileText className="w-5 h-5" />}
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-sm text-slate-700 dark:text-slate-200">{item.file.name}</p>
+                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                            <span>{(item.file.size / 1024).toFixed(0)} KB</span>
+                                            {item.status === 'uploading' && (
+                                                <>
+                                                    <span>•</span>
+                                                    <span className="text-blue-500 font-medium flex items-center gap-1">
+                                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                                        {item.backendState === 'PARSING' ? 'Extracting Text...' 
+                                                            : item.backendState === 'VECTORIZING' ? 'Embedding AI...' 
+                                                            : 'Uploading...'} {item.progress}%
+                                                    </span>
+                                                </>
+                                            )}
+                                            {item.status === 'completed' && (
+                                                <><span>•</span><span className="text-green-500 font-medium">Queued for indexing</span></>
+                                            )}
+                                            {item.status === 'error' && (
+                                                <><span>•</span><span className="text-red-500 font-medium">{item.error}</span></>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
+
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); removeFile(item.file); }}
+                                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors z-10"
+                                >
+                                    <X className="w-4 h-4 text-slate-400 hover:text-red-500" />
+                                </button>
                             </div>
 
-                            <button
-                                onClick={(e) => { e.stopPropagation(); removeFile(item.file); }}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors z-10"
-                            >
-                                <X className="w-4 h-4 text-slate-400 hover:text-red-500" />
-                            </button>
+                            {/* AI Processing Pipeline Visual Feedback */}
+                            <AIProcessingPipeline 
+                                progress={item.progress}
+                                status={item.status}
+                                error={item.error}
+                            />
                         </div>
                     ))}
                 </div>

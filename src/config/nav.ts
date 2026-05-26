@@ -18,7 +18,7 @@ export const mainNav: NavItem[] = [
     { key: 'knowledge', label: 'Knowledge Base', href: '/knowledge', icon: 'Book', roles: ['admin', 'editor'], section: 'WORKSPACE' },
     { key: 'editor', label: 'Document Editor', href: '/editor', icon: 'FileText', section: 'WORKSPACE' },
     { key: 'chat', label: 'Chat', href: '/chat', icon: 'chat', section: 'WORKSPACE' },
-    { key: 'qa-gate', label: 'QA Gate', href: '/dashboard/documents/qa-gate', icon: 'CheckSquare', roles: ['admin'], section: 'WORKSPACE' },
+    { key: 'qa-gate', label: 'QA Gate', href: '/dashboard/documents/qa-gate', icon: 'CheckSquare', section: 'WORKSPACE' },
 
     // AUTOMATION
     { key: 'workflow', label: 'Workflow Builder', href: '/workflow', icon: 'Workflow', section: 'AUTOMATION' },

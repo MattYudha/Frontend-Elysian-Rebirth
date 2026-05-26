@@ -7,6 +7,7 @@ import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { validateFile } from '@/utils/security';
 import { toast } from 'sonner';
+import { AIProcessingPipeline } from '@/components/AIProcessingPipeline';
 
 interface UploadFile {
   uid: string;
@@ -136,34 +137,39 @@ export function FileUpload({ onUpload, accept, maxSize, multiple = false }: File
           {files.map((file) => (
             <div
               key={file.uid}
-              className="flex items-center gap-4 p-4 border rounded-lg"
+              className="flex flex-col gap-2 p-4 border rounded-lg bg-slate-900/10 dark:bg-slate-900/40"
             >
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">{file.name}</p>
-                  <div className="flex items-center gap-2">
-                    {file.status === 'done' && (
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(file.uid)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">
+                    <Inbox className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{file.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(file.size / 1024).toFixed(2)} KB
+                    </p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {(file.size / 1024).toFixed(2)} KB
-                </p>
-                {file.status === 'uploading' && (
-                  <Progress value={file.progress} className="h-1" />
-                )}
-                {file.status === 'error' && (
-                  <p className="text-xs text-destructive">{file.error}</p>
-                )}
+                <div className="flex items-center gap-2">
+                  {file.status === 'done' && (
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onClick={() => removeFile(file.uid)}
+                  >
+                    <Trash2 className="h-4 w-4 text-slate-400 hover:text-red-500" />
+                  </Button>
+                </div>
               </div>
+              <AIProcessingPipeline 
+                progress={file.progress}
+                status={file.status === 'done' ? 'completed' : file.status}
+                error={file.error}
+              />
             </div>
           ))}
         </div>

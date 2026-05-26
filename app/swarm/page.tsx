@@ -210,6 +210,37 @@ function SwarmReviewContent() {
         };
     };
 
+    const [triggeringSwarm, setTriggeringSwarm] = useState(false);
+
+    const handleStartSwarmReview = async () => {
+        setTriggeringSwarm(true);
+        setError(null);
+        try {
+            // Document ID from the 'MATT TEST' document in the database
+            const documentId = 'd81762af-b770-448b-bf51-546f8caee9b8';
+            const defaultItems = [
+                { item_name: 'Leptop Lenovo', name: 'Leptop Lenovo', price: 15000000, quantity: 5, category: 'Laptop IT' },
+                { item_name: 'Printer Canon', name: 'Printer Canon', price: 4500000, quantity: 2, category: 'Printer' },
+                { item_name: 'Semen Padang', name: 'Semen Padang', price: 120000, quantity: 100, category: 'Semen' }
+            ];
+
+            const res = await blockchainService.triggerSwarm(documentId, defaultItems);
+            if (res && res.task_id) {
+                const params = new URLSearchParams(window.location.search);
+                params.set('taskId', res.task_id);
+                router.push(`${window.location.pathname}?${params.toString()}`);
+            } else {
+                throw new Error("Invalid response received from backend");
+            }
+        } catch (err: any) {
+            console.error("Failed to start swarm review:", err);
+            setError(err?.response?.data?.error || err.message || 'Failed to trigger swarm consensus review');
+            setStatus('FAILED');
+        } finally {
+            setTriggeringSwarm(false);
+        }
+    };
+
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const targetId = taskIdInput.trim();
@@ -275,35 +306,80 @@ function SwarmReviewContent() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Search and Intro (Left) */}
                         <div className="lg:col-span-2 space-y-6">
-                            {/* Search Panel */}
-                            <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm backdrop-blur-md">
-                                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">Load Swarm Audit Session</h3>
-                                <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
-                                    <div className="relative flex-1">
-                                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-505" />
-                                        <input
-                                            type="text"
-                                            placeholder="Enter Swarm Task ID..."
-                                            value={taskIdInput}
-                                            onChange={(e) => setTaskIdInput(e.target.value)}
-                                            className="w-full bg-white/70 dark:bg-[#0B1220]/70 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:ring-blue-400 focus:border-blue-400 rounded-xl pl-11 pr-4 py-3 text-sm transition-all text-slate-900 dark:text-white placeholder-slate-400 outline-none"
-                                        />
+                            {/* Actions Panel */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Start Swarm Review Card */}
+                                <div className="bg-gradient-to-br from-blue-50/70 via-indigo-50/50 to-slate-50/40 dark:from-slate-900/40 dark:to-slate-800/20 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm backdrop-blur-md flex flex-col justify-between h-full hover:shadow-md transition-all duration-300">
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-2">
+                                            <Brain className="h-4 w-4 text-blue-500 animate-pulse" />
+                                            Initiate Cognitive Swarm Review
+                                        </h3>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+                                            Deploy Auditor, Compliance, and Manager agents to simulate a real-time consensus debate auditing prices against Nemesis DB and regulatory rules.
+                                        </p>
                                     </div>
                                     <Button 
-                                        type="submit"
-                                        disabled={!taskIdInput.trim()}
-                                        className="py-3 px-6 h-auto rounded-xl font-semibold flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md"
+                                        onClick={handleStartSwarmReview}
+                                        disabled={triggeringSwarm}
+                                        className="w-full py-3 px-6 h-auto rounded-xl font-semibold flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md transition-all duration-300 transform active:scale-95 group relative overflow-hidden"
                                     >
-                                        Load Session
-                                        <ArrowRight className="h-4 w-4" />
+                                        {triggeringSwarm ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                Deploying Swarm...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Play className="h-4 w-4 text-white group-hover:scale-110 transition-transform" />
+                                                Start Swarm Review
+                                            </>
+                                        )}
+                                        {/* Pulse effect */}
+                                        {!triggeringSwarm && (
+                                            <span className="absolute inset-0 rounded-xl border-2 border-emerald-400/20 animate-ping pointer-events-none scale-105 duration-1000"></span>
+                                        )}
                                     </Button>
-                                </form>
+                                </div>
+
+                                {/* Search Panel */}
+                                <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm backdrop-blur-md flex flex-col justify-between h-full hover:shadow-md transition-all duration-300">
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-2">
+                                            <History className="h-4 w-4 text-slate-450 dark:text-slate-400" />
+                                            Load Swarm Audit Session
+                                        </h3>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+                                            Reload and review past AI deliberations or consensus history by providing a specific Swarm Task ID directly.
+                                        </p>
+                                    </div>
+                                    <form onSubmit={handleSearchSubmit} className="flex gap-2.5">
+                                        <div className="relative flex-1">
+                                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
+                                            <input
+                                                type="text"
+                                                placeholder="Enter Swarm Task ID..."
+                                                value={taskIdInput}
+                                                onChange={(e) => setTaskIdInput(e.target.value)}
+                                                className="w-full bg-white/70 dark:bg-[#0B1220]/70 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl pl-10 pr-3 py-2.5 text-xs transition-all text-slate-900 dark:text-white placeholder-slate-400 outline-none"
+                                            />
+                                        </div>
+                                        <Button 
+                                            type="submit"
+                                            disabled={!taskIdInput.trim()}
+                                            className="py-2.5 px-4 h-auto rounded-xl font-semibold flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md text-xs"
+                                        >
+                                            Load
+                                            <ArrowRight className="h-3.5 w-3.5" />
+                                        </Button>
+                                    </form>
+                                </div>
                             </div>
 
                             {/* Cognitive Swarm Introduction Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {/* Auditor Card */}
-                                <div className="bg-white/30 dark:bg-slate-900/20 border border-slate-200/60 dark:border-slate-800/50 rounded-xl p-4 space-y-2 relative overflow-hidden backdrop-blur-sm">
+                                <div className="bg-white/70 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-800/50 hover:bg-white/95 dark:hover:bg-slate-900/30 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl p-4 space-y-2 relative overflow-hidden backdrop-blur-sm shadow-sm transition-all duration-300 transform hover:-translate-y-0.5">
                                     <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-200/30">
                                         <Cpu className="h-4 w-4" />
                                     </div>
@@ -314,7 +390,7 @@ function SwarmReviewContent() {
                                 </div>
 
                                 {/* Compliance Card */}
-                                <div className="bg-white/30 dark:bg-slate-900/20 border border-slate-200/60 dark:border-slate-800/50 rounded-xl p-4 space-y-2 relative overflow-hidden backdrop-blur-sm">
+                                <div className="bg-white/70 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-800/50 hover:bg-white/95 dark:hover:bg-slate-900/30 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl p-4 space-y-2 relative overflow-hidden backdrop-blur-sm shadow-sm transition-all duration-300 transform hover:-translate-y-0.5">
                                     <div className="h-8 w-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-200/30">
                                         <Shield className="h-4 w-4" />
                                     </div>
@@ -325,7 +401,7 @@ function SwarmReviewContent() {
                                 </div>
 
                                 {/* Manager Card */}
-                                <div className="bg-white/30 dark:bg-slate-900/20 border border-slate-200/60 dark:border-slate-800/50 rounded-xl p-4 space-y-2 relative overflow-hidden backdrop-blur-sm">
+                                <div className="bg-white/70 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-800/50 hover:bg-white/95 dark:hover:bg-slate-900/30 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl p-4 space-y-2 relative overflow-hidden backdrop-blur-sm shadow-sm transition-all duration-300 transform hover:-translate-y-0.5">
                                     <div className="h-8 w-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-200/30">
                                         <Brain className="h-4 w-4" />
                                     </div>
@@ -338,19 +414,19 @@ function SwarmReviewContent() {
                         </div>
 
                         {/* Recent History (Right) */}
-                        <div className="lg:col-span-1 bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm backdrop-blur-md flex flex-col h-[340px]">
-                            <div className="flex items-center gap-1.5 mb-3 text-slate-850 dark:text-slate-200 font-semibold text-xs uppercase tracking-wider">
+                        <div className="lg:col-span-1 bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm backdrop-blur-md flex flex-col h-[340px]">
+                            <div className="flex items-center gap-1.5 mb-3 text-slate-800 dark:text-slate-200 font-semibold text-xs uppercase tracking-wider">
                                 <History className="h-4 w-4 text-blue-500 animate-pulse" />
                                 <span>Recent Audit Sessions</span>
                             </div>
                             
                             {loadingHistory ? (
                                 <div className="flex-1 flex flex-col items-center justify-center">
-                                    <Loader2 className="h-6 w-6 animate-spin text-slate-455" />
+                                    <Loader2 className="h-6 w-6 animate-spin text-slate-500" />
                                 </div>
                             ) : recentTasks.length === 0 ? (
                                 <div className="flex-1 flex flex-col items-center justify-center text-slate-500 text-center p-4">
-                                    <Activity className="h-8 w-8 text-slate-650 opacity-20 mb-2" />
+                                    <Activity className="h-8 w-8 text-slate-600 opacity-20 mb-2" />
                                     <p className="text-[11px]">No recent swarm activities recorded.</p>
                                 </div>
                             ) : (
@@ -359,16 +435,16 @@ function SwarmReviewContent() {
                                         <div 
                                             key={task.id}
                                             onClick={() => handleRecentClick(task.id)}
-                                            className="p-3 bg-white/60 dark:bg-slate-950/40 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-150 dark:border-slate-850 rounded-xl cursor-pointer transition-all flex items-center justify-between group"
+                                            className="p-3 bg-white/60 dark:bg-slate-950/40 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-xl cursor-pointer transition-all flex items-center justify-between group"
                                         >
                                             <div className="min-w-0 flex-1 pr-2">
                                                 <div className="flex items-center gap-1.5">
-                                                    <FileText className="h-3.5 w-3.5 text-slate-400 group-hover:text-blue-555 shrink-0" />
+                                                    <FileText className="h-3.5 w-3.5 text-slate-400 group-hover:text-blue-500 shrink-0" />
                                                     <span className="font-mono text-[10px] text-slate-700 dark:text-slate-300 font-medium truncate block">
                                                         {task.id.slice(0, 8)}...{task.id.slice(-4)}
                                                     </span>
                                                 </div>
-                                                <span className="text-[9px] text-slate-450 block mt-1">
+                                                <span className="text-[9px] text-slate-500 block mt-1">
                                                     {new Date(task.createdAt).toLocaleDateString()} · {new Date(task.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                                 </span>
                                             </div>
@@ -415,32 +491,34 @@ function SwarmReviewContent() {
                             <span className="h-3 w-3 rounded-full bg-green-500/85"></span>
                             <span className="text-[10px] text-slate-500 font-semibold ml-2 uppercase tracking-wider">Cognitive Swarm CLI v1.2.0</span>
                         </div>
-                        <div className="flex items-center gap-2 text-[10px] text-blue-400 font-bold animate-pulse">
+                        <div className="flex items-center gap-2 text-[10px] text-blue-600 dark:text-blue-400 font-bold animate-pulse">
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             <span>DELIBERATION PIPELINE ACTIVE</span>
                         </div>
                     </div>
                     
-                    <div className="flex-1 overflow-y-auto space-y-2 p-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                    <div className="flex-1 overflow-y-auto space-y-2 p-4 bg-white dark:bg-slate-900/60 border border-slate-150 dark:border-slate-850 rounded-xl scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 scrollbar-track-transparent">
                         {terminalLogs.map((log, index) => {
-                            let colorClass = "text-slate-300";
-                            if (log.includes("[SYSTEM]")) colorClass = "text-slate-500 font-medium";
-                            else if (log.includes("[MANAGER]")) colorClass = "text-purple-400 font-bold";
-                            else if (log.includes("[AUDITOR]")) colorClass = "text-blue-400 font-bold";
-                            else if (log.includes("[COMPLIANCE]")) colorClass = "text-amber-400 font-bold";
+                            let colorClass = "text-slate-700 dark:text-slate-300";
+                            if (typeof log === 'string') {
+                                if (log.includes("[SYSTEM]")) colorClass = "text-slate-500 dark:text-slate-450 font-medium";
+                                else if (log.includes("[MANAGER]")) colorClass = "text-purple-600 dark:text-purple-400 font-bold";
+                                else if (log.includes("[AUDITOR]")) colorClass = "text-blue-600 dark:text-blue-400 font-bold";
+                                else if (log.includes("[COMPLIANCE]")) colorClass = "text-amber-600 dark:text-amber-400 font-bold";
+                            }
                             
                             return (
-                                <div key={index} className={`flex items-start gap-1 font-mono transition-all duration-300 ${colorClass}`}>
-                                    <span className="text-slate-600 select-none shrink-0">$</span>
-                                    <span className="leading-relaxed whitespace-pre-wrap">{log}</span>
+                                <div key={index} className={`flex items-start gap-2 font-mono transition-all duration-300 ${colorClass}`}>
+                                    <span className="text-slate-400 dark:text-slate-600 select-none shrink-0">$</span>
+                                    <span className="leading-relaxed whitespace-pre-wrap">{String(log)}</span>
                                 </div>
                             );
                         })}
                     </div>
                     
-                    <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-900 text-[10.5px] text-slate-400 flex items-center justify-between">
+                    <div className="bg-slate-150/70 dark:bg-slate-900/60 p-3 rounded-lg border border-slate-200 dark:border-slate-900 text-[10.5px] text-slate-500 dark:text-slate-400 flex items-center justify-between">
                         <span>Awaiting consensus on multi-agent audit ledger...</span>
-                        <span className="font-semibold text-slate-550">{Math.min(terminalLogs.length * 10, 100)}% loaded</span>
+                        <span className="font-semibold text-slate-600 dark:text-slate-400">{Math.min(terminalLogs.length * 10, 100)}% loaded</span>
                     </div>
                 </div>
             )}
@@ -449,7 +527,7 @@ function SwarmReviewContent() {
                 <div className="space-y-6 animate-in fade-in duration-500">
                     {/* Consensus Dashboard Summary Card */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center gap-3">
+                        <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center gap-3">
                             <div className="h-10 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
                                 <Activity className="h-5 w-5" />
                             </div>
@@ -459,7 +537,7 @@ function SwarmReviewContent() {
                             </div>
                         </div>
 
-                        <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center gap-3">
+                        <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center gap-3">
                             <div className="h-10 w-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center text-red-600 dark:text-red-400">
                                 <AlertTriangle className="h-5 w-5 animate-pulse" />
                             </div>
@@ -469,7 +547,7 @@ function SwarmReviewContent() {
                             </div>
                         </div>
 
-                        <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center gap-3">
+                        <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center gap-3">
                             <div className="h-10 w-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                                 <CheckCircle className="h-5 w-5" />
                             </div>
@@ -479,8 +557,8 @@ function SwarmReviewContent() {
                             </div>
                         </div>
 
-                        <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center gap-3">
-                            <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 dark:text-purple-400">
+                        <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm backdrop-blur-md flex items-center gap-3">
+                            <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-200/30">
                                 <Brain className="h-5 w-5" />
                             </div>
                             <div>
@@ -495,7 +573,7 @@ function SwarmReviewContent() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Left Pane: Task Details & Blockchain */}
                         <div className="lg:col-span-1 space-y-6">
-                            <div className="bg-white/40 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 space-y-4 shadow-sm backdrop-blur-md">
+                            <div className="bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 space-y-4 shadow-sm backdrop-blur-md">
                                 <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-wider font-sans">Session Info</h3>
                                 
                                 <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300">

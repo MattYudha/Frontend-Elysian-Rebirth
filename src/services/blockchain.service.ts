@@ -21,6 +21,12 @@ export interface SwarmTaskDetail {
     blockchainTx?: string;
     blockchainStat?: string;
     blockchainNet?: string;
+    nftTokenId?: string;
+    ipfsCid?: string;
+    nftTxHash?: string;
+    nft_token_id?: string;
+    ipfs_cid?: string;
+    nft_tx_hash?: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -73,5 +79,16 @@ export const blockchainService = {
             data: response.data,
             total: response.total
         };
+    },
+
+    /**
+     * Trigger a new swarm review task
+     */
+    async triggerSwarm(documentId: string, items: any[]): Promise<{ message: string; task_id: string; status: string }> {
+        const response = await http.post<any>('/api/v1/swarm/upload', {
+            document_id: documentId,
+            items: items
+        });
+        return response;
     }
 };

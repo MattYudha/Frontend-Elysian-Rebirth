@@ -7,7 +7,8 @@ import { formatDistanceToNow, isBefore } from 'date-fns';
 import {
     Bot, AlertTriangle, Info, ShieldAlert, CheckCircle2, ChevronLeft,
     XCircle, Undo2, ArrowLeft, Search, Filter, Clock, ShieldCheck,
-    ShieldX, ShieldQuestion, CheckSquare, Square, Download, Copy, Play
+    ShieldX, ShieldQuestion, CheckSquare, Square, Download, Copy, Play,
+    Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 const AiMarkdownRenderer = dynamic(() => import('@/lib/markdown/AiMarkdownRenderer'), { ssr: false });
 
 export function ActionCenterClient() {
-    const { actions, approveAction, rejectAction, undoAction, refreshSLAStatuses } = useNotificationStore();
+    const { actions, approveAction, rejectAction, undoAction, refreshSLAStatuses, fetchActions } = useNotificationStore();
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -30,6 +31,10 @@ export function ActionCenterClient() {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterSeverity, setFilterSeverity] = useState<string>('all');
+
+    useEffect(() => {
+        fetchActions();
+    }, [fetchActions]);
 
     // Bulk Selection State
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -570,6 +575,21 @@ export function ActionCenterClient() {
                                             </div>
                                         </div>
 
+                                        {/* Swarm Intelligence Memory Pack update Explanation */}
+                                        <div className="rounded-xl border border-blue-500/20 bg-gradient-to-tr from-blue-500/5 to-purple-500/5 dark:from-blue-950/20 dark:to-purple-950/5 shadow-sm p-5 space-y-3">
+                                            <h3 className="font-semibold text-sm text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                                                <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
+                                                Swarm Memory Pack Feedback Loop
+                                            </h3>
+                                            <p className="text-xs text-slate-650 dark:text-slate-300 leading-relaxed">
+                                                Setiap keputusan manual, persetujuan bypass, atau penolakan kebijakan yang Anda lakukan akan dikirim kembali ke <strong>AI Swarm</strong> secara otomatis.
+                                            </p>
+                                            <div className="p-3 bg-white/50 dark:bg-slate-950/40 rounded-lg border border-blue-500/10 text-[11px] text-slate-500 dark:text-slate-400">
+                                                <span className="font-semibold text-slate-700 dark:text-slate-200 block mb-1">💡 Cara Swarm Belajar:</span>
+                                                Setelah Anda memberikan justifikasi dan menyetujui, AI Swarm akan mempelajari pengecualian ini secara otomatis untuk audit di masa mendatang (Memory Pack updated).
+                                            </div>
+                                        </div>
+
                                         {/* Main Payload Tabs Viewer */}
                                         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#060D18] shadow-sm overflow-hidden">
                                             <Tabs value={payloadTab} onValueChange={setPayloadTab} className="w-full">
@@ -681,7 +701,7 @@ export function ActionCenterClient() {
                                             disabled={selectedAction.policyChecks.some(p => p.status === 'fail') && !(isOverrideChecked && justificationNote.trim().length > 0)}
                                         >
                                             <CheckCircle2 className="h-4 w-4" />
-                                            {isOverrideChecked ? 'Override & Execute' : 'Approve & Execute'}
+                                            {isOverrideChecked ? 'Override Decision' : 'Approve manually'}
                                         </Button>
                                     </div>
                                 </>

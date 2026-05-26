@@ -11,8 +11,9 @@ import type { JSONContent } from '@tiptap/react';
 export const extractPlainText = (editor: Editor | null): string => {
     if (!editor) return "";
 
-    // API internal Tiptap yang efisien untuk mengambil text content tanpa tag HTML
-    return editor.getText();
+    // Gunakan blockSeparator: '\n' agar paragraf dipisahkan oleh satu newline,
+    // mencegah penggandaan baris baru kosong setiap kali dokumen disimpan dan dimuat ulang.
+    return editor.getText({ blockSeparator: '\n' });
 };
 
 /**

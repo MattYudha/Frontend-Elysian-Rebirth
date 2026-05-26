@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Save, FileText, Maximize2, Sparkles, ShieldX, Printer, Plus, Trash2, Loader2, UploadCloud, FilePlus } from 'lucide-react';
+import { Save, FileText, Maximize2, Sparkles, ShieldX, Printer, Plus, Trash2, Loader2, UploadCloud, FilePlus, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { GuidedTour } from '@/components/ui/GuidedTour';
@@ -246,6 +246,33 @@ export function DocumentEditor({
                     return 'Dokumen berhasil disimpan!';
                 },
                 error: (err: any) => `Gagal menyimpan dokumen: ${err.message || err}`,
+            }
+        );
+    };
+
+    const handleSubmitDoc = async () => {
+        if (!editor || !activeDocumentId) return;
+
+        const plainText = extractPlainText(editor);
+        const titleToSave = titleInput.trim() || 'Untitled Document';
+
+        toast.promise(
+            updateTextMutation.mutateAsync({
+                id: activeDocumentId,
+                text: plainText,
+                title: titleToSave,
+                status: 'pending_qa',
+            }),
+            {
+                loading: 'Mengirimkan dokumen ke QA Gate...',
+                success: () => {
+                    markSynced();
+                    createSnapshot('Submitted to QA');
+                    onSave?.();
+                    refetchDocuments();
+                    return 'Dokumen berhasil dikirim ke QA Gate!';
+                },
+                error: (err: any) => `Gagal mengirim dokumen: ${err.message || err}`,
             }
         );
     };
@@ -865,6 +892,22 @@ Berikut adalah rencana anggaran pengadaan hardware tahun 2026:
                             <Badge variant="outline" className="text-[10px] font-normal bg-white dark:bg-slate-800 shrink-0 h-6">
                                 v{currentDocument?.version || 1}
                             </Badge>
+                            {activeDocInfo?.status && (
+                                <Badge 
+                                    variant="outline" 
+                                    className={cn(
+                                        "text-[10px] font-semibold shrink-0 h-6 uppercase px-2",
+                                        activeDocInfo.status === "pending_qa" ? "bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-250 dark:border-amber-800" :
+                                        activeDocInfo.status === "ready" ? "bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 border-green-250 dark:border-green-800" :
+                                        activeDocInfo.status === "draft" ? "bg-slate-55 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700" :
+                                        "bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                                    )}
+                                >
+                                    {activeDocInfo.status === "pending_qa" ? "Pending QA" :
+                                     activeDocInfo.status === "ready" ? "Ready" :
+                                     activeDocInfo.status}
+                                </Badge>
+                            )}
                         </div>
                     </div>
 
@@ -950,7 +993,7 @@ Berikut adalah rencana anggaran pengadaan hardware tahun 2026:
                                 </TooltipContent>
                             </Tooltip>
 
-                            <Tooltip>
+                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
                                         size="sm"
@@ -968,6 +1011,27 @@ Berikut adalah rencana anggaran pengadaan hardware tahun 2026:
                                 </TooltipTrigger>
                                 <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
                                     Simpan draf anggaran Anda ke server secara manual
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="sm"
+                                        onClick={handleSubmitDoc}
+                                        disabled={updateTextMutation.isPending || activeDocInfo?.status === 'ready'}
+                                        className="h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shrink-0 text-xs font-bold"
+                                    >
+                                        {updateTextMutation.isPending ? (
+                                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                            <Send className="h-3.5 w-3.5" />
+                                        )}
+                                        <span>Submit</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 dark:bg-slate-800 text-white text-[11px] border-slate-800 font-medium">
+                                    Kirim dokumen ini ke RAG pipeline / QA Gate
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>

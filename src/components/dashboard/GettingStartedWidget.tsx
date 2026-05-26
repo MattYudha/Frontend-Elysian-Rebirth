@@ -7,7 +7,11 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
-export function GettingStartedWidget() {
+interface GettingStartedWidgetProps {
+    onOpenWorkflow?: () => void;
+}
+
+export function GettingStartedWidget({ onOpenWorkflow }: GettingStartedWidgetProps) {
     const router = useRouter();
     const [progress, setProgress] = useState({
         step1: false,
@@ -48,7 +52,7 @@ export function GettingStartedWidget() {
         {
             id: 'step2',
             title: 'Muat Draf Anggaran Contoh',
-            description: 'Buka Smart Editor dan muat draf anggaran hardware Dinas Kominfo 2026 secara instan.',
+            description: 'Buka Smart Editor and muat draf anggaran hardware Dinas Kominfo 2026 secara instan.',
             icon: Sparkles,
             buttonText: 'Buka Editor',
             onClick: () => {
@@ -99,8 +103,16 @@ export function GettingStartedWidget() {
                         <HelpCircle className="h-4.5 w-4.5 animate-pulse" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex flex-wrap items-center gap-1.5">
                             Langkah Awal Penggunaan
+                            {onOpenWorkflow && (
+                                <button 
+                                    onClick={onOpenWorkflow}
+                                    className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline bg-blue-500/10 dark:bg-blue-950/50 px-2 py-0.5 rounded-full border border-blue-200/20"
+                                >
+                                    Lihat Alur Kerja →
+                                </button>
+                            )}
                         </h3>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                             Selesaikan langkah berikut untuk memahami platform

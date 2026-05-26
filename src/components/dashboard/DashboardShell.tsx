@@ -31,6 +31,7 @@ import { PriorityActionQueue, ActionItem } from './enterprise/PriorityActionQueu
 import { TenantAvatarGroup, type TenantMember } from './TenantAvatarGroup';
 import { GettingStartedWidget } from './GettingStartedWidget';
 import { GuidedTour } from '@/components/ui/GuidedTour';
+import { ElysianWorkflowDrawer } from './ElysianWorkflowDrawer';
 
 const dashboardTourSteps = [
     {
@@ -130,6 +131,7 @@ export function DashboardShell({ }: DashboardShellProps) {
     const [createSuccess, setCreateSuccess] = useState(false);
     const [selectedPipelineId, setSelectedPipelineId] = useState<string | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isWorkflowDrawerOpen, setIsWorkflowDrawerOpen] = useState(false);
 
     const handleCreatePipeline = useCallback(() => {
         if (!pipelineName.trim()) return;
@@ -478,7 +480,7 @@ export function DashboardShell({ }: DashboardShellProps) {
 
                     {/* Getting Started Onboarding Checklist Widget */}
                     <div className="shrink-0">
-                        <GettingStartedWidget />
+                        <GettingStartedWidget onOpenWorkflow={() => setIsWorkflowDrawerOpen(true)} />
                     </div>
 
                     {/* 1. AI Assistant Widget (Persistent, highly prominent) */}
@@ -609,6 +611,12 @@ export function DashboardShell({ }: DashboardShellProps) {
 
             {/* Guided Tour Engine */}
             <GuidedTour steps={dashboardTourSteps} tourKey="dashboard_tour" />
+
+            {/* Elysian Workflow Guide Drawer */}
+            <ElysianWorkflowDrawer
+                isOpen={isWorkflowDrawerOpen}
+                onClose={() => setIsWorkflowDrawerOpen(false)}
+            />
         </div>
     );
 }

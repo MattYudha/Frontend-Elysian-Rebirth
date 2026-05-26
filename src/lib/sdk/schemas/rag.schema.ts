@@ -14,7 +14,7 @@ export const RagSourceSchema = z.object({
     // Pipeline State
     channel: IngestionChannelSchema,
     stage: DocumentStageSchema,
-    status: z.enum(['queued', 'processing', 'indexing', 'ready', 'failed', 'uploading']),
+    status: z.enum(['queued', 'processing', 'indexing', 'ready', 'failed', 'uploading', 'pending_qa', 'draft']),
     errorReason: z.string().optional(),
 
     // Assignment & Audit
