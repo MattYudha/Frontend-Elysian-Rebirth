@@ -52,3 +52,19 @@ swarm-worker/.env
 swarm-worker/__pycache__/
 swarm-worker/*.pyc
 swarm-worker/swarm_worker.log
+
+# Junk / Temp files
+scratch/
+*.log
+*.txt
+!README.txt
+query
+powershell.bat
+template_pdf.pdf
+percakapan.md
+EXECUTION_PLAN.md
+IMPLEMENTATION_PLAN_V3.md
+DUMMY_*.txt
+DUMMY_*.md
+TOOLS*.html
+Elysian_Hackathon_Proposal.*
