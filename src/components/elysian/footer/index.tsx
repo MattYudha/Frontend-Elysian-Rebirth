@@ -45,13 +45,16 @@ export function Footer() {
                 {t.landing.footer.solutions.items.docs}
               </li>
               <li className="text-gray-400 hover:text-sky-400 transition-colors cursor-default">
-                {t.landing.footer.solutions.items.security}
+                {t.landing.footer.solutions.items.finance}
               </li>
               <li className="text-gray-400 hover:text-sky-400 transition-colors cursor-default">
-                {t.landing.footer.solutions.items.scale}
+                {t.landing.footer.solutions.items.inventory}
               </li>
               <li className="text-gray-400 hover:text-sky-400 transition-colors cursor-default">
-                {t.landing.footer.solutions.items.custom}
+                {t.landing.footer.solutions.items.trends}
+              </li>
+              <li className="text-gray-400 hover:text-sky-400 transition-colors cursor-default">
+                {t.landing.footer.solutions.items.erp}
               </li>
             </ul>
           </div>

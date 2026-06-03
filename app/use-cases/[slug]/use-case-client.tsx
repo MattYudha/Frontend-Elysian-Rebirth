@@ -393,7 +393,7 @@ export default function UseCaseClient({ useCase }: UseCasePageProps) {
                 {/* Feature Cards - Right Column with 2x3 Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {useCase.features.map((feature, index) => {
-                    const FeatureIcon = iconMap[feature.icon] || ServerStackIcon;
+                    const FeatureIcon = (iconMap as Record<string, any>)[feature.icon] || ServerStackIcon;
                     return (
                       <motion.div
                         key={`feature-${feature.title.replace(/\s+/g, "-")}`}

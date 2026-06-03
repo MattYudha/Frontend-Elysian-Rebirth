@@ -361,7 +361,7 @@ export function MobileFlow({ slug, className, agents = [], tools = [] }: MobileF
   };
 
   const [nodes, setNodes] = useNodesState(createDynamicInitialNodes());
-  const [edges, setEdges] = useEdgesState([]);
+  const [edges, setEdges] = useEdgesState<Edge>([]);
   const [_animationStep, setAnimationStep] = useState(0);
 
   // Reset nodes when component mounts/remounts

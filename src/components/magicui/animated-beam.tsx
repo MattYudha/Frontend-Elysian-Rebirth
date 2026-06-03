@@ -352,20 +352,20 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
         <>
           {/* First particle (always shown) */}
           <circle r={particleSize} fill={particleColor}>
-            <motion.animateMotion
+            <animateMotion
               path={particleDirection === "backward" ? pathD.split("").reverse().join("") : pathD}
               dur={`${particleSpeed}s`}
               repeatCount="indefinite"
               rotate="auto"
             >
               <mpath href={`#${particleId}`} />
-            </motion.animateMotion>
+            </animateMotion>
           </circle>
 
           {/* Second particle (shown if particleCount >= 2) */}
           {particleCount >= 2 && (
             <circle r={particleSize * 0.8} fill={particleColor} opacity="0.8">
-              <motion.animateMotion
+              <animateMotion
                 path={particleDirection === "backward" ? pathD.split("").reverse().join("") : pathD}
                 dur={`${particleSpeed * 1.3}s`}
                 repeatCount="indefinite"
@@ -373,14 +373,14 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
                 begin={`${particleSpeed * 0.3}s`}
               >
                 <mpath href={`#${particleId}`} />
-              </motion.animateMotion>
+              </animateMotion>
             </circle>
           )}
 
           {/* Third particle (shown if particleCount >= 3) */}
           {particleCount >= 3 && (
             <circle r={particleSize * 0.6} fill={particleColor} opacity="0.6">
-              <motion.animateMotion
+              <animateMotion
                 path={particleDirection === "backward" ? pathD.split("").reverse().join("") : pathD}
                 dur={`${particleSpeed * 0.8}s`}
                 repeatCount="indefinite"
@@ -388,7 +388,7 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
                 begin={`${particleSpeed * 0.6}s`}
               >
                 <mpath href={`#${particleId}`} />
-              </motion.animateMotion>
+              </animateMotion>
             </circle>
           )}
 

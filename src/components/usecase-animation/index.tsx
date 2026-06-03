@@ -130,7 +130,7 @@ export const UseCaseAnimation = React.memo(function UseCaseAnimation({
   const config = useMemo(() => getUseCaseConfig(slug), [slug]);
   const nodeIds = useMemo(() => {
     if (businessTopics && systemCapabilities) {
-      const ids = [];
+      const ids: string[] = [];
       businessTopics.forEach((_, i) => ids.push(`business-${i}`));
       systemCapabilities.forEach((_, i) => ids.push(`system-${i}`));
       return ids;
@@ -348,12 +348,12 @@ export const UseCaseAnimation = React.memo(function UseCaseAnimation({
             ...businessTopics.map((topic, i) => ({
               id: `business-${i}`,
               label: topic,
-              icon: iconMap[topic] || QuestionMarkCircleIcon,
+              icon: (iconMap as Record<string, any>)[topic] || QuestionMarkCircleIcon,
             })),
             ...systemCapabilities.map((capability, i) => ({
               id: `system-${i}`,
               label: capability,
-              icon: iconMap[capability] || BookOpenIcon,
+              icon: (iconMap as Record<string, any>)[capability] || BookOpenIcon,
             })),
           ];
 
