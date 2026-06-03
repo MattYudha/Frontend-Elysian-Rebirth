@@ -100,16 +100,19 @@ export const translationsEN = {
     },
     landingNav: {
         products: {
-            title: 'Core Features',
+            title: 'Products',
         },
-        solutions: {
-            title: 'Technology',
+        documentations: {
+            title: 'Documentations',
         },
-        useCases: {
-            title: 'Users',
+        pricing: {
+            title: 'Pricing',
         },
-        faq: {
-            title: 'FAQ',
+        usecases: {
+            title: 'Usecases',
+        },
+        resources: {
+            title: 'Resources',
         },
         actions: {
             startFree: 'Start Audit',

@@ -135,11 +135,11 @@ export default function RegisterPage() {
                 MOBILE LAYOUT (UNIFIED LIGHT THEME) - lg:hidden
                 Clean, Spacious, Native App Feel. Matches Login Page.
                ===================================================================================== */}
-            <div className="lg:hidden min-h-screen w-full bg-white flex flex-col relative overflow-x-hidden">
+            <div className="lg:hidden min-h-screen w-full bg-slate-50 dark:bg-[#0b1120] flex flex-col relative overflow-x-hidden">
 
                 {/* Background Decor (Subtle & Fixed) */}
-                <div className="fixed top-[-10%] left-[-20%] w-[80%] h-[300px] bg-blue-100/50 rounded-full blur-[80px] pointer-events-none" />
-                <div className="fixed bottom-[-10%] right-[-20%] w-[80%] h-[300px] bg-indigo-100/50 rounded-full blur-[80px] pointer-events-none" />
+                <div className="fixed top-[-10%] left-[-20%] w-[80%] h-[300px] bg-blue-100/50 dark:bg-blue-900/20 rounded-full blur-[80px] pointer-events-none" />
+                <div className="fixed bottom-[-10%] right-[-20%] w-[80%] h-[300px] bg-indigo-100/50 dark:bg-indigo-900/20 rounded-full blur-[80px] pointer-events-none" />
 
                 {/* Content Container (Scrollable) */}
                 <div className="relative z-10 flex flex-col items-center justify-start w-full px-6 pt-8 pb-12">
@@ -150,19 +150,19 @@ export default function RegisterPage() {
                             <ElysianTextLogo className="scale-110" />
                         </div>
                         <div className="text-center mt-2">
-                            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Create Account</h1>
-                            <p className="text-slate-500 text-xs font-medium">Join Elysian today</p>
+                            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Create Account</h1>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Join Elysian today</p>
                         </div>
                     </div>
 
                     {/* 2. The Form Card - Clean & Floating */}
-                    <div className="w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 p-6 sm:p-8 animate-in zoom-in-95 duration-500">
+                    <div className="w-full bg-white/80 dark:bg-transparent backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-white/60 dark:border-none p-6 sm:p-8 animate-in zoom-in-95 duration-500">
                         <SocialAuth />
 
                         <div className="flex items-center gap-3 my-6">
-                            <hr className="flex-1 border-slate-200" />
+                            <hr className="flex-1 border-slate-200 dark:border-white/10" />
                             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Atau daftar manual</span>
-                            <hr className="flex-1 border-slate-200" />
+                            <hr className="flex-1 border-slate-200 dark:border-white/10" />
                         </div>
 
                         <Form {...form}>
@@ -177,7 +177,7 @@ export default function RegisterPage() {
                                             <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nama Lengkap</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
+                                                    className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-12 rounded-xl px-4 text-base text-slate-900 dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
                                                     placeholder="Aditya..."
                                                     disabled={isLoading}
                                                     {...field}
@@ -196,12 +196,12 @@ export default function RegisterPage() {
                                         <FormItem className="space-y-1.5">
                                             <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Nomor Telepon</FormLabel>
                                             <div className="flex gap-3">
-                                                <div className="flex items-center justify-center bg-slate-100 border border-slate-200 rounded-xl px-3 h-12 min-w-[72px] shrink-0">
-                                                    <span className="text-sm font-bold text-slate-700">+62</span>
+                                                <div className="flex items-center justify-center bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 h-12 min-w-[72px] shrink-0">
+                                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300">+62</span>
                                                 </div>
                                                 <FormControl>
                                                     <Input
-                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium flex-1"
+                                                        className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-12 rounded-xl px-4 text-base text-slate-900 dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium flex-1"
                                                         placeholder="812-3456-7890"
                                                         type="tel"
                                                         disabled={isLoading}
@@ -223,7 +223,7 @@ export default function RegisterPage() {
                                             <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
+                                                    className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-12 rounded-xl px-4 text-base text-slate-900 dark:text-white font-medium focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all"
                                                     placeholder="contoh@email.com"
                                                     type="email"
                                                     disabled={isLoading}
@@ -245,7 +245,7 @@ export default function RegisterPage() {
                                                 <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Password</FormLabel>
                                                 <FormControl>
                                                     <InputPassword
-                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
+                                                        className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-12 rounded-xl px-4 text-base text-slate-900 dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
                                                         placeholder="Rahasia..."
                                                         disabled={isLoading}
                                                         {...field}
@@ -265,7 +265,7 @@ export default function RegisterPage() {
                                                 <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Ulangi Password</FormLabel>
                                                 <FormControl>
                                                     <InputPassword
-                                                        className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
+                                                        className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-12 rounded-xl px-4 text-base text-slate-900 dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
                                                         placeholder="Konfirmasi..."
                                                         disabled={isLoading}
                                                         {...field}
@@ -286,7 +286,7 @@ export default function RegisterPage() {
                                             <FormLabel className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Kode Referral (Opsional)</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    className="bg-slate-50 border-slate-200 h-12 rounded-xl px-4 text-base text-slate-900 focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
+                                                    className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-12 rounded-xl px-4 text-base text-slate-900 dark:text-white focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all font-medium"
                                                     placeholder="ELYSIAN2024"
                                                     disabled={isLoading}
                                                     {...field}
@@ -302,7 +302,7 @@ export default function RegisterPage() {
                                     control={form.control}
                                     name="terms"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-2 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-100 dark:border-slate-800">
                                             <FormControl>
                                                 <Checkbox
                                                     checked={field.value}
@@ -365,16 +365,16 @@ export default function RegisterPage() {
 
                 <div className="w-full max-w-[420px] mx-auto space-y-6">
                     <div className="text-center lg:text-left space-y-2">
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Create Account</h1>
-                        <p className="text-slate-500 text-sm">Start your 14-day free trial with Elysian.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Create Account</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Start your 14-day free trial with Elysian.</p>
                     </div>
 
                     <SocialAuth />
 
                     <div className="flex items-center gap-3 py-2">
-                        <hr className="flex-1 border-slate-200" />
+                        <hr className="flex-1 border-slate-200 dark:border-white/10" />
                         <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Atau daftar manual</span>
-                        <hr className="flex-1 border-slate-200" />
+                        <hr className="flex-1 border-slate-200 dark:border-white/10" />
                     </div>
 
                     <Form {...form}>
@@ -390,7 +390,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                             <Input
                                                 disabled={isLoading}
-                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
+                                                className="h-11 bg-white/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium"
                                                 placeholder="cth. Aditya Pangestu"
                                                 {...field}
                                             />
@@ -408,7 +408,7 @@ export default function RegisterPage() {
                                     <FormItem>
                                         <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Nomor Telepon <span className="text-red-500">*</span></FormLabel>
                                         <div className="flex items-center gap-2">
-                                            <div className="flex items-center justify-center gap-1 bg-slate-50 border border-slate-200 h-11 px-3 rounded-lg text-sm text-slate-600 font-medium cursor-not-allowed select-none min-w-[80px]">
+                                            <div className="flex items-center justify-center gap-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 h-11 px-3 rounded-lg text-sm text-slate-600 dark:text-slate-300 font-medium cursor-not-allowed select-none min-w-[80px]">
                                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src="/indonesia.png" alt="ID" className="w-5 h-auto rounded-sm shadow-sm" />
                                                 <span>+62</span>
@@ -416,7 +416,7 @@ export default function RegisterPage() {
                                             <FormControl>
                                                 <Input
                                                     disabled={isLoading}
-                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
+                                                    className="h-11 bg-white/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium"
                                                     placeholder="812..."
                                                     {...field}
                                                 />
@@ -437,7 +437,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                             <Input
                                                 disabled={isLoading}
-                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
+                                                className="h-11 bg-white/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium"
                                                 placeholder="cth. elysian@example.com"
                                                 {...field}
                                             />
@@ -458,7 +458,7 @@ export default function RegisterPage() {
                                             <FormControl>
                                                 <InputPassword
                                                     disabled={isLoading}
-                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
+                                                    className="h-11 bg-white/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium"
                                                     placeholder="Rahasia..."
                                                     {...field}
                                                 />
@@ -479,7 +479,7 @@ export default function RegisterPage() {
                                             <FormControl>
                                                 <InputPassword
                                                     disabled={isLoading}
-                                                    className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
+                                                    className="h-11 bg-white/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium"
                                                     placeholder="Ulangi..."
                                                     {...field}
                                                 />
@@ -500,7 +500,7 @@ export default function RegisterPage() {
                                         <FormControl>
                                             <Input
                                                 disabled={isLoading}
-                                                className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 font-medium"
+                                                className="h-11 bg-white/50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-900 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium"
                                                 placeholder="cth. ELYSIAN2024"
                                                 {...field}
                                             />

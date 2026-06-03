@@ -17,7 +17,7 @@ import { InputPassword } from '@/components/ui/input-password';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/';
 
 import { useAuthStore } from '@/store/authStore';
-import RiveLoginAvatar from '@/components/ui/rive-login-avatar';
+
 
 import { ElysianTextLogo } from '@/components/ui/elysian-logo';
 import { SocialAuth } from '@/components/auth/social-auth';
@@ -125,19 +125,11 @@ function LoginForm() {
                         <ElysianTextLogo />
                     </div>
 
-                    {/* Rive Avatar - Adjusted size for Mobile */}
-                    <div className="w-[260px] h-[260px] pointer-events-none -mb-10 drop-shadow-xl z-20 flex justify-center items-center">
-                        <RiveLoginAvatar
-                            emailValue={emailValue || ""}
-                            isEmailFocused={isEmailFocused}
-                            isPasswordFocused={isPasswordFocused}
-                            submitStatus={submitStatus}
-                        />
-                    </div>
+
                 </div>
 
                 {/* 2. The Card (Floating, White, Clean) */}
-                <div className="w-full max-w-[380px] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] border border-slate-200/60 dark:border-slate-800/60 p-6 z-30 relative mb-8">
+                <div className="w-full max-w-[380px] bg-transparent dark:bg-transparent backdrop-blur-xl rounded-3xl shadow-none border-none p-6 z-30 relative mb-8">
                     <div className="text-center mb-6">
                         <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Selamat Datang Kembali</h1>
                         <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Masukkan kredensial Anda untuk mengakses fitur.</p>
@@ -158,7 +150,7 @@ function LoginForm() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Email</FormLabel>
+                                        <FormLabel className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Email</FormLabel>
                                         <FormControl>
                                             <Input
                                                 className="bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 h-11 rounded-xl px-4 text-slate-900 dark:text-white font-medium focus-visible:ring-2 focus-visible:ring-blue-500/20 transition-all shadow-sm"
@@ -179,7 +171,7 @@ function LoginForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="flex items-center justify-between">
-                                            <FormLabel className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Kata Sandi</FormLabel>
+                                            <FormLabel className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Kata Sandi</FormLabel>
                                             <Link href="/forgot-password" className="text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline">
                                                 Lupa?
                                             </Link>
@@ -202,7 +194,7 @@ function LoginForm() {
 
                             <Button
                                 type="submit"
-                                className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base rounded-xl shadow-lg shadow-blue-500/25 transition-all mt-2"
+                                className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base rounded-xl shadow-none transition-all mt-2"
                                 disabled={isLoading}
                             >
                                 {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
@@ -227,32 +219,23 @@ function LoginForm() {
             -------------------------------------------------------------------------------- */}
             <div className="hidden lg:flex flex-col justify-center min-h-screen py-10 px-12 relative w-full items-center overflow-y-auto">
 
-                {/* Brand Logo (Flex Flow - No Overlap) */}
-                <div className="mb-8 w-full max-w-[380px]">
-                    <Link href="/">
-                        <ElysianTextLogo />
-                    </Link>
-                </div>
+
 
                 <div className="w-full max-w-[380px] space-y-6">
 
                     {/* Rive Stage (Breaking the grid) */}
-                    <div className="h-[260px] w-full flex items-end justify-center pb-0 pointer-events-none">
-                        <RiveLoginAvatar
-                            emailValue={emailValue || ""}
-                            isEmailFocused={isEmailFocused}
-                            isPasswordFocused={isPasswordFocused}
-                            submitStatus={submitStatus}
-                        />
-                    </div>
 
-                    <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                            Selamat Datang Kembali
-                        </h1>
-                        <p className="text-slate-600 dark:text-slate-400 text-sm">
-                            Masukkan kredensial Anda untuk mengakses ruang kerja.
+
+                    <div className="flex flex-col items-center justify-center text-center w-full">
+                        <div className="flex justify-center mb-4 scale-110">
+                            <ElysianTextLogo />
+                        </div>
+                        <p className="text-sm text-slate-400 mb-8 font-medium">
+                            Monitor, deploy, and scale AI agents from any framework
                         </p>
+                        <h1 className="text-xl font-bold text-white mb-6">
+                            Sign in to your account
+                        </h1>
                     </div>
 
                     <SocialAuth />
@@ -270,11 +253,11 @@ function LoginForm() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 ml-1">Alamat Email</FormLabel>
+                                        <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">Alamat Email</FormLabel>
                                         <FormControl>
                                             <Input
                                                 {...field}
-                                                className="h-11 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium shadow-sm"
+                                                className="h-11 bg-transparent dark:bg-transparent border-slate-300 dark:border-white/10 focus:bg-white/5 dark:focus:bg-white/5 transition-all duration-200 focus:ring-4 focus:ring-blue-500/20 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium shadow-sm"
                                                 placeholder="name@company.com"
                                                 onFocus={() => setIsEmailFocused(true)}
                                                 onBlur={() => setIsEmailFocused(false)}
@@ -291,7 +274,7 @@ function LoginForm() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <div className="flex items-center justify-between">
-                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 ml-1">Kata Sandi</FormLabel>
+                                            <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">Kata Sandi</FormLabel>
                                             <Link href="/forgot-password" className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium hover:underline">
                                                 Lupa?
                                             </Link>
@@ -299,7 +282,7 @@ function LoginForm() {
                                         <FormControl>
                                             <InputPassword
                                                 {...field}
-                                                className="h-11 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 transition-all duration-200 focus:ring-4 focus:ring-blue-500/10 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium shadow-sm"
+                                                className="h-11 bg-transparent dark:bg-transparent border-slate-300 dark:border-white/10 focus:bg-white/5 dark:focus:bg-white/5 transition-all duration-200 focus:ring-4 focus:ring-blue-500/20 rounded-lg placeholder:text-slate-400 text-slate-900 dark:text-white font-medium shadow-sm"
                                                 placeholder="••••••••"
                                                 onFocus={() => setIsPasswordFocused(true)}
                                                 onBlur={() => setIsPasswordFocused(false)}
@@ -313,7 +296,7 @@ function LoginForm() {
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium shadow-lg shadow-blue-500/25 transition-all active:scale-[0.98] mt-4"
+                                className="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium shadow-none transition-all active:scale-[0.98] mt-4"
                             >
                                 {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Masuk"}
                             </Button>
@@ -328,7 +311,7 @@ function LoginForm() {
                 {/* Footer Links */}
                 <div className="absolute bottom-6 left-0 w-full text-center">
                     <p className="text-xs text-slate-400">
-                        &copy; 2026 Elysian Corp. <Link href="#" className="hover:text-slate-600">Privasi</Link> &middot; <Link href="#" className="hover:text-slate-600">Syarat</Link>
+                        &copy; 2026 Elysian Corp. <Link href="#" className="hover:text-slate-400">Privasi</Link> &middot; <Link href="#" className="hover:text-slate-400">Syarat</Link>
                     </p>
                 </div>
             </div >

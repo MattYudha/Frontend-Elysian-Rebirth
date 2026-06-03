@@ -19,6 +19,25 @@ const config = {
             },
         },
         extend: {
+            screens: {
+                mobile: "375px",
+                tablet: "768px",
+                desktop: "1024px",
+                "desktop-lg": "1200px",
+                hd: "1820px",
+                "blog-sm": "975px",
+                "blog-md": "1000px",
+                "blog-lg": "1280px",
+                "blog-max": "1408px",
+                "blog-xl": "1440px",
+                "blog-2xl": "1584px",
+                "landing-content": "944px",
+                "landing-lg": "1296px",
+                "landing-xs": "360px",
+                "landing-sm": "720px",
+                "landing-md": "960px",
+                "landing-xl": "1440px",
+            },
             colors: {
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
@@ -67,6 +86,7 @@ const config = {
                 "sidebar-enter": "sidebar-enter 0.5s ease-out forwards",
                 "logo-pulse": "logo-pulse 1.5s ease-out forwards",
                 "marquee": "marquee 20s linear infinite",
+                "line-shadow": "line-shadow 15s linear infinite",
             },
             keyframes: {
                 "accordion-down": {
@@ -97,6 +117,10 @@ const config = {
                 "marquee": {
                     "0%": { transform: "translate3d(0, 0, 0)" },
                     "100%": { transform: "translate3d(-50%, 0, 0)" },
+                },
+                "line-shadow": {
+                    "0%": { "background-position": "0 0" },
+                    "100%": { "background-position": "100% -100%" },
                 },
             },
         },

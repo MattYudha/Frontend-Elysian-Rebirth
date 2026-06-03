@@ -18,10 +18,10 @@ export function SiteFooter() {
     const { t } = useTranslation();
 
     return (
-        <footer className="relative w-full overflow-hidden bg-gradient-to-b from-white to-slate-50 dark:from-slate-950 dark:to-slate-900 border-t border-slate-100 dark:border-slate-800">
+        <footer className="relative w-full overflow-hidden bg-gradient-to-b from-white to-slate-50 dark:from-[#050507] dark:to-[#050507] border-t border-slate-100 dark:border-white/5">
             {/* Elegant Top Separator (Subtle Shadow/Glow) */}
             <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent" />
-            <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-white to-transparent dark:from-slate-900 dark:to-transparent pointer-events-none" />
+            <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-white to-transparent dark:from-[#050507] dark:to-transparent pointer-events-none" />
 
             <div className="container px-4 md:px-6 mx-auto pt-16 pb-8 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
@@ -102,7 +102,7 @@ export function SiteFooter() {
                     </div>
                 </div>
 
-                <Separator className="bg-slate-200 dark:bg-slate-800" />
+                <Separator className="bg-slate-200 dark:bg-white/5" />
 
                 <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 dark:text-slate-500">
                     <p>{t.landing.footer.legal.copyright}</p>

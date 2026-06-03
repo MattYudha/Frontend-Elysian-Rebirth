@@ -89,12 +89,12 @@ export default function RiveLoginAvatar({
         // Aggressive filter to force light-background to white while keeping blacks deep
         // Added mask-image (radial-gradient) to soften the edges ("gradasi") giving it a more "alive" / organic feel
         <div
-            className="w-full h-full relative cursor-pointer"
+            className="w-full h-full relative cursor-pointer mix-blend-screen"
             aria-label="Interactive Login Avatar"
             style={{
-                filter: 'brightness(1.1) contrast(1.1) saturate(1.1)',
-                maskImage: 'radial-gradient(circle, black 60%, transparent 100%)',
-                WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 100%)'
+                filter: 'invert(1) hue-rotate(180deg) brightness(1.2) contrast(1.1)',
+                maskImage: 'radial-gradient(circle, black 50%, transparent 80%)',
+                WebkitMaskImage: 'radial-gradient(circle, black 50%, transparent 80%)'
             }}
         >
             <RiveComponent className="w-full h-full block" />

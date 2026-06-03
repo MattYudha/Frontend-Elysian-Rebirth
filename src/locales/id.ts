@@ -102,16 +102,19 @@ export const translationsID: TranslationKeys = {
     },
     landingNav: {
         products: {
-            title: 'Fitur Utama',
+            title: 'Products',
         },
-        solutions: {
-            title: 'Teknologi',
+        documentations: {
+            title: 'Documentations',
         },
-        useCases: {
-            title: 'Pengguna',
+        pricing: {
+            title: 'Pricing',
         },
-        faq: {
-            title: 'FAQ',
+        usecases: {
+            title: 'Usecases',
+        },
+        resources: {
+            title: 'Resources',
         },
         actions: {
             startFree: 'Mulai Audit',

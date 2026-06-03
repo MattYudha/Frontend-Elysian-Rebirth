@@ -102,16 +102,19 @@ export const translationsZH: TranslationKeys = {
     },
     landingNav: {
         products: {
-            title: '产品',
+            title: 'Products',
         },
-        solutions: {
-            title: '解决方案',
+        documentations: {
+            title: 'Documentations',
         },
-        useCases: {
-            title: '应用场景',
+        pricing: {
+            title: 'Pricing',
         },
-        faq: {
-            title: '常见问题',
+        usecases: {
+            title: 'Usecases',
+        },
+        resources: {
+            title: 'Resources',
         },
         actions: {
             startFree: '免费开始',
