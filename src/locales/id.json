@@ -1,0 +1,40 @@
+{
+    "common": {
+        "loading": "Memuat...",
+        "save": "Simpan",
+        "cancel": "Batal",
+        "delete": "Hapus",
+        "edit": "Edit",
+        "close": "Tutup",
+        "search": "Cari"
+    },
+    "nav": {
+        "dashboard": "Dasbor",
+        "chat": "Obrolan",
+        "knowledge": "Basis Pengetahuan",
+        "editor": "Editor Dokumen",
+        "workflow": "Pembuat Alur Kerja",
+        "settings": "Pengaturan",
+        "logout": "Keluar"
+    },
+    "auth": {
+        "loginTitle": "Masuk",
+        "email": "Email",
+        "password": "Kata Sandi",
+        "login": "Masuk",
+        "logout": "Keluar"
+    },
+    "dashboard": {
+        "title": "Pusat Kontrol AI",
+        "subtitle": "Grid Enterprise"
+    },
+    "chat": {
+        "title": "Obrolan AI",
+        "placeholder": "Ketik pesan Anda..."
+    },
+    "settings": {
+        "title": "Pengaturan",
+        "appearance": "Tampilan",
+        "language": "Bahasa"
+    }
+}

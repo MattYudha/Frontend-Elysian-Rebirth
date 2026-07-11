@@ -1,0 +1,40 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "close": "Close",
+        "search": "Search"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "chat": "Chat",
+        "knowledge": "Knowledge Base",
+        "editor": "Document Editor",
+        "workflow": "Workflow Builder",
+        "settings": "Settings",
+        "logout": "Logout"
+    },
+    "auth": {
+        "loginTitle": "Sign In",
+        "email": "Email",
+        "password": "Password",
+        "login": "Sign In",
+        "logout": "Logout"
+    },
+    "dashboard": {
+        "title": "AI Control Center",
+        "subtitle": "Enterprise Grid"
+    },
+    "chat": {
+        "title": "AI Chat",
+        "placeholder": "Type your message..."
+    },
+    "settings": {
+        "title": "Settings",
+        "appearance": "Appearance",
+        "language": "Language"
+    }
+}
