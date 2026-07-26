@@ -29,7 +29,7 @@ async function proxyRequest(
 
     // Inject Authorization header: try client's incoming header first, fallback to cookie
     const incomingAuth = request.headers.get('authorization');
-    if (incomingAuth) {
+    if (incomingAuth && incomingAuth.trim() !== 'Bearer' && incomingAuth !== 'Bearer ' && incomingAuth !== 'Bearer undefined' && incomingAuth !== 'Bearer null') {
       headers['Authorization'] = incomingAuth;
     } else if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;
@@ -78,6 +78,24 @@ async function proxyRequest(
 
     const response = await fetch(url, fetchOptions);
     
+    // If it's an SSE stream, return the readable stream directly
+    const respContentType = response.headers.get('content-type');
+    if (respContentType && respContentType.includes('text/event-stream')) {
+      const nextResponse = new NextResponse(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+      });
+      
+      const forwardResponseHeaders = ['content-type', 'x-request-id', 'x-tenant-id', 'X-Tenant-ID'];
+      for (const h of forwardResponseHeaders) {
+        const val = response.headers.get(h);
+        if (val) {
+          nextResponse.headers.set(h, val);
+        }
+      }
+      return nextResponse;
+    }
+
     // Forward response status and body
     const responseBody = await response.text();
     const nextResponse = new NextResponse(responseBody, {

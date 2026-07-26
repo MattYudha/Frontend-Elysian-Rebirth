@@ -113,7 +113,7 @@ const now = new Date('2026-02-25T11:00:00.000Z').getTime();
 // SSR safe mock data using hardcoded ISO strings
 const INITIAL_ACTIONS: AgentActionRequest[] = [
     {
-        id: 'msg-audit-001',
+        id: '11111111-1111-1111-1111-111111111111',
         title: 'Delete Anomalous Rows',
         type: 'DATA_MUTATION',
         severity: 'high',
@@ -151,7 +151,7 @@ const INITIAL_ACTIONS: AgentActionRequest[] = [
         status: 'pending',
     },
     {
-        id: 'msg-audit-002',
+        id: '22222222-2222-2222-2222-222222222222',
         title: 'API Rate Limit Warning',
         type: 'OPS_ALERT',
         severity: 'critical',
@@ -275,9 +275,9 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
             if (state.actions.length === 0 || state.actions === INITIAL_ACTIONS) {
                 const clientNow = new Date().getTime();
                 const adjustedActions = INITIAL_ACTIONS.map(action => {
-                    const offset = action.id === 'msg-audit-001' ? 1000 * 60 * 30 : 1000 * 60 * 5; // 30 mins ago vs 5 mins ago
-                    const dueOffset = action.id === 'msg-audit-001' ? 1000 * 60 * 60 * 2 : 1000 * 60 * 15; // 2 hours vs 15 mins
-                    const expOffset = action.id === 'msg-audit-001' ? 1000 * 60 * 60 * 24 : 1000 * 60 * 60; // 24 hours vs 1 hour
+                    const offset = action.id === '11111111-1111-1111-1111-111111111111' ? 1000 * 60 * 30 : 1000 * 60 * 5; // 30 mins ago vs 5 mins ago
+                    const dueOffset = action.id === '11111111-1111-1111-1111-111111111111' ? 1000 * 60 * 60 * 2 : 1000 * 60 * 15; // 2 hours vs 15 mins
+                    const expOffset = action.id === '11111111-1111-1111-1111-111111111111' ? 1000 * 60 * 60 * 24 : 1000 * 60 * 60; // 24 hours vs 1 hour
                     return {
                         ...action,
                         createdAt: new Date(clientNow - offset).toISOString(),
