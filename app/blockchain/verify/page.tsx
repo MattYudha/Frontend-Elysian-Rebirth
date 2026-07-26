@@ -78,16 +78,16 @@ function BlockchainVerifyContent() {
     }, [taskIdParam]);
 
     const getFallbackDetail = (id: string): SwarmTaskDetail => ({
-        task_id: id || 'task-preaudit-2026-001',
+        id: id || 'task-preaudit-2026-001',
+        documentId: 'doc-rapbd-001',
         status: 'COMPLETED',
-        blockchain_status: 'VERIFIED',
-        created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-        updated_at: new Date().toISOString(),
-        document_title: 'Draf_RAPBD_Pemda_Diskominfo_2026.pdf',
-        tenant_id: 'tenant-pemda-01',
-        tx_hash: '0x8f3c71a9e4d210b3952f4c919e83120ab592182c401bf920394f912c019284fa',
-        consensus_hash: '0x1294812049182470192847c50192847d',
-        rationale_hash: '0x918274a50192847c918274a50192847c',
+        summary: 'Draf_RAPBD_Pemda_Diskominfo_2026.pdf',
+        blockchainStat: 'VERIFIED',
+        blockchainTx: '0x8f3c71a9e4d210b3952f4c919e83120ab592182c401bf920394f912c019284fa',
+        consensusHash: '0x1294812049182470192847c50192847d',
+        rationaleHash: '0x918274a50192847c918274a50192847c',
+        createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+        updatedAt: new Date().toISOString(),
     });
 
     const loadRecentTasks = async () => {

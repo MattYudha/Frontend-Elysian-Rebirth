@@ -90,28 +90,28 @@ function SwarmReviewContent() {
 
     const getDemoSwarmTasks = (): SwarmTaskDetail[] => [
         {
-            task_id: 'task-preaudit-2026-001',
+            id: 'task-preaudit-2026-001',
+            documentId: 'doc-rapbd-001',
             status: 'COMPLETED',
-            blockchain_status: 'VERIFIED',
-            created_at: '2026-07-26T10:15:32Z',
-            updated_at: '2026-07-26T10:17:00Z',
-            document_title: 'Draf_RAPBD_Diskominfo_Server_2026.pdf',
-            tenant_id: 'tenant-pemda-01',
-            tx_hash: '0x8f3c71a9e4d210b3952f4c919e83120ab592182c401bf920394f912c019284fa',
-            consensus_hash: '0x1294812049182470192847c50192847d',
-            rationale_hash: '0x918274a50192847c918274a50192847c'
+            summary: 'Draf_RAPBD_Diskominfo_Server_2026.pdf',
+            blockchainStat: 'VERIFIED',
+            blockchainTx: '0x8f3c71a9e4d210b3952f4c919e83120ab592182c401bf920394f912c019284fa',
+            consensusHash: '0x1294812049182470192847c50192847d',
+            rationaleHash: '0x918274a50192847c918274a50192847c',
+            createdAt: '2026-07-26T10:15:32Z',
+            updatedAt: '2026-07-26T10:17:00Z',
         },
         {
-            task_id: 'task-preaudit-2026-002',
+            id: 'task-preaudit-2026-002',
+            documentId: 'doc-rapbd-002',
             status: 'COMPLETED',
-            blockchain_status: 'VERIFIED',
-            created_at: '2026-07-26T11:02:14Z',
-            updated_at: '2026-07-26T11:04:10Z',
-            document_title: 'Draf_RAPBD_BPKAD_SoftwareLicense.pdf',
-            tenant_id: 'tenant-pemda-01',
-            tx_hash: '0x1e948c271b0593f48a12059a4c912048f02931a50b4c81092e48275c91823901',
-            consensus_hash: '0x8274a50192847c918274a50192847c91',
-            rationale_hash: '0x0192847c918274a50192847c918274a5'
+            summary: 'Draf_RAPBD_BPKAD_SoftwareLicense.pdf',
+            blockchainStat: 'VERIFIED',
+            blockchainTx: '0x1e948c271b0593f48a12059a4c912048f02931a50b4c81092e48275c91823901',
+            consensusHash: '0x8274a50192847c918274a50192847c91',
+            rationaleHash: '0x0192847c918274a50192847c918274a5',
+            createdAt: '2026-07-26T11:02:14Z',
+            updatedAt: '2026-07-26T11:04:10Z',
         }
     ];
 
