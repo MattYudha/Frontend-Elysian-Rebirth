@@ -270,7 +270,7 @@ export function ChatInterface() {
                                 <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center border border-blue-100 dark:border-blue-800/50">
                                     <div className="w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
                                 </div>
-                                <span className="text-sm text-slate-400 dark:text-slate-500">Sedang berpikir...</span>
+                                <span className="text-sm font-medium text-blue-600 dark:text-blue-400 font-mono">Elysian AI Auditor sedang menganalisis & memverifikasi data...</span>
                             </div>
                         )}
                     </div>
