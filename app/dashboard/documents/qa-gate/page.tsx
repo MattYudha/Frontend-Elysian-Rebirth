@@ -338,7 +338,13 @@ SATUAN KERJA: DINAS KOMUNIKASI DAN INFORMATIKA (DISKOMINFO)
     const handleApprove = async (docId: string) => {
         setApprovingId(docId);
         await new Promise(r => setTimeout(r, 500));
-        toast.success('Dokumen berhasil disetujui & di-commit ke Qdrant Vector Storage!');
+        toast.success('Dokumen berhasil disetujui & di-commit ke Qdrant Vector Storage!', {
+            description: 'Vektor embeddings aktif di Arsip RAG (/knowledge) & Swarm Consensus Hub (/swarm).',
+            action: {
+                label: 'Ke Swarm Hub →',
+                onClick: () => router.push('/swarm?taskId=7e6a5eb2-1473-4bf1-85c1-4bad0b45e6d6')
+            }
+        });
         setDocuments(prev => prev.filter(d => d.id !== docId));
         setSelectedDoc(null);
         setApprovingId(null);
