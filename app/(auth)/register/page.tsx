@@ -150,8 +150,8 @@ export default function RegisterPage() {
                             <ElysianTextLogo className="scale-110" />
                         </div>
                         <div className="text-center mt-2">
-                            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Daftar Anggota / Pengurus</h1>
-                            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Bergabung dengan Koperasi Tani Makmur</p>
+                            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Daftar Auditor / Pengguna</h1>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Akses Infrastruktur Audit Finansial Elysian</p>
                         </div>
                     </div>
 
@@ -344,7 +344,7 @@ export default function RegisterPage() {
 
                     {/* Footer Copyright Kecil */}
                     <div className="mt-8 text-center opacity-40">
-                        <p className="text-[10px] text-white">&copy; 2026 Koperasi Tani Makmur.</p>
+                        <p className="text-[10px] text-white">&copy; 2026 Elysian Rebirth v3.0.</p>
                     </div>
 
                 </div>
@@ -365,8 +365,8 @@ export default function RegisterPage() {
 
                 <div className="w-full max-w-[420px] mx-auto space-y-6">
                     <div className="text-center lg:text-left space-y-2">
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Daftar Anggota / Pengurus</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">Bergabung dengan Koperasi Tani Makmur.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Daftar Auditor / Pengguna</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Akses Infrastruktur Audit Finansial Elysian.</p>
                     </div>
 
                     <SocialAuth />

@@ -124,24 +124,24 @@ export const translationsID: TranslationKeys = {
     },
     landing: {
         hero: {
-            badge: 'Sistem Transparansi & Tata Kelola Koperasi',
-            title1: 'Transformasi Tata Kelola',
-            title2: 'Koperasi Desa.',
-            description: 'Sistem AI Cerdas (ElysianCoOps) untuk mendeteksi anomali pengadaan barang, mencegah manipulasi RAT, dan memastikan keadilan pembagian SHU secara otomatis.',
+            badge: 'Infrastruktur Audit Finansial Otonom (Pre-Audit)',
+            title1: 'Transformasi Audit',
+            title2: 'Finansial Daerah.',
+            description: 'Platform AI Swarm Intelligence & Blockchain Trust Layer untuk mendeteksi dan mencegah markup anggaran (RAPBD) secara otomatis pada tahap perencanaan sebelum disahkan.',
             ctaStart: 'Mulai Audit Sekarang',
             ctaDemo: 'Lihat Cara Kerjanya',
-            proof: 'Dibangun untuk Pengurus & Anggota Koperasi',
+            proof: 'Dibangun untuk Inspektorat Daerah, BPK, & Kepala Daerah',
         },
-        marquee: ['KUD Tani Makmur', 'Koperasi Unit Desa', 'Kemenkop UKM', 'Dekopin', 'Koperasi Sejahtera'],
+        marquee: ['Inspektorat Daerah', 'SIRUP LKPP', 'BPKP RI', 'SIPD Kemendagri', 'Sepolia EVM Trust Layer'],
         showcase: {
-            badge: 'Power of ElysianCoOps v3.0',
+            badge: 'Power of Elysian Rebirth v3.0',
             title1: 'Satu Infrastruktur.',
             title2: 'Tiga Kekuatan Utama.',
-            description: 'Menggabungkan kecerdasan Swarm AI, referensi harga pasar (Kop-Mart), dan keamanan Blockchain untuk tata kelola Koperasi yang transparan.',
+            description: 'Menggabungkan kecerdasan Cognitive Swarm AI, referensi Ground Truth SIRUP (Nemesis DB 4GB+), dan keamanan Blockchain untuk pengawasan keuangan publik yang transparan.',
             cards: {
-                dev: { title: 'Pengawas AI Otomatis', desc: 'MiroFish dengan 3 Agen AI yang saling berdebat untuk mencapai konsensus audit yang objektif pada aktivitas koperasi.' },
-                docs: { title: 'Referensi Indeks Kop-Mart', desc: 'Memastikan standar pengadaan harga wajar yang aman dan sesuai dengan AD/ART Koperasi.' },
-                insights: { title: 'Audit Trail Anti-Manipulasi', desc: 'Rekam jejak keputusan pengurus dikunci secara permanen di Blockchain untuk RAT yang transparan.' }
+                dev: { title: 'Pengawas AI Otomatis', desc: 'MiroFish dengan 3 Agen AI yang saling berdebat untuk mencapai konsensus audit yang objektif pada draf RAPBD Pemda.' },
+                docs: { title: 'Referensi Nemesis Ground Truth', desc: 'Memastikan standar pengadaan harga wajar yang presisi berdasarkan data SIRUP nasional dan Perda SHR.' },
+                insights: { title: 'Audit Trail Anti-Manipulasi', desc: 'Rekam jejak keputusan verifikasi agen dikunci secara permanen di Sepolia EVM Blockchain untuk bukti hukum yang tak terubah.' }
             }
         },
         deepDive: {

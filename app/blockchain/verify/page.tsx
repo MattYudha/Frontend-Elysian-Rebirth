@@ -175,8 +175,8 @@ function BlockchainVerifyContent() {
     <path d="M 565 800 L 565 815 L 550 815" fill="none" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
 
     <!-- Header Section -->
-    <text x="300" y="90" font-family="'Courier New', monospace" font-size="12" font-weight="900" fill="#F59E0B" letter-spacing="4" text-anchor="middle">SIMKOPDES VERIFIABLE TRUST</text>
-    <text x="300" y="130" font-family="'Segoe UI', Helvetica, sans-serif" font-size="24" font-weight="900" fill="#FFFFFF" letter-spacing="2" text-anchor="middle">SERTIFIKAT ANTI-MANIPULASI RAT</text>
+    <text x="300" y="90" font-family="'Courier New', monospace" font-size="12" font-weight="900" fill="#F59E0B" letter-spacing="4" text-anchor="middle">ELYSIAN REBIRTH VERIFIABLE TRUST</text>
+    <text x="300" y="130" font-family="'Segoe UI', Helvetica, sans-serif" font-size="24" font-weight="900" fill="#FFFFFF" letter-spacing="2" text-anchor="middle">SERTIFIKAT ANTI-MARKUP RAPBD</text>
     <line x1="180" y1="155" x2="420" y2="155" stroke="#F59E0B" stroke-width="1.5" opacity="0.6"/>
 
     <!-- Body Information -->
@@ -212,8 +212,8 @@ function BlockchainVerifyContent() {
     <!-- Verification Badge Box -->
     <g transform="translate(100, 520)">
         <rect x="0" y="0" width="400" height="100" fill="rgba(6, 182, 212, 0.05)" stroke="#06B6D4" stroke-width="1.5" rx="10"/>
-        <text x="200" y="42" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="900" fill="#06B6D4" text-anchor="middle" letter-spacing="1">LAPORAN RAT 100% BEBAS MANIPULASI</text>
-        <text x="200" y="70" font-family="'Segoe UI', sans-serif" font-size="12" font-weight="bold" fill="#F59E0B" text-anchor="middle" letter-spacing="0.5">KEPATUHAN LAPORAN TERVERIFIKASI ON-CHAIN</text>
+        <text x="200" y="42" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="900" fill="#06B6D4" text-anchor="middle" letter-spacing="1">DRAF ANGGARAN 100% TERBEBAS DARI MARKUP</text>
+        <text x="200" y="70" font-family="'Segoe UI', sans-serif" font-size="12" font-weight="bold" fill="#F59E0B" text-anchor="middle" letter-spacing="0.5">KEPATUHAN PRE-AUDIT TERVERIFIKASI ON-CHAIN</text>
     </g>
 
     <!-- Footer details -->
@@ -274,7 +274,7 @@ function BlockchainVerifyContent() {
                         Verifikasi Keaslian Laporan (Blockchain)
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl font-sans">
-                        Verifikasi laporan RAT Koperasi yang tidak dapat dimanipulasi. Membandingkan catatan lokal secara langsung dengan log smart contract Sepolia EVM.
+                        Verifikasi draf anggaran RAPBD yang terbebas dari markup. Membandingkan catatan lokal secara langsung dengan log smart contract Sepolia EVM.
                     </p>
                 </div>
                 {taskDetail && (

@@ -139,8 +139,8 @@ function LoginForm() {
                 {/* 2. The Card (Floating, White, Clean) */}
                 <div className="w-full max-w-[380px] bg-transparent dark:bg-transparent backdrop-blur-xl rounded-3xl shadow-none border-none p-6 z-30 relative mb-8">
                     <div className="text-center mb-6">
-                        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Masuk Sistem Koperasi</h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Masukkan kredensial pengurus/anggota Anda untuk mengakses fitur.</p>
+                        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Masuk Sistem Audit Finansial Otonom</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-1">Masukkan kredensial auditor/inspektorat Anda untuk mengakses fitur.</p>
                     </div>
 
                     <SocialAuth />
@@ -218,7 +218,7 @@ function LoginForm() {
 
                 {/* Footer Copyright */}
                 <div className="pb-8 text-center opacity-40">
-                    <p className="text-[10px] text-slate-400">&copy; 2026 Koperasi Tani Makmur.</p>
+                    <p className="text-[10px] text-slate-400">&copy; 2026 Elysian Rebirth v3.0.</p>
                 </div>
             </div>
 
@@ -227,22 +227,17 @@ function LoginForm() {
             -------------------------------------------------------------------------------- */}
             <div className="hidden lg:flex flex-col justify-center min-h-screen py-10 px-12 relative w-full items-center overflow-y-auto">
 
-
-
                 <div className="w-full max-w-[380px] space-y-6">
-
-                    {/* Rive Stage (Breaking the grid) */}
-
 
                     <div className="flex flex-col items-center justify-center text-center w-full">
                         <div className="flex justify-center mb-4 scale-110">
                             <ElysianTextLogo />
                         </div>
                         <p className="text-sm text-slate-400 mb-8 font-medium">
-                            Sistem Transparansi & Tata Kelola Koperasi Desa
+                            Infrastruktur Audit Finansial Otonom (Pre-Audit Pemda)
                         </p>
                         <h1 className="text-xl font-bold text-white mb-6">
-                            Masuk Sistem Koperasi
+                            Masuk Sistem Audit Finansial Otonom
                         </h1>
                     </div>
 

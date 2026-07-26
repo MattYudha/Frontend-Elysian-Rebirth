@@ -15,7 +15,7 @@ export const mainNav: NavItem[] = [
     { key: 'swarm-review', label: 'Analisis Pengawas AI', href: '/swarm', icon: 'Shield', section: 'OPERATIONS' },
 
     // WORKSPACE
-    { key: 'knowledge', label: 'Arsip Koperasi', href: '/knowledge', icon: 'Book', roles: ['admin', 'editor'], section: 'WORKSPACE' },
+    { key: 'knowledge', label: 'Arsip Regulasi & SHR', href: '/knowledge', icon: 'Book', roles: ['admin', 'editor'], section: 'WORKSPACE' },
     { key: 'editor', label: 'Brankas Dokumen', href: '/editor', icon: 'FileText', section: 'WORKSPACE' },
     { key: 'chat', label: 'Chat', href: '/chat', icon: 'chat', section: 'WORKSPACE' },
     { key: 'qa-gate', label: 'QA Gate', href: '/dashboard/documents/qa-gate', icon: 'CheckSquare', section: 'WORKSPACE' },
