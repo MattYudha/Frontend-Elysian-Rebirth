@@ -7,6 +7,7 @@ import { Save, FileText, Maximize2, Sparkles, ShieldX, Printer, Plus, Trash2, Lo
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { GuidedTour } from '@/components/ui/GuidedTour';
+import { useDemoStore } from '@/store/demoStore';
 
 const editorTourSteps = [
     {
