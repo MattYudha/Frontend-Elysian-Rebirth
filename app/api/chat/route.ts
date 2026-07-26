@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const minimaxKey = process.env.MINIMAX_API_KEY;
+const opencodeKey = process.env.OPENCODE_API_KEY;
 const geminiKey = process.env.GEMINI_API_KEY;
-const apiKey = minimaxKey || geminiKey || "";
-const isGemini = !minimaxKey && !!geminiKey;
+const apiKey = opencodeKey || geminiKey || "";
+const isGemini = !opencodeKey && !!geminiKey;
 
 async function getAIResponse(requestMessages: any[], systemInstructionText: string, apiKey: string, isGemini: boolean): Promise<string> {
     if (isGemini) {
@@ -27,30 +27,31 @@ async function getAIResponse(requestMessages: any[], systemInstructionText: stri
 
         return result.response.text();
     } else {
-        const response = await fetch("https://api.minimax.io/v1/chat/completions", {
+        const baseURL = process.env.OPENCODE_BASE_URL || "https://ai-litellm-app.dev.ciptadusa.com/v1";
+        const response = await fetch(`${baseURL}/chat/completions`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "MiniMax-M2.5",
+                model: "kr/deepseek-3.2", // Default Opencode model
                 messages: requestMessages,
             }),
         });
 
         if (!response.ok) {
             const errText = await response.text();
-            throw new Error(`MiniMax API returned status ${response.status}: ${errText}`);
+            throw new Error(`AI API returned status ${response.status}: ${errText}`);
         }
 
         const data = await response.json();
         if (data.base_resp && data.base_resp.status_code !== 0) {
-            throw new Error(`MiniMax API error: ${data.base_resp.status_msg} (code ${data.base_resp.status_code})`);
+            throw new Error(`AI API error: ${data.base_resp.status_msg} (code ${data.base_resp.status_code})`);
         }
 
         if (!data.choices || data.choices.length === 0) {
-            throw new Error("No response text returned from MiniMax");
+            throw new Error("No response text returned from AI Service");
         }
 
         return data.choices[0].message.content;
@@ -154,14 +155,15 @@ Ketika pengguna meminta rekomendasi perencanaan pengadaan hardware (seperti pend
                     }
                 });
             } else {
-                const response = await fetch("https://api.minimax.io/v1/chat/completions", {
+                const baseURL = process.env.OPENCODE_BASE_URL || "https://ai-litellm-app.dev.ciptadusa.com/v1";
+                const response = await fetch(`${baseURL}/chat/completions`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${apiKey}`,
                     },
                     body: JSON.stringify({
-                        model: "MiniMax-M2.5",
+                        model: "kr/deepseek-3.2", // Default Opencode model
                         messages: requestMessages,
                         stream: true,
                     }),
@@ -169,7 +171,7 @@ Ketika pengguna meminta rekomendasi perencanaan pengadaan hardware (seperti pend
 
                 if (!response.ok) {
                     const errText = await response.text();
-                    return NextResponse.json({ error: `MiniMax API returned status ${response.status}: ${errText}` }, { status: 500 });
+                    return NextResponse.json({ error: `AI API returned status ${response.status}: ${errText}` }, { status: 500 });
                 }
 
                 const reader = response.body?.getReader();
