@@ -39,6 +39,7 @@ interface LogLine {
 
 interface SwarmResult {
     item_id: string;
+    name?: string;
     status: 'FLAGGED' | 'CLEARED' | 'PENDING';
     agent_logs: LogLine[];
     manager_conclusion?: string;
