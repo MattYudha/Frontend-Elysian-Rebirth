@@ -5,6 +5,7 @@ import { useSidebar } from '@/contexts/SidebarContext';
 import { usePathname } from 'next/navigation';
 import { useSettingsUiStore } from '@/store/ui/settingsStore';
 import { mainNav } from '@/config/nav';
+import { DemoToggleBadge } from '@/components/DemoToggleBadge';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
@@ -88,7 +89,12 @@ export function NavigationMenu() {
     });
 
     return (
-        <nav className="space-y-6 pb-2">
+        <nav className="space-y-6">
+            {isOpen && (
+                <div className="px-3 pb-2 pt-1">
+                    <DemoToggleBadge />
+                </div>
+            )}
             {sectionOrder.map((section) => {
                 const items = groupedNav[section];
                 if (!items || items.length === 0) return null;
