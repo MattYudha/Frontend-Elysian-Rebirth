@@ -91,7 +91,7 @@ function SwarmReviewContent() {
     const getDemoSwarmTasks = (): SwarmTaskDetail[] => [
         {
             task_id: 'task-preaudit-2026-001',
-            status: 'completed',
+            status: 'COMPLETED',
             blockchain_status: 'VERIFIED',
             created_at: '2026-07-26T10:15:32Z',
             updated_at: '2026-07-26T10:17:00Z',
@@ -103,7 +103,7 @@ function SwarmReviewContent() {
         },
         {
             task_id: 'task-preaudit-2026-002',
-            status: 'completed',
+            status: 'COMPLETED',
             blockchain_status: 'VERIFIED',
             created_at: '2026-07-26T11:02:14Z',
             updated_at: '2026-07-26T11:04:10Z',

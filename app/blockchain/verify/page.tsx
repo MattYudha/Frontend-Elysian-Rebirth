@@ -79,7 +79,7 @@ function BlockchainVerifyContent() {
 
     const getFallbackDetail = (id: string): SwarmTaskDetail => ({
         task_id: id || 'task-preaudit-2026-001',
-        status: 'completed',
+        status: 'COMPLETED',
         blockchain_status: 'VERIFIED',
         created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
         updated_at: new Date().toISOString(),
