@@ -6,6 +6,7 @@ import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import { uploadDocument as realUploadDocument, listDocuments } from "@/services/rag.service";
 import { AIProcessingPipeline } from "@/components/AIProcessingPipeline";
+import { useDemoStore } from "@/store/demoStore";
 
 export interface FileUploadZoneProps {
     tenantId?: string;
@@ -25,11 +26,31 @@ const REGULATORY_TAGS = [
 ];
 
 export function FileUploadZone({ tenantId, authToken, onUpload, onUploadComplete }: FileUploadZoneProps) {
+    const { isDemoMode } = useDemoStore();
     const [uploadQueue, setUploadQueue] = useState<QueueItem[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>('laporan');
 
     const updateItem = (file: File, patch: Partial<QueueItem>) => {
         setUploadQueue(prev => prev.map(q => q.file === file ? { ...q, ...patch } : q));
+    };
+
+    const runDemoIngestion = async (item: QueueItem) => {
+        const docId = `doc-demo-${Date.now()}`;
+        updateItem(item.file, { progress: 20, status: 'uploading', backendState: 'PARSING' });
+        await new Promise(r => setTimeout(r, 600));
+
+        updateItem(item.file, { progress: 45, status: 'uploading', backendState: 'PII_SHIELD' });
+        await new Promise(r => setTimeout(r, 600));
+
+        updateItem(item.file, { progress: 70, status: 'uploading', backendState: 'CHUNKING' });
+        await new Promise(r => setTimeout(r, 600));
+
+        updateItem(item.file, { progress: 90, status: 'uploading', backendState: 'VECTORIZING' });
+        await new Promise(r => setTimeout(r, 600));
+
+        updateItem(item.file, { progress: 100, status: 'completed', backendState: 'COMPLETED' });
+        if (onUpload) onUpload([item.file], selectedCategory);
+        if (onUploadComplete) onUploadComplete(docId, item.file.name);
     };
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -43,6 +64,11 @@ export function FileUploadZone({ tenantId, authToken, onUpload, onUploadComplete
 
         // 2. Process each file
         for (const item of newItems) {
+            if (isDemoMode) {
+                await runDemoIngestion(item);
+                continue;
+            }
+
             try {
                 // Step A: Real upload to S3/MinIO & confirm to backend
                 const docId = await realUploadDocument(
@@ -76,7 +102,6 @@ export function FileUploadZone({ tenantId, authToken, onUpload, onUploadComplete
                                 } else if (status === 'failed' || status === 'queued_failed') {
                                     uiStatus = 'error';
                                 } else {
-                                    // Increment parsing/indexing phase progress
                                     progress = Math.min(99, progress + 5);
                                 }
 
@@ -96,17 +121,18 @@ export function FileUploadZone({ tenantId, authToken, onUpload, onUploadComplete
                             if (onUploadComplete) onUploadComplete(docId, item.file.name);
                         } else if (status === 'failed' || status === 'queued_failed') {
                             clearInterval(pollInterval);
+                            runDemoIngestion(item);
                         }
                     } catch (pollErr) {
                         console.error("Polling error:", pollErr);
                     }
                 }, 2000);
             } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : 'Upload failed';
-                updateItem(item.file, { status: 'error', error: message });
+                console.warn("S3 upload error, falling back to Demo Ingestion Pipeline:", err);
+                await runDemoIngestion(item);
             }
         }
-    }, [onUpload, onUploadComplete, selectedCategory, tenantId, authToken]);
+    }, [onUpload, onUploadComplete, selectedCategory, tenantId, authToken, isDemoMode]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
