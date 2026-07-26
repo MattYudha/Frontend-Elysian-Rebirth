@@ -35,7 +35,7 @@ async function getAIResponse(requestMessages: any[], systemInstructionText: stri
                 "Authorization": `Bearer ${apiKey}`,
             },
             body: JSON.stringify({
-                model: "kr/deepseek-3.2", // Default Opencode model
+                model: process.env.OPENCODE_MODEL_NAME || "deepseek-chat", // Default Opencode model
                 messages: requestMessages,
             }),
         });
